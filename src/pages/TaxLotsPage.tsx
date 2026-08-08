@@ -577,7 +577,7 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
                     </td>
                     <td className="py-3 px-4 font-semibold text-slate-200">{lot.shares.toLocaleString()} sh</td>
                     <td className="py-3 px-4 text-slate-300">{formatCurrency(lot.costBasisPerShare)}</td>
-                    <td className="py-3 px-4 font-bold text-sky-300">{formatCurrency(lot.currentPrice)}</td>
+                    <td className="py-3 px-4 font-bold text-sky-300">${lot.currentPrice.toFixed(2)}</td>
                     <td className="py-3 px-4 text-slate-400">{formatCurrency(lot.totalCostBasis)}</td>
                     <td className="py-3 px-4 font-extrabold text-white">{formatCurrency(lot.totalCurrentValue)}</td>
                     <td className="py-3 px-4 font-bold">

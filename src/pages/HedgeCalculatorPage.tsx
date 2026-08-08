@@ -15,6 +15,7 @@ import { formatCurrency } from '../utils/financialCalculations';
 
 interface HedgeCalculatorPageProps {
   config: OptionHedgeConfig;
+  liveUnderlyingPrice?: number;
   onSaveConfig: (config: OptionHedgeConfig) => void;
 }
 
@@ -72,8 +73,8 @@ const calculatePayoff = (price: number, currentPrice: number, shares: number, le
 const inputClassName = 'w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-white outline-none transition focus:border-sky-500 focus:ring-1 focus:ring-sky-500';
 const labelClassName = 'mb-1.5 block text-xs font-semibold text-slate-400';
 
-export const HedgeCalculatorPage: React.FC<HedgeCalculatorPageProps> = ({ config, onSaveConfig }) => {
-  const initialPrice = config.underlyingPrice || 133;
+export const HedgeCalculatorPage: React.FC<HedgeCalculatorPageProps> = ({ config, liveUnderlyingPrice, onSaveConfig }) => {
+  const initialPrice = liveUnderlyingPrice ?? (config.underlyingPrice || 133);
   const initialStrategy = config.strategy ?? 'put_spread_collar';
   const [shares, setShares] = useState(config.sharesHeld || 4050);
   const [currentPrice, setCurrentPrice] = useState(initialPrice);
@@ -84,10 +85,10 @@ export const HedgeCalculatorPage: React.FC<HedgeCalculatorPageProps> = ({ config
   useEffect(() => {
     const nextStrategy = config.strategy ?? 'put_spread_collar';
     setShares(config.sharesHeld || 4050);
-    setCurrentPrice(config.underlyingPrice || 133);
+    setCurrentPrice(liveUnderlyingPrice ?? (config.underlyingPrice || 133));
     setStrategy(nextStrategy);
     setLegs(config.legs?.length ? config.legs.map(leg => ({ ...leg })) : cloneLegs(nextStrategy));
-  }, [config]);
+  }, [config, liveUnderlyingPrice]);
 
   const stepMarket = () => {
     const change = Math.random() * 0.05 - 0.025;
@@ -196,6 +197,7 @@ export const HedgeCalculatorPage: React.FC<HedgeCalculatorPageProps> = ({ config
                   step="0.1"
                   type="number"
                   value={currentPrice}
+                  readOnly={liveUnderlyingPrice !== undefined}
                   onChange={event => {
                     const nextPrice = Math.max(0.01, Number(event.target.value));
                     setCurrentPrice(nextPrice);

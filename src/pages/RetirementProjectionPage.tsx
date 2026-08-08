@@ -51,6 +51,10 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
 
   const [showLotsDrawer, setShowLotsDrawer] = useState<boolean>(false);
 
+  useEffect(() => {
+    setLiquidPortfolio(initialLiquidPortfolio);
+  }, [initialLiquidPortfolio]);
+
   // Sync local state when cash flows change
   useEffect(() => {
     if (derivedAnnualSavings > 0) {

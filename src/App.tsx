@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { db } from './services/db';
+import { fetchMarketSeries, isUsMarketOpen, MarketSymbol } from './services/marketData';
 import { calculateDashboardMetrics } from './utils/financialCalculations';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
@@ -20,6 +21,9 @@ import { EstateBeneficiariesPage } from './pages/EstateBeneficiariesPage';
 import { DocumentsActionPlanPage } from './pages/DocumentsActionPlanPage';
 import { MeetingNotesPage } from './pages/MeetingNotesPage';
 
+const MARKET_REFRESH_INTERVAL = 60 * 60 * 1000;
+const LIVE_TICKERS = new Set<MarketSymbol>(['SPCX', 'GOOG']);
+
 const PlannerApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -38,6 +42,7 @@ const PlannerApp: React.FC = () => {
   const [documents, setDocuments] = useState(db.defaults.documents);
   const [actionItems, setActionItems] = useState(db.defaults.actionItems);
   const [meetingNotes, setMeetingNotes] = useState(db.defaults.meetingNotes);
+  const [latestPrices, setLatestPrices] = useState<Partial<Record<MarketSymbol, number>>>({});
 
   useEffect(() => db.subscribe(data => {
     setProfile(data.clientProfile);
@@ -61,8 +66,62 @@ const PlannerApp: React.FC = () => {
     setIsDataLoaded(true);
   }), []);
 
+  useEffect(() => {
+    let active = true;
+    const refreshPrices = async () => {
+      const results = await Promise.allSettled(
+        (Array.from(LIVE_TICKERS)).map(symbol => fetchMarketSeries(symbol, '1D'))
+      );
+      if (!active) return;
+      setLatestPrices(current => {
+        const next = { ...current };
+        results.forEach(result => {
+          if (result.status === 'fulfilled') next[result.value.symbol] = result.value.latestPrice;
+        });
+        return next;
+      });
+    };
+
+    void refreshPrices();
+    const interval = window.setInterval(() => {
+      if (isUsMarketOpen()) void refreshPrices();
+    }, MARKET_REFRESH_INTERVAL);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const valuedTaxLots = useMemo(() => taxLots.map(lot => {
+    const ticker = lot.ticker.toUpperCase() as MarketSymbol;
+    const latestPrice = LIVE_TICKERS.has(ticker) ? latestPrices[ticker] : undefined;
+    if (latestPrice === undefined) return lot;
+    const totalCurrentValue = lot.shares * latestPrice;
+    const unrealizedGainLoss = totalCurrentValue - lot.totalCostBasis;
+    return {
+      ...lot,
+      currentPrice: latestPrice,
+      totalCurrentValue,
+      unrealizedGainLoss,
+      unrealizedGainLossPct: lot.totalCostBasis > 0 ? unrealizedGainLoss / lot.totalCostBasis * 100 : 0
+    };
+  }), [taxLots, latestPrices]);
+
+  const valuedAssets = useMemo(() => {
+    const liveValues = valuedTaxLots.reduce<Record<MarketSymbol, number>>((totals, lot) => {
+      const ticker = lot.ticker.toUpperCase() as MarketSymbol;
+      if (LIVE_TICKERS.has(ticker)) totals[ticker] += lot.totalCurrentValue;
+      return totals;
+    }, { SPCX: 0, GOOG: 0 });
+
+    return assets.map(asset => {
+      const ticker = asset.id === 'A-02' ? 'GOOG' : asset.id === 'A-03' ? 'SPCX' : undefined;
+      return ticker && liveValues[ticker] > 0 ? { ...asset, currentValue: liveValues[ticker] } : asset;
+    });
+  }, [assets, valuedTaxLots]);
+
   // Real-time calculation of executive metrics
-  const metrics = calculateDashboardMetrics(assets, liabilities, cashFlows, assumptions);
+  const metrics = calculateDashboardMetrics(valuedAssets, liabilities, cashFlows, assumptions);
 
   const renderActivePage = () => {
     switch (activeTab) {
@@ -70,11 +129,11 @@ const PlannerApp: React.FC = () => {
         return (
           <DashboardPage
             metrics={metrics}
-            assets={assets}
+            assets={valuedAssets}
             liabilities={liabilities}
             cashFlows={cashFlows}
             assumptions={assumptions}
-            taxLots={taxLots}
+            taxLots={valuedTaxLots}
           />
         );
       case 'profile':
@@ -84,19 +143,19 @@ const PlannerApp: React.FC = () => {
       case 'cashflow':
         return <CashFlowPage cashFlows={cashFlows} onSaveCashFlows={updated => { setCashFlows(updated); db.saveCashFlows(updated); }} />;
       case 'assets':
-        return <AssetsPage assets={assets} onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }} />;
+        return <AssetsPage assets={valuedAssets} onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }} />;
       case 'taxlots':
-        return <TaxLotsPage taxLots={taxLots} onSaveTaxLots={updated => { setTaxLots(updated); db.saveTaxLots(updated); }} />;
+        return <TaxLotsPage taxLots={valuedTaxLots} onSaveTaxLots={updated => { setTaxLots(updated); db.saveTaxLots(updated); }} />;
       case 'liabilities':
         return <LiabilitiesPage liabilities={liabilities} onSaveLiabilities={updated => { setLiabilities(updated); db.saveLiabilities(updated); }} />;
       case 'projection':
-        return <RetirementProjectionPage assumptions={assumptions} metrics={metrics} taxLots={taxLots} cashFlows={cashFlows} />;
+        return <RetirementProjectionPage assumptions={assumptions} metrics={metrics} taxLots={valuedTaxLots} cashFlows={cashFlows} />;
       case 'taxes':
-        return <TaxesPage taxLots={taxLots} assumptions={assumptions} metrics={metrics} />;
+        return <TaxesPage taxLots={valuedTaxLots} assumptions={assumptions} metrics={metrics} />;
       case 'socialsecurity':
         return <SocialSecurityPage scenarios={socialSecurityScenarios} />;
       case 'hedge':
-        return <HedgeCalculatorPage config={hedgeConfig} onSaveConfig={updated => { setHedgeConfig(updated); db.saveHedgeConfig(updated); }} />;
+        return <HedgeCalculatorPage config={hedgeConfig} liveUnderlyingPrice={latestPrices.SPCX} onSaveConfig={updated => { setHedgeConfig(updated); db.saveHedgeConfig(updated); }} />;
       case 'estate':
         return (
           <EstateBeneficiariesPage
@@ -126,11 +185,11 @@ const PlannerApp: React.FC = () => {
         return (
           <DashboardPage
             metrics={metrics}
-            assets={assets}
+            assets={valuedAssets}
             liabilities={liabilities}
             cashFlows={cashFlows}
             assumptions={assumptions}
-            taxLots={taxLots}
+            taxLots={valuedTaxLots}
           />
         );
     }
