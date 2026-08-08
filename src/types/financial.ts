@@ -151,6 +151,18 @@ export interface SocialSecurityScenario {
   cumulativeAt90: number;
 }
 
+export type HedgeStrategyKey = 'protective_put' | 'collar' | 'bear_put_spread' | 'ratio_put' | 'put_spread_collar';
+
+export interface HedgeOptionLeg {
+  id: string;
+  name: string;
+  type: 'put' | 'call';
+  action: 'buy' | 'sell';
+  strike: number;
+  premium: number;
+  quantity: number;
+}
+
 export interface OptionHedgeConfig {
   underlyingTicker: string;
   underlyingPrice: number;
@@ -164,6 +176,8 @@ export interface OptionHedgeConfig {
   shortPutPremium?: number;
   netPremiumPaid: number;
   maxProfit?: number;
+  strategy?: HedgeStrategyKey;
+  legs?: HedgeOptionLeg[];
 }
 
 export interface EstateItem {

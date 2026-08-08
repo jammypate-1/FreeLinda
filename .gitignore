@@ -1,0 +1,11 @@
+node_modules
+dist
+functions/lib
+.firebase
+firebase-debug.log
+FreeLinda.zip
+.git
+.gitignore
+*.xlsx
+.DS_Store
+Thumbs.db

@@ -1,19 +1,56 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { TaxLot } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { initialTaxLots } from '../data/initialData';
-import { TrendingUp, Plus, Trash2, Search, Filter, Sparkles, RotateCcw, ArrowDownUp } from 'lucide-react';
+import { TrendingUp, Plus, Trash2, Search, Filter, Sparkles, Pencil, ArrowDownUp, X } from 'lucide-react';
 
 interface TaxLotsPageProps {
   taxLots: TaxLot[];
   onSaveTaxLots: (lots: TaxLot[]) => void;
 }
 
+type TaxLotFormData = Pick<TaxLot, 'ticker' | 'name' | 'assetName' | 'acquisitionDate' | 'term' | 'shares' | 'costBasisPerShare' | 'currentPrice'>;
+
+const emptyTaxLot: TaxLotFormData = {
+  ticker: '',
+  name: '',
+  assetName: '',
+  acquisitionDate: new Date().toISOString().slice(0, 10),
+  term: 'Short Term',
+  shares: 0,
+  costBasisPerShare: 0,
+  currentPrice: 0
+};
+
+const normalizeAcquisitionDate = (value: string): string => {
+  const serial = Number(value);
+  if (Number.isFinite(serial) && serial > 0 && serial < 100000) {
+    const excelEpoch = Date.UTC(1899, 11, 30);
+    return new Date(excelEpoch + Math.round(serial) * 86400000).toISOString().slice(0, 10);
+  }
+
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
+};
+
+const formatAcquisitionDate = (value: string): string => {
+  const normalized = normalizeAcquisitionDate(value);
+  if (!normalized) return value || 'Not set';
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC'
+  }).format(new Date(`${normalized}T00:00:00Z`));
+};
+
 export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots }) => {
   const [lotList, setLotList] = useState<TaxLot[]>(taxLots);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTicker, setSelectedTicker] = useState<string>('ALL');
   const [selectedTerm, setSelectedTerm] = useState<string>('ALL');
+  const [editingLotId, setEditingLotId] = useState<string | null>(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [formData, setFormData] = useState<TaxLotFormData>(emptyTaxLot);
 
   // Sync lotList when taxLots prop updates
   useEffect(() => {
@@ -30,10 +67,75 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
   // Map of lot.id -> shares to sell
   const [selectedLotShares, setSelectedLotShares] = useState<Record<string, number>>({});
 
-  const handleResetToSheetLots = () => {
-    setLotList(initialTaxLots);
-    onSaveTaxLots(initialTaxLots);
-    setSelectedLotShares({});
+  const openAddEditor = () => {
+    setEditingLotId(null);
+    setFormData({ ...emptyTaxLot, acquisitionDate: new Date().toISOString().slice(0, 10) });
+    setIsEditorOpen(true);
+  };
+
+  const openEditEditor = (lot: TaxLot) => {
+    setEditingLotId(lot.id);
+    setFormData({
+      ticker: lot.ticker,
+      name: lot.name,
+      assetName: lot.assetName,
+      acquisitionDate: normalizeAcquisitionDate(lot.acquisitionDate),
+      term: lot.term,
+      shares: lot.shares,
+      costBasisPerShare: lot.costBasisPerShare,
+      currentPrice: lot.currentPrice
+    });
+    setIsEditorOpen(true);
+  };
+
+  const closeEditor = () => {
+    setIsEditorOpen(false);
+    setEditingLotId(null);
+  };
+
+  const saveTaxLot = () => {
+    const ticker = formData.ticker.trim().toUpperCase();
+    const acquisitionDate = normalizeAcquisitionDate(formData.acquisitionDate);
+    if (!ticker || !formData.name.trim() || !acquisitionDate || formData.shares <= 0) return;
+
+    const totalCostBasis = formData.shares * formData.costBasisPerShare;
+    const totalCurrentValue = formData.shares * formData.currentPrice;
+    const unrealizedGainLoss = totalCurrentValue - totalCostBasis;
+    const unrealizedGainLossPct = totalCostBasis > 0 ? (unrealizedGainLoss / totalCostBasis) * 100 : 0;
+    const existingLot = editingLotId ? lotList.find(lot => lot.id === editingLotId) : undefined;
+    const savedLot: TaxLot = {
+      id: existingLot?.id ?? `TL-${Date.now()}`,
+      ticker,
+      name: formData.name.trim(),
+      assetName: formData.assetName.trim() || `${ticker} Portfolio`,
+      acquisitionDate,
+      term: formData.term,
+      shares: formData.shares,
+      costBasisPerShare: formData.costBasisPerShare,
+      currentPrice: formData.currentPrice,
+      totalCostBasis,
+      totalCurrentValue,
+      unrealizedGainLoss,
+      unrealizedGainLossPct
+    };
+    const nextLots = existingLot
+      ? lotList.map(lot => lot.id === existingLot.id ? savedLot : lot)
+      : [...lotList, savedLot];
+    setLotList(nextLots);
+    onSaveTaxLots(nextLots);
+    closeEditor();
+  };
+
+  const deleteTaxLot = (lot: TaxLot) => {
+    if (!window.confirm(`Delete tax lot ${lot.id} (${lot.ticker})?`)) return;
+    const nextLots = lotList.filter(item => item.id !== lot.id);
+    setLotList(nextLots);
+    onSaveTaxLots(nextLots);
+    setSelectedLotShares(current => {
+      const next = { ...current };
+      delete next[lot.id];
+      return next;
+    });
   };
 
   // Filtering tax lots
@@ -179,7 +281,7 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Title & Reload Button */}
+      {/* Title & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Tax-Efficient Tax Lot Selector & Harvest Optimizer</h1>
@@ -188,13 +290,41 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
           </p>
         </div>
         <button
-          onClick={handleResetToSheetLots}
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 font-semibold rounded-lg text-xs transition border border-slate-700 flex items-center space-x-2 shrink-0"
+          onClick={openAddEditor}
+          className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-xs transition flex items-center space-x-2 shrink-0"
         >
-          <RotateCcw className="w-4 h-4" />
-          <span>Reset All 123 Tax Lots</span>
+          <Plus className="w-4 h-4" />
+          <span>Add Tax Lot</span>
         </button>
       </div>
+
+      {isEditorOpen && (
+        <section className="rounded-lg border border-sky-500/40 bg-slate-900 p-5 shadow-xl">
+          <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 className="text-base font-bold text-white">{editingLotId ? 'Edit Tax Lot' : 'Add Tax Lot'}</h2>
+              <p className="mt-1 text-xs text-slate-400">Values and unrealized gain/loss are calculated automatically.</p>
+            </div>
+            <button type="button" onClick={closeEditor} aria-label="Close tax lot editor" className="p-2 text-slate-400 hover:text-white">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2 lg:grid-cols-4">
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Ticker</span><input required value={formData.ticker} onChange={event => setFormData({ ...formData, ticker: event.target.value })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Security Name</span><input required value={formData.name} onChange={event => setFormData({ ...formData, name: event.target.value })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Account / Portfolio</span><input value={formData.assetName} onChange={event => setFormData({ ...formData, assetName: event.target.value })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Acquisition Date</span><input required type="date" value={formData.acquisitionDate} onChange={event => setFormData({ ...formData, acquisitionDate: event.target.value })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Term</span><select value={formData.term} onChange={event => setFormData({ ...formData, term: event.target.value as TaxLot['term'] })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white"><option value="Short Term">Short Term</option><option value="Long Term">Long Term</option></select></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Shares</span><input required min="0" step="0.001" type="number" value={formData.shares} onChange={event => setFormData({ ...formData, shares: Number(event.target.value) })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Cost Basis / Share</span><input min="0" step="0.01" type="number" value={formData.costBasisPerShare} onChange={event => setFormData({ ...formData, costBasisPerShare: Number(event.target.value) })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+            <label className="space-y-1"><span className="font-semibold text-slate-400">Current Price</span><input min="0" step="0.01" type="number" value={formData.currentPrice} onChange={event => setFormData({ ...formData, currentPrice: Number(event.target.value) })} className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-white" /></label>
+          </div>
+          <div className="mt-5 flex justify-end gap-3 border-t border-slate-800 pt-4">
+            <button type="button" onClick={closeEditor} className="rounded-md px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800">Cancel</button>
+            <button type="button" onClick={saveTaxLot} className="rounded-md bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-500">{editingLotId ? 'Save Changes' : 'Add Tax Lot'}</button>
+          </div>
+        </section>
+      )}
 
       {/* Portfolio Overview KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -401,6 +531,7 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
                 <th className="py-3.5 px-4">Current Value</th>
                 <th className="py-3.5 px-4">Unrealized Gain / Loss</th>
                 <th className="py-3.5 px-4 text-right">Harvest Shares</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/80 text-slate-200">
@@ -432,7 +563,7 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
                         <span className="font-bold text-white truncate max-w-[120px]">{lot.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-slate-400 font-mono">{lot.acquisitionDate}</td>
+                    <td className="py-3 px-4 text-slate-400 whitespace-nowrap">{formatAcquisitionDate(lot.acquisitionDate)}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
@@ -471,6 +602,12 @@ export const TaxLotsPage: React.FC<TaxLotsPageProps> = ({ taxLots, onSaveTaxLots
                         placeholder="0"
                         className="w-20 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-right text-white font-bold focus:outline-none focus:border-sky-500"
                       />
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => openEditEditor(lot)} aria-label={`Edit ${lot.id}`} title="Edit tax lot" className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-sky-400"><Pencil className="h-4 w-4" /></button>
+                        <button type="button" onClick={() => deleteTaxLot(lot)} aria-label={`Delete ${lot.id}`} title="Delete tax lot" className="rounded p-1.5 text-slate-400 hover:bg-slate-800 hover:text-rose-400"><Trash2 className="h-4 w-4" /></button>
+                      </div>
                     </td>
                   </tr>
                 );

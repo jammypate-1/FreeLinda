@@ -10,24 +10,27 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ metrics, profile }) => {
   return (
-    <header className="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-20 px-8 py-3.5 flex items-center justify-between">
+    <header className="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-20 px-4 sm:px-8 py-3.5 flex items-center justify-between">
       {/* Left: Client context */}
-      <div className="flex items-center space-x-4">
-        <div>
+      <div className="flex min-w-0 items-center space-x-4">
+        <div className="min-w-0">
           <div className="flex items-center space-x-2">
-            <h2 className="text-base font-bold text-white">{profile.name}'s Wealth & Retirement Suite</h2>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            <h2 className="text-sm sm:text-base font-bold text-white">
+              <span className="sm:hidden">{profile.name}'s Wealth Suite</span>
+              <span className="hidden sm:inline">{profile.name}'s Wealth & Retirement Suite</span>
+            </h2>
+            <span className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
               {profile.occupation}
             </span>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="truncate text-xs text-slate-400">
             Age {profile.age} • {profile.residency}
           </p>
         </div>
       </div>
 
       {/* Right: Key metrics summary bar */}
-      <div className="flex items-center space-x-6">
+      <div className="hidden lg:flex items-center space-x-6">
         <div className="flex items-center space-x-6">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Net Worth</p>

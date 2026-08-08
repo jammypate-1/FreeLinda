@@ -1,412 +1,351 @@
-import React, { useState } from 'react';
-import { OptionHedgeConfig } from '../types/financial';
-import { calculateHedgeMatrix, formatCurrency } from '../utils/financialCalculations';
-import { ShieldAlert, Sliders, CheckCircle2, Lock, Sparkles, Layers, DollarSign, Activity, ShieldCheck, Repeat } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
+import React, { useEffect, useState } from 'react';
+import { Activity, CircleStop, FastForward, Play, ShieldCheck, TrendingUp } from 'lucide-react';
+import {
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts';
+import { HedgeOptionLeg, HedgeStrategyKey, OptionHedgeConfig } from '../types/financial';
+import { formatCurrency } from '../utils/financialCalculations';
 
 interface HedgeCalculatorPageProps {
   config: OptionHedgeConfig;
   onSaveConfig: (config: OptionHedgeConfig) => void;
 }
 
+const STRATEGIES: Record<HedgeStrategyKey, { name: string; legs: HedgeOptionLeg[] }> = {
+  protective_put: {
+    name: 'Protective Put',
+    legs: [{ id: 'long-put', name: 'Long Put Protection', type: 'put', action: 'buy', strike: 125, premium: 5.8, quantity: 40 }]
+  },
+  collar: {
+    name: 'Standard Collar',
+    legs: [
+      { id: 'long-put', name: 'Long Put Protection', type: 'put', action: 'buy', strike: 125, premium: 5.8, quantity: 40 },
+      { id: 'short-call', name: 'Short Call Financing', type: 'call', action: 'sell', strike: 145, premium: 6.2, quantity: 40 }
+    ]
+  },
+  bear_put_spread: {
+    name: 'Bear Put Spread',
+    legs: [
+      { id: 'long-put', name: 'Long Put Protection', type: 'put', action: 'buy', strike: 130, premium: 8.2, quantity: 40 },
+      { id: 'short-put', name: 'Short Put', type: 'put', action: 'sell', strike: 115, premium: 3.1, quantity: 40 }
+    ]
+  },
+  ratio_put: {
+    name: '1x2 Put Ratio Spread',
+    legs: [
+      { id: 'long-put', name: 'Long Put Protection', type: 'put', action: 'buy', strike: 130, premium: 8.2, quantity: 40 },
+      { id: 'short-put', name: '2x Short Puts', type: 'put', action: 'sell', strike: 115, premium: 3.1, quantity: 80 }
+    ]
+  },
+  put_spread_collar: {
+    name: 'Put Spread Collar',
+    legs: [
+      { id: 'long-put', name: 'Long Put', type: 'put', action: 'buy', strike: 130, premium: 8.2, quantity: 40 },
+      { id: 'short-put', name: 'Short Put', type: 'put', action: 'sell', strike: 115, premium: 3.1, quantity: 40 },
+      { id: 'short-call', name: 'Short Call Financing', type: 'call', action: 'sell', strike: 155, premium: 4.9, quantity: 40 }
+    ]
+  }
+};
+
+const cloneLegs = (strategy: HedgeStrategyKey) => STRATEGIES[strategy].legs.map(leg => ({ ...leg }));
+
+const calculatePayoff = (price: number, currentPrice: number, shares: number, legs: HedgeOptionLeg[]) => {
+  const stockPnL = (price - currentPrice) * shares;
+  const optionsPnL = legs.reduce((total, leg) => {
+    const intrinsic = leg.type === 'put'
+      ? Math.max(0, leg.strike - price)
+      : Math.max(0, price - leg.strike);
+    const multiplier = leg.action === 'buy' ? 1 : -1;
+    return total + multiplier * (intrinsic - leg.premium) * 100 * leg.quantity;
+  }, 0);
+
+  return stockPnL + optionsPnL;
+};
+
+const inputClassName = 'w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-white outline-none transition focus:border-sky-500 focus:ring-1 focus:ring-sky-500';
+const labelClassName = 'mb-1.5 block text-xs font-semibold text-slate-400';
+
 export const HedgeCalculatorPage: React.FC<HedgeCalculatorPageProps> = ({ config, onSaveConfig }) => {
-  // SPCX Dedicated Option Collar Configuration
-  const [spcxConfig, setSpcxConfig] = useState<OptionHedgeConfig>({
-    underlyingTicker: 'SPCX',
-    sharesHeld: 7243,
-    underlyingPrice: 332.56,
-    contracts: 72,
-    longPutStrike: 300,
-    shortPutStrike: 360,
-    netPremiumPaid: 0
-  });
+  const initialPrice = config.underlyingPrice || 133;
+  const initialStrategy = config.strategy ?? 'put_spread_collar';
+  const [shares, setShares] = useState(config.sharesHeld || 4050);
+  const [currentPrice, setCurrentPrice] = useState(initialPrice);
+  const [strategy, setStrategy] = useState<HedgeStrategyKey>(initialStrategy);
+  const [legs, setLegs] = useState<HedgeOptionLeg[]>(config.legs?.length ? config.legs.map(leg => ({ ...leg })) : cloneLegs(initialStrategy));
+  const [isAutoSimulating, setIsAutoSimulating] = useState(false);
 
-  // GOOG Dedicated Option Collar Configuration
-  const [googConfig, setGoogConfig] = useState<OptionHedgeConfig>({
-    underlyingTicker: 'GOOG',
-    sharesHeld: 3759,
-    underlyingPrice: 112.42,
-    contracts: 37,
-    longPutStrike: 100,
-    shortPutStrike: 125,
-    netPremiumPaid: 0
-  });
+  useEffect(() => {
+    const nextStrategy = config.strategy ?? 'put_spread_collar';
+    setShares(config.sharesHeld || 4050);
+    setCurrentPrice(config.underlyingPrice || 133);
+    setStrategy(nextStrategy);
+    setLegs(config.legs?.length ? config.legs.map(leg => ({ ...leg })) : cloneLegs(nextStrategy));
+  }, [config]);
 
-  const spcxMatrix = calculateHedgeMatrix(spcxConfig);
-  const googMatrix = calculateHedgeMatrix(googConfig);
-
-  const spcxValue = spcxConfig.underlyingPrice * spcxConfig.sharesHeld;
-  const googValue = googConfig.underlyingPrice * googConfig.sharesHeld;
-  const combinedTotalValue = spcxValue + googValue;
-
-  const handleUpdateSpcx = (updated: Partial<OptionHedgeConfig>) => {
-    const next = { ...spcxConfig, ...updated };
-    setSpcxConfig(next);
-    onSaveConfig(next);
+  const stepMarket = () => {
+    const change = Math.random() * 0.05 - 0.025;
+    setCurrentPrice(price => Math.max(0.01, Number((price * (1 + change)).toFixed(2))));
   };
 
-  const handleUpdateGoog = (updated: Partial<OptionHedgeConfig>) => {
-    const next = { ...googConfig, ...updated };
-    setGoogConfig(next);
-    onSaveConfig(next);
+  useEffect(() => {
+    if (!isAutoSimulating) return undefined;
+    const interval = window.setInterval(stepMarket, 2000);
+    return () => window.clearInterval(interval);
+  }, [isAutoSimulating]);
+
+  const maxStrike = Math.max(currentPrice, ...legs.map(leg => leg.strike));
+  const chartMaxPrice = Math.ceil(Math.max(currentPrice * 1.8, maxStrike * 1.15));
+  const chartPrices = Array.from(new Set([
+    ...Array.from({ length: 121 }, (_, index) => Number((chartMaxPrice * index / 120).toFixed(2))),
+    Number(currentPrice.toFixed(2)),
+    ...legs.map(leg => Number(leg.strike.toFixed(2)))
+  ])).sort((left, right) => left - right);
+  const chartData = chartPrices.map(price => {
+    return {
+      price,
+      strategyPnL: Math.round(calculatePayoff(price, currentPrice, shares, legs)),
+      unhedgedPnL: Math.round((price - currentPrice) * shares)
+    };
+  });
+
+  const netPremium = legs.reduce((total, leg) => {
+    const direction = leg.action === 'buy' ? 1 : -1;
+    return total + direction * leg.premium * 100 * leg.quantity;
+  }, 0);
+  const plottedPayoffs = chartData.map(point => point.strategyPnL);
+  const maxLoss = Math.min(...plottedPayoffs);
+  const finalSlope = chartData[chartData.length - 1].strategyPnL - chartData[chartData.length - 2].strategyPnL;
+  const maxGain = Math.max(...plottedPayoffs);
+  const longPut = legs.find(leg => leg.type === 'put' && leg.action === 'buy');
+  const shortPut = legs.find(leg => leg.type === 'put' && leg.action === 'sell');
+  const coveredShares = Math.max(0, ...legs.map(leg => leg.quantity * 100));
+
+  const persistConfig = (nextShares: number, nextPrice: number, nextStrategy: HedgeStrategyKey, nextLegs: HedgeOptionLeg[]) => {
+    const nextLongPut = nextLegs.find(leg => leg.type === 'put' && leg.action === 'buy');
+    const financingLeg = nextLegs.find(leg => leg.action === 'sell');
+    onSaveConfig({
+      ...config,
+      underlyingTicker: 'SPCX',
+      sharesHeld: nextShares,
+      underlyingPrice: nextPrice,
+      contracts: nextLongPut?.quantity ?? 0,
+      longPutStrike: nextLongPut?.strike ?? 0,
+      longPutPremium: nextLongPut?.premium ?? 0,
+      shortPutStrike: financingLeg?.strike ?? 0,
+      shortPutPremium: financingLeg?.premium ?? 0,
+      netPremiumPaid: nextLegs.reduce((total, leg) => total + (leg.action === 'buy' ? 1 : -1) * leg.premium * 100 * leg.quantity, 0),
+      strategy: nextStrategy,
+      legs: nextLegs
+    });
+  };
+
+  const changeStrategy = (nextStrategy: HedgeStrategyKey) => {
+    const nextLegs = cloneLegs(nextStrategy);
+    setStrategy(nextStrategy);
+    setLegs(nextLegs);
+    persistConfig(shares, currentPrice, nextStrategy, nextLegs);
+  };
+
+  const updateLeg = (index: number, field: 'strike' | 'premium' | 'quantity', value: number) => {
+    const nextLegs = legs.map((leg, legIndex) => legIndex === index ? { ...leg, [field]: Math.max(0, value) } : leg);
+    setLegs(nextLegs);
+    persistConfig(shares, currentPrice, strategy, nextLegs);
   };
 
   return (
-    <div className="space-y-10 pb-16">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center space-x-1">
-              <Repeat className="w-3.5 h-3.5" />
-              <span>Perpetual Lifetime Hedging Policy</span>
-            </span>
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-slate-950 xl:flex-row">
+      <aside className="w-full shrink-0 border-b border-slate-800 bg-slate-900 xl:w-80 xl:border-b-0 xl:border-r">
+        <div className="border-b border-slate-800 p-5">
+          <div className="mb-2 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-sky-400" />
+            <h1 className="text-lg font-bold text-white">SPCX Hedge Simulator</h1>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight mt-2">
-            Equity Concentration Option Hedge Matrix
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Dedicated option collars for Linda's two concentrated stock holdings: <strong className="text-emerald-400">SpaceX (SPCX)</strong> & <strong className="text-sky-400">Google (GOOG)</strong>.
-          </p>
+          <p className="text-xs leading-5 text-slate-400">Model option strategies and compare expiration outcomes against the unhedged position.</p>
         </div>
 
-        <div className="flex items-center space-x-3 text-xs bg-slate-900 border border-slate-800 p-3 rounded-xl shrink-0">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span className="text-slate-300 font-bold">Total Hedged Concentration: {formatCurrency(combinedTotalValue)}</span>
-        </div>
-      </div>
-
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2 bg-gradient-to-br from-slate-900 to-emerald-950/20 border-emerald-500/30">
-          <p className="text-xs uppercase text-slate-400 font-semibold tracking-wider">SpaceX (SPCX) Hedged Value</p>
-          <p className="text-2xl font-extrabold text-emerald-400">{formatCurrency(spcxValue)}</p>
-          <p className="text-xs text-slate-400">119 Tax Lots • Floor: $300 | Cap: $360</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2 bg-gradient-to-br from-slate-900 to-sky-950/20 border-sky-500/30">
-          <p className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Google (GOOG) Hedged Value</p>
-          <p className="text-2xl font-extrabold text-sky-400">{formatCurrency(googValue)}</p>
-          <p className="text-xs text-slate-400">4 Tax Lots • Floor: $100 | Cap: $125</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2 bg-gradient-to-br from-slate-900 to-indigo-950/20 border-indigo-500/30">
-          <p className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Combined Out-of-Pocket Cost</p>
-          <p className="text-2xl font-extrabold text-white">$0.00 Net Premium</p>
-          <p className="text-xs text-emerald-400 font-semibold">100% Self-Financed Zero-Cost Collars</p>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* BREAKOUT SECTION 1: SPACEX (SPCX) OPTION COLLAR HEDGE */}
-      {/* ========================================================================= */}
-      <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 space-y-6 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Layers className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h2 className="text-lg font-bold text-white">SpaceX (SPCX) Option Collar Hedging Breakout</h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Primary Equity Holding ($2.41M)
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Perpetual zero-cost option collar hedging 7,243 shares across 119 private tax lots ($332.56/sh base price).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 text-xs font-bold text-emerald-400 bg-slate-950 border border-emerald-500/30 px-3 py-1.5 rounded-xl shrink-0">
-            <span>Downside Cap: -$235,821 (-9.8% Max Loss)</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* SPCX Controls */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4 text-xs">
-            <h3 className="font-bold text-white flex items-center space-x-2 border-b border-slate-800 pb-2">
-              <Sliders className="w-4 h-4 text-emerald-400" />
-              <span>SPCX Option Collar Parameters</span>
-            </h3>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Underlying Ticker</label>
-              <input
-                type="text"
-                disabled
-                value={spcxConfig.underlyingTicker}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white font-bold cursor-not-allowed opacity-90"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Current SPCX Market Price ($)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={spcxConfig.underlyingPrice}
-                onChange={e => handleUpdateSpcx({ underlyingPrice: Number(e.target.value) })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white font-bold"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Total Shares & Contracts</label>
-              <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-6 p-5">
+          <section>
+            <h2 className="mb-3 text-xs font-bold uppercase text-slate-300">Base Position</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <label>
+                <span className={labelClassName}>Total Shares</span>
                 <input
+                  className={inputClassName}
+                  min="0"
                   type="number"
-                  value={spcxConfig.sharesHeld}
-                  onChange={e => handleUpdateSpcx({ sharesHeld: Number(e.target.value) })}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold"
+                  value={shares}
+                  onChange={event => {
+                    const nextShares = Math.max(0, Number(event.target.value));
+                    setShares(nextShares);
+                    persistConfig(nextShares, currentPrice, strategy, legs);
+                  }}
                 />
+              </label>
+              <label>
+                <span className={labelClassName}>Current Price ($)</span>
                 <input
+                  className={`${inputClassName} text-sky-400`}
+                  min="0.01"
+                  step="0.1"
                   type="number"
-                  value={spcxConfig.contracts}
-                  onChange={e => handleUpdateSpcx({ contracts: Number(e.target.value) })}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold"
+                  value={currentPrice}
+                  onChange={event => {
+                    const nextPrice = Math.max(0.01, Number(event.target.value));
+                    setCurrentPrice(nextPrice);
+                    persistConfig(shares, nextPrice, strategy, legs);
+                  }}
                 />
-              </div>
+              </label>
             </div>
+          </section>
 
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+          <section className="border-t border-slate-800 pt-5">
+            <label>
+              <span className={labelClassName}>Hedge Strategy</span>
+              <select className={inputClassName} value={strategy} onChange={event => changeStrategy(event.target.value as HedgeStrategyKey)}>
+                {Object.entries(STRATEGIES).map(([key, value]) => <option key={key} value={key}>{value.name}</option>)}
+              </select>
+            </label>
+          </section>
+
+          <section className="space-y-3 border-t border-slate-800 pt-5">
+            <h2 className="text-xs font-bold uppercase text-slate-300">Option Legs</h2>
+            {legs.map((leg, index) => (
+              <div key={leg.id} className="rounded-md border border-slate-700 bg-slate-800/60 p-3">
+                <div className="mb-3 flex items-start justify-between gap-2 border-b border-slate-700 pb-2">
+                  <span className={`text-xs font-bold ${leg.action === 'buy' ? 'text-sky-400' : 'text-amber-400'}`}>
+                    {leg.action.toUpperCase()} {leg.name}
+                  </span>
+                  <span className="whitespace-nowrap text-[10px] text-slate-500">{leg.quantity} contracts</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <label>
+                    <span className={labelClassName}>Strike ($)</span>
+                    <input className={inputClassName} min="0" step="1" type="number" value={leg.strike} onChange={event => updateLeg(index, 'strike', Number(event.target.value))} />
+                  </label>
+                  <label>
+                    <span className={labelClassName}>Premium ($)</span>
+                    <input className={inputClassName} min="0" step="0.1" type="number" value={leg.premium} onChange={event => updateLeg(index, 'premium', Number(event.target.value))} />
+                  </label>
+                  <label className="col-span-2">
+                    <span className={labelClassName}>Quantity (Contracts)</span>
+                    <input className={inputClassName} min="0" step="1" type="number" value={leg.quantity} onChange={event => updateLeg(index, 'quantity', Number(event.target.value))} />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </section>
+        </div>
+
+        <div className="border-t border-slate-800 bg-slate-800/40 p-5">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-xs text-slate-400">Net Premium</span>
+            <span className={`text-lg font-bold ${netPremium > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>{formatCurrency(netPremium)}</span>
+          </div>
+          <p className="mt-1 text-[11px] text-slate-500">Positive is a debit; negative is a credit.</p>
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        <header className="flex flex-col gap-4 border-b border-slate-800 bg-slate-900/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-7">
+          <div className="flex items-center gap-6">
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-500">Market Status</span>
+              <span className="flex items-center gap-2 text-sm font-bold text-emerald-400"><span className="h-2 w-2 rounded-full bg-emerald-400" />Open</span>
+            </div>
+            <div className="h-8 w-px bg-slate-700" />
+            <div>
+              <span className="block text-[10px] font-bold uppercase text-slate-500">Simulated Price</span>
+              <span className="text-xl font-bold text-white">${currentPrice.toFixed(2)}</span>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setIsAutoSimulating(running => !running)}
+              className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold transition ${isAutoSimulating ? 'border-rose-500 bg-rose-950/50 text-rose-300' : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'}`}
+            >
+              {isAutoSimulating ? <CircleStop className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isAutoSimulating ? 'Stop Sim' : 'Auto-Simulate'}
+            </button>
+            <button type="button" onClick={stepMarket} className="flex items-center gap-2 rounded-md bg-sky-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-sky-500">
+              <FastForward className="h-4 w-4" />Step 1 Hour
+            </button>
+          </div>
+        </header>
+
+        <main className="space-y-5 p-5 lg:p-7">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              { label: 'Portfolio Value Now', value: formatCurrency(shares * currentPrice), tone: 'text-white' },
+              { label: 'Max Gain at Expiration', value: finalSlope > 0 ? 'Unlimited' : formatCurrency(maxGain), tone: 'text-emerald-400' },
+              { label: 'Max Loss at Expiration', value: formatCurrency(maxLoss), tone: 'text-rose-400' },
+              { label: 'Downside Protection', value: longPut ? (shortPut ? `$${shortPut.strike}-$${longPut.strike} spread` : `Floor at $${longPut.strike}`) : 'None', tone: 'text-sky-400' }
+            ].map(stat => (
+              <div key={stat.label} className="rounded-md border border-slate-800 bg-slate-900 p-4">
+                <span className="mb-1 block text-[11px] font-semibold text-slate-400">{stat.label}</span>
+                <span className={`block truncate text-lg font-bold ${stat.tone}`} title={stat.value}>{stat.value}</span>
+              </div>
+            ))}
+          </div>
+
+          {coveredShares < shares && (
+            <div className="flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-300">
+              <Activity className="h-4 w-4 shrink-0" />Option legs cover {coveredShares.toLocaleString()} of {shares.toLocaleString()} shares.
+            </div>
+          )}
+
+          <section className="rounded-md border border-slate-800 bg-slate-900 p-4 lg:p-5">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <label className="block text-emerald-400 font-bold mb-1">Long Put Floor ($)</label>
-                <input
-                  type="number"
-                  value={spcxConfig.longPutStrike}
-                  onChange={e => handleUpdateSpcx({ longPutStrike: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-emerald-500/50 rounded-lg p-2 text-emerald-400 font-bold"
-                />
+                <h2 className="text-sm font-bold text-white">Expiration Payoff</h2>
+                <p className="mt-1 text-xs text-slate-500">{STRATEGIES[strategy].name} compared with the unhedged SPCX position</p>
               </div>
-              <div>
-                <label className="block text-sky-400 font-bold mb-1">Short Call Cap ($)</label>
-                <input
-                  type="number"
-                  value={spcxConfig.shortPutStrike}
-                  onChange={e => handleUpdateSpcx({ shortPutStrike: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-sky-500/50 rounded-lg p-2 text-sky-400 font-bold"
-                />
-              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400"><ShieldCheck className="h-4 w-4" />{coveredShares.toLocaleString()} shares covered</div>
             </div>
-          </div>
-
-          {/* SPCX Payoff Chart */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3 lg:col-span-2 flex flex-col justify-between">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">SPCX Expiration Payoff Profile</h4>
-            <div className="h-56">
+            <div className="h-[420px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={spcxMatrix} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="underlyingPrice" stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(val: number) => formatCurrency(val)} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
-                  <ReferenceLine y={0} stroke="#64748b" strokeWidth={1.5} />
-                  <Bar dataKey="totalPnL" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                <ComposedChart data={chartData} margin={{ top: 15, right: 15, left: 5, bottom: 5 }}>
+                  <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+                  <XAxis
+                    type="number"
+                    dataKey="price"
+                    domain={[0, chartMaxPrice]}
+                    stroke="#64748b"
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={value => `$${value}`}
+                  />
+                  <YAxis stroke="#64748b" tick={{ fontSize: 10 }} tickFormatter={value => `$${Math.round(value / 1000)}k`} width={58} />
+                  <Tooltip
+                    formatter={(value: number, name: string) => [formatCurrency(value), name === 'strategyPnL' ? 'Strategy P&L' : 'Unhedged P&L']}
+                    labelFormatter={value => `SPCX at expiration: $${Number(value).toFixed(2)}`}
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '6px', color: '#f8fafc' }}
+                  />
+                  <ReferenceLine y={0} stroke="#94a3b8" />
+                  <ReferenceLine x={Number(currentPrice.toFixed(2))} stroke="#34d399" strokeDasharray="4 4" label={{ value: 'Current', fill: '#34d399', fontSize: 10 }} />
+                  {legs.map(leg => (
+                    <ReferenceLine
+                      key={leg.id}
+                      x={leg.strike}
+                      stroke={leg.action === 'buy' ? '#38bdf8' : '#f59e0b'}
+                      strokeDasharray="3 5"
+                      label={{ value: `$${leg.strike}`, fill: leg.action === 'buy' ? '#38bdf8' : '#f59e0b', fontSize: 10 }}
+                    />
+                  ))}
+                  <Line type="linear" dataKey="strategyPnL" stroke="#38bdf8" strokeWidth={3} dot={false} />
+                  <Line type="linear" dataKey="unhedgedPnL" stroke="#64748b" strokeWidth={2} strokeDasharray="6 5" dot={false} />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
-          </div>
-        </div>
-
-        {/* SPCX Scenario Table */}
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden text-xs">
-          <div className="p-3.5 bg-slate-900 border-b border-slate-800 font-bold text-white">
-            SpaceX (SPCX) Expiration P&L Scenario Matrix
-          </div>
-          <table className="w-full text-left">
-            <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
-              <tr>
-                <th className="py-3 px-4">Price Scenario</th>
-                <th className="py-3 px-4">Position Value</th>
-                <th className="py-3 px-4">Unhedged Stock P&L</th>
-                <th className="py-3 px-4">Option Collar Net P&L</th>
-                <th className="py-3 px-4 text-right">Combined Position P&L</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/80 text-slate-200">
-              {spcxMatrix.map((pt, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/40">
-                  <td className="py-2.5 px-4 font-bold text-white">
-                    ${pt.underlyingPrice.toFixed(2)}
-                    {pt.underlyingPrice < spcxConfig.longPutStrike && <span className="ml-2 text-[10px] text-emerald-400 font-bold">(Put Protection Active)</span>}
-                    {pt.underlyingPrice > spcxConfig.shortPutStrike && <span className="ml-2 text-[10px] text-amber-400 font-bold">(Call Cap Active)</span>}
-                  </td>
-                  <td className="py-2.5 px-4 font-mono">{formatCurrency(pt.underlyingPrice * spcxConfig.sharesHeld)}</td>
-                  <td className="py-2.5 px-4">
-                    <span className={pt.underlyingPnL >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
-                      {pt.underlyingPnL >= 0 ? '+' : ''}{formatCurrency(pt.underlyingPnL)}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-4 font-semibold text-slate-400">{pt.optionPnL >= 0 ? '+' : ''}{formatCurrency(pt.optionPnL)}</td>
-                  <td className="py-2.5 px-4 text-right font-extrabold">
-                    <span className={pt.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                      {pt.totalPnL >= 0 ? '+' : ''}{formatCurrency(pt.totalPnL)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* BREAKOUT SECTION 2: GOOGLE (GOOG) OPTION COLLAR HEDGE */}
-      {/* ========================================================================= */}
-      <div className="bg-slate-900 border border-sky-500/40 rounded-3xl p-6 space-y-6 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950/20">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-2xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <ShieldAlert className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h2 className="text-lg font-bold text-white">Google (GOOG) Option Collar Hedging Breakout</h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                  Public Tech RSU Holding ($422k)
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Perpetual zero-cost option collar hedging 3,759 shares across 4 tax lots ($112.42/sh base price).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 text-xs font-bold text-sky-400 bg-slate-950 border border-sky-500/30 px-3 py-1.5 rounded-xl shrink-0">
-            <span>Downside Cap: -$46,687 (-11.0% Max Loss)</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* GOOG Controls */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4 text-xs">
-            <h3 className="font-bold text-white flex items-center space-x-2 border-b border-slate-800 pb-2">
-              <Sliders className="w-4 h-4 text-sky-400" />
-              <span>GOOG Option Collar Parameters</span>
-            </h3>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Underlying Ticker</label>
-              <input
-                type="text"
-                disabled
-                value={googConfig.underlyingTicker}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white font-bold cursor-not-allowed opacity-90"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Current GOOG Market Price ($)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={googConfig.underlyingPrice}
-                onChange={e => handleUpdateGoog({ underlyingPrice: Number(e.target.value) })}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-white font-bold"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-400 font-semibold mb-1">Total Shares & Contracts</label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  value={googConfig.sharesHeld}
-                  onChange={e => handleUpdateGoog({ sharesHeld: Number(e.target.value) })}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold"
-                />
-                <input
-                  type="number"
-                  value={googConfig.contracts}
-                  onChange={e => handleUpdateGoog({ contracts: Number(e.target.value) })}
-                  className="bg-slate-900 border border-slate-800 rounded-lg p-2 text-white font-semibold"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
-              <div>
-                <label className="block text-emerald-400 font-bold mb-1">Long Put Floor ($)</label>
-                <input
-                  type="number"
-                  value={googConfig.longPutStrike}
-                  onChange={e => handleUpdateGoog({ longPutStrike: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-emerald-500/50 rounded-lg p-2 text-emerald-400 font-bold"
-                />
-              </div>
-              <div>
-                <label className="block text-sky-400 font-bold mb-1">Short Call Cap ($)</label>
-                <input
-                  type="number"
-                  value={googConfig.shortPutStrike}
-                  onChange={e => handleUpdateGoog({ shortPutStrike: Number(e.target.value) })}
-                  className="w-full bg-slate-900 border border-sky-500/50 rounded-lg p-2 text-sky-400 font-bold"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* GOOG Payoff Chart */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3 lg:col-span-2 flex flex-col justify-between">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">GOOG Expiration Payoff Profile</h4>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={googMatrix} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="underlyingPrice" stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(val: number) => formatCurrency(val)} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
-                  <ReferenceLine y={0} stroke="#64748b" strokeWidth={1.5} />
-                  <Bar dataKey="totalPnL" fill="#38bdf8" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* GOOG Scenario Table */}
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden text-xs">
-          <div className="p-3.5 bg-slate-900 border-b border-slate-800 font-bold text-white">
-            Google (GOOG) Expiration P&L Scenario Matrix
-          </div>
-          <table className="w-full text-left">
-            <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
-              <tr>
-                <th className="py-3 px-4">Price Scenario</th>
-                <th className="py-3 px-4">Position Value</th>
-                <th className="py-3 px-4">Unhedged Stock P&L</th>
-                <th className="py-3 px-4">Option Collar Net P&L</th>
-                <th className="py-3 px-4 text-right">Combined Position P&L</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/80 text-slate-200">
-              {googMatrix.map((pt, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/40">
-                  <td className="py-2.5 px-4 font-bold text-white">
-                    ${pt.underlyingPrice.toFixed(2)}
-                    {pt.underlyingPrice < googConfig.longPutStrike && <span className="ml-2 text-[10px] text-emerald-400 font-bold">(Put Protection Active)</span>}
-                    {pt.underlyingPrice > googConfig.shortPutStrike && <span className="ml-2 text-[10px] text-amber-400 font-bold">(Call Cap Active)</span>}
-                  </td>
-                  <td className="py-2.5 px-4 font-mono">{formatCurrency(pt.underlyingPrice * googConfig.sharesHeld)}</td>
-                  <td className="py-2.5 px-4">
-                    <span className={pt.underlyingPnL >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
-                      {pt.underlyingPnL >= 0 ? '+' : ''}{formatCurrency(pt.underlyingPnL)}
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-4 font-semibold text-slate-400">{pt.optionPnL >= 0 ? '+' : ''}{formatCurrency(pt.optionPnL)}</td>
-                  <td className="py-2.5 px-4 text-right font-extrabold">
-                    <span className={pt.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
-                      {pt.totalPnL >= 0 ? '+' : ''}{formatCurrency(pt.totalPnL)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   );

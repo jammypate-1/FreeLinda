@@ -1,4 +1,4 @@
-# FreeLinda - CFP Wealth & Retirement Planning Suite
+# FreeLinda - Wealth & Retirement Planning Suite
 
 A comprehensive retirement planning and wealth management dashboard built with React, TypeScript, and Vite.
 

@@ -7,21 +7,41 @@ import {
   Wallet,
   ShieldCheck,
   AlertTriangle,
-  FileCheck,
   CheckCircle2,
   PieChart as PieIcon,
   Layers,
-  Sparkles,
   Calendar,
-  DollarSign,
   ArrowUpRight,
   Shield,
-  Target,
   LineChart,
   Flame,
-  ArrowRight,
   CheckSquare
 } from 'lucide-react';
+import { fetchMarketSeries, isUsMarketOpen, MarketPoint, MarketSeries, MarketTimeframe, MarketSymbol } from '../services/marketData';
+
+const MARKET_REFRESH_INTERVAL = 60 * 60 * 1000;
+
+const getPriceDomain = (points: Array<{ price: number }>): [number, number] => {
+  const prices = points.map(point => point.price);
+  const minimum = Math.min(...prices);
+  const maximum = Math.max(...prices);
+  const padding = Math.max((maximum - minimum) * 0.12, maximum * 0.005, 0.5);
+  return [Number((minimum - padding).toFixed(2)), Number((maximum + padding).toFixed(2))];
+};
+
+const getChangeLabel = (series: MarketSeries, timeframe: MarketTimeframe): string => {
+  const firstPrice = series.points[0]?.price ?? series.latestPrice;
+  const change = series.latestPrice - firstPrice;
+  const percent = firstPrice === 0 ? 0 : change / firstPrice * 100;
+  const period = { '1D': '1-Day', '1M': '1-Month', '1Y': '1-Year', MAX: 'Max' }[timeframe];
+  return `${change >= 0 ? '+' : ''}$${change.toFixed(2)} (${percent >= 0 ? '+' : ''}${percent.toFixed(2)}% ${period})`;
+};
+
+const formatRetrievedAt = (timestamp: number): string => new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+  timeZone: 'America/New_York'
+}).format(new Date(timestamp));
 
 interface DashboardPageProps {
   metrics: DashboardMetrics;
@@ -151,14 +171,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const spcxShares = spcxLots.reduce((sum, l) => sum + l.shares, 0);
   const spcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 112.42;
   const spcxCostBasis = spcxLots.reduce((sum, l) => sum + l.totalCostBasis, 0);
-  const spcxMarketValue = spcxShares * spcxPrice;
 
   const googLots = taxLots.filter(l => l.ticker === 'GOOG');
   const googCount = googLots.length;
   const googShares = googLots.reduce((sum, l) => sum + l.shares, 0);
   const googPrice = googLots.length > 0 ? googLots[0].currentPrice : 332.56;
   const googCostBasis = googLots.reduce((sum, l) => sum + l.totalCostBasis, 0);
-  const googMarketValue = googShares * googPrice;
 
   // Multi-timeframe price history maps for SPCX and GOOG
   const spcxDataMap = {
@@ -281,6 +299,54 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   };
 
+  const [marketSeries, setMarketSeries] = useState<Partial<Record<string, MarketSeries>>>({});
+  const [marketDataError, setMarketDataError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const refreshMarketData = async () => {
+      const requests: Array<[MarketSymbol, MarketTimeframe]> = [
+        ['SPCX', spcxTimeframe],
+        ['GOOG', googTimeframe]
+      ];
+      const results = await Promise.allSettled(requests.map(([symbol, timeframe]) => fetchMarketSeries(symbol, timeframe)));
+      if (!active) return;
+
+      const successfulSeries = results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
+      if (successfulSeries.length > 0) {
+        setMarketSeries(current => {
+          const next = { ...current };
+          successfulSeries.forEach(series => { next[`${series.symbol}-${series.timeframe}`] = series; });
+          return next;
+        });
+      }
+
+      const failure = results.find(result => result.status === 'rejected');
+      let errorMessage: string | null = null;
+      if (failure?.status === 'rejected') {
+        errorMessage = failure.reason instanceof Error ? failure.reason.message : 'Market data is temporarily unavailable';
+      }
+      setMarketDataError(errorMessage);
+    };
+
+    void refreshMarketData();
+    const interval = window.setInterval(() => {
+      if (isUsMarketOpen()) void refreshMarketData();
+    }, MARKET_REFRESH_INTERVAL);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [spcxTimeframe, googTimeframe]);
+
+  const spcxSeries = marketSeries[`SPCX-${spcxTimeframe}`];
+  const googSeries = marketSeries[`GOOG-${googTimeframe}`];
+  const spcxChartPoints: MarketPoint[] | Array<{ label: string; price: number }> = spcxSeries?.points ?? spcxDataMap[spcxTimeframe].points;
+  const googChartPoints: MarketPoint[] | Array<{ label: string; price: number }> = googSeries?.points ?? googDataMap[googTimeframe].points;
+  const displayedSpcxPrice = spcxSeries?.latestPrice ?? spcxPrice;
+  const displayedGoogPrice = googSeries?.latestPrice ?? googPrice;
+
   // Planning flags definition
   const flags = [
     {
@@ -323,14 +389,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="flex items-center space-x-3">
-              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Executive Wealth Suite</span>
-              </span>
-              <span className="text-xs text-slate-400 font-medium">As Of: {assumptions.asOfDate}</span>
-            </div>
-
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Linda's Executive Dashboard
             </h1>
@@ -525,7 +583,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <TrendingUp className="w-5 h-5 text-sky-400" />
             <span>Primary Stock Equity Spotlight: SPCX & GOOG Live Prices & Performance Charts</span>
           </h3>
-          <span className="text-xs text-slate-400 font-semibold">Selectable Timeframes (1D, 1M, 1Y, MAX)</span>
+          <span className="text-xs text-slate-400 font-semibold">Updates hourly during U.S. market hours</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -547,6 +605,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 {(['1D', '1M', '1Y', 'MAX'] as const).map(tf => (
                   <button
                     key={tf}
+                    type="button"
                     onClick={() => setSpcxTimeframe(tf)}
                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition ${
                       spcxTimeframe === tf
@@ -562,21 +621,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
             <div className="flex items-center justify-between text-xs">
               <div>
-                <span className="text-2xl font-black text-emerald-400">${spcxPrice.toFixed(2)} </span>
+                <span className="text-2xl font-black text-emerald-400">${displayedSpcxPrice.toFixed(2)} </span>
                 <span className="text-xs text-emerald-400 font-bold ml-1">
-                  {spcxDataMap[spcxTimeframe].changeStr}
+                  {spcxSeries ? getChangeLabel(spcxSeries, spcxTimeframe) : spcxDataMap[spcxTimeframe].changeStr}
                 </span>
               </div>
               <div className="text-right text-slate-300">
-                <span>Value: <strong className="text-white font-bold">{formatCurrency(spcxMarketValue)}</strong></span>
+                <span>Value: <strong className="text-white font-bold">{formatCurrency(spcxShares * displayedSpcxPrice)}</strong></span>
                 <span className="ml-2">Basis: <strong className="text-slate-400">{formatCurrency(spcxCostBasis)}</strong></span>
               </div>
             </div>
 
+            <p className="text-[11px] text-slate-500">
+              {spcxSeries ? `Retrieved ${formatRetrievedAt(spcxSeries.retrievedAt)} ET` : marketDataError ?? 'Retrieving latest market data...'}
+            </p>
+
             {/* SPCX Mini Sparkline Area Chart */}
             <div className="h-44 pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={spcxDataMap[spcxTimeframe].points} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={spcxChartPoints} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="spcxGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
@@ -585,7 +648,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="label" stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <YAxis domain={spcxDataMap[spcxTimeframe].domain} stroke="#64748b" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                  <YAxis domain={spcxSeries ? getPriceDomain(spcxChartPoints) : spcxDataMap[spcxTimeframe].domain} stroke="#64748b" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
                   <Tooltip
                     formatter={(val: number) => [`$${val.toFixed(2)}`, 'SPCX Price']}
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }}
@@ -614,6 +677,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 {(['1D', '1M', '1Y', 'MAX'] as const).map(tf => (
                   <button
                     key={tf}
+                    type="button"
                     onClick={() => setGoogTimeframe(tf)}
                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition ${
                       googTimeframe === tf
@@ -629,21 +693,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
             <div className="flex items-center justify-between text-xs">
               <div>
-                <span className="text-2xl font-black text-sky-400">${googPrice.toFixed(2)} </span>
+                <span className="text-2xl font-black text-sky-400">${displayedGoogPrice.toFixed(2)} </span>
                 <span className="text-xs text-sky-400 font-bold ml-1">
-                  {googDataMap[googTimeframe].changeStr}
+                  {googSeries ? getChangeLabel(googSeries, googTimeframe) : googDataMap[googTimeframe].changeStr}
                 </span>
               </div>
               <div className="text-right text-slate-300">
-                <span>Value: <strong className="text-white font-bold">{formatCurrency(googMarketValue)}</strong></span>
+                <span>Value: <strong className="text-white font-bold">{formatCurrency(googShares * displayedGoogPrice)}</strong></span>
                 <span className="ml-2">Basis: <strong className="text-slate-400">{formatCurrency(googCostBasis)}</strong></span>
               </div>
             </div>
 
+            <p className="text-[11px] text-slate-500">
+              {googSeries ? `Retrieved ${formatRetrievedAt(googSeries.retrievedAt)} ET` : marketDataError ?? 'Retrieving latest market data...'}
+            </p>
+
             {/* GOOG Mini Sparkline Area Chart */}
             <div className="h-44 pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={googDataMap[googTimeframe].points} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={googChartPoints} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="googGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4} />
@@ -652,7 +720,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                   <XAxis dataKey="label" stroke="#64748b" tick={{ fontSize: 10 }} />
-                  <YAxis domain={googDataMap[googTimeframe].domain} stroke="#64748b" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                  <YAxis domain={googSeries ? getPriceDomain(googChartPoints) : googDataMap[googTimeframe].domain} stroke="#64748b" tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
                   <Tooltip
                     formatter={(val: number) => [`$${val.toFixed(2)}`, 'GOOG Price']}
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }}

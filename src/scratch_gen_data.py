@@ -58,8 +58,8 @@ export const initialClientProfile: ClientProfile = {
   valuesConstraints: "Tech equity concentration hedging, broad index funds",
   advisors: [
     {
-      role: "Certified Financial Planner (CFP)",
-      name: "Alex Vance, CFP®",
+      role: "Certified Financial Planner",
+      name: "Alex Vance",
       contact: "Pacific Financial Advisors",
       email: "alex@pacificwealth.com",
       phone: "(415) 555-0199",

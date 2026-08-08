@@ -35,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'projection', label: 'Retirement Engine', icon: LineChart, category: 'Analysis & Strategy' },
     { id: 'taxes', label: 'Taxes', icon: Calculator, category: 'Analysis & Strategy' },
     { id: 'socialsecurity', label: 'Social Security', icon: ShieldCheck, category: 'Analysis & Strategy' },
-    { id: 'hedge', label: 'Option Hedge Matrix', icon: ShieldAlert, category: 'Analysis & Strategy' },
+    { id: 'hedge', label: 'Hedge', icon: ShieldAlert, category: 'Analysis & Strategy' },
 
     { id: 'estate', label: 'Estate & Beneficiaries', icon: FileCheck, category: 'Governance' },
     { id: 'documents', label: 'Vault & Action Plan', icon: CheckSquare, category: 'Governance' },
@@ -45,9 +45,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const categories = Array.from(new Set(navItems.map(item => item.category)));
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen sticky top-0">
+    <aside className="w-16 sm:w-64 shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col h-screen sticky top-0">
       {/* Left-Justified Luxury 3D Gold & Emerald Wealth Crest Logo */}
-      <div className="p-4 border-b border-slate-800/80 flex items-center justify-start px-5">
+      <div className="p-2 sm:p-4 border-b border-slate-800/80 flex items-center justify-center sm:justify-start sm:px-5">
         <div className="relative group flex items-center justify-center">
           <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-sky-500 opacity-30 blur-md group-hover:opacity-70 transition duration-500"></div>
           <div className="relative w-11 h-11 rounded-2xl bg-slate-950 border border-amber-500/30 flex items-center justify-center shadow-2xl">
@@ -72,10 +72,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       </div>
 
       {/* Navigation List */}
-      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+      <div className="flex-1 overflow-y-auto py-4 px-2 sm:px-3 space-y-2 sm:space-y-6">
         {categories.map(category => (
           <div key={category} className="space-y-1">
-            <h3 className="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+            <h3 className="hidden sm:block px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               {category}
             </h3>
             {navItems
@@ -87,14 +87,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    aria-label={item.label}
+                    title={item.label}
+                    className={`w-full flex items-center justify-center sm:justify-start sm:space-x-3 px-2 sm:px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                       isActive
                         ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
                         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span className="hidden sm:inline">{item.label}</span>
                   </button>
                 );
               })}

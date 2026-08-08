@@ -34,7 +34,7 @@ export const initialClientProfile: ClientProfile = {
   valuesConstraints: "Tech equity concentration hedging, broad index funds",
   advisors: [
     {
-      role: "Primary Financial Planner ()",
+      role: "Primary Financial Planner",
       name: "Jammy Pate",
       contact: "FreeLinda Wealth Management",
       email: "jammy.pate@gmail.com",
@@ -470,17 +470,20 @@ export const initialSocialSecurityScenarios: SocialSecurityScenario[] = [
 
 export const initialHedgeConfig: OptionHedgeConfig = {
   underlyingTicker: "SPCX",
-  underlyingPrice: 112.42,
-  sharesHeld: 20000,
-  optionTicker: "ARKX",
-  optionPrice: 30.09,
-  contracts: 50,
-  longPutStrike: 31.00,
-  longPutPremium: 1.15,
-  shortPutStrike: 27.00,
-  shortPutPremium: 0.25,
-  netPremiumPaid: 4500,
-  maxProfit: 15500
+  underlyingPrice: 133.00,
+  sharesHeld: 4050,
+  contracts: 40,
+  longPutStrike: 130.00,
+  longPutPremium: 8.20,
+  shortPutStrike: 115.00,
+  shortPutPremium: 3.10,
+  netPremiumPaid: 800,
+  strategy: "put_spread_collar",
+  legs: [
+    { id: "long-put", name: "Higher-Strike Put", type: "put", action: "buy", strike: 130, premium: 8.20, quantity: 40 },
+    { id: "short-put", name: "Lower-Strike Put", type: "put", action: "sell", strike: 115, premium: 3.10, quantity: 40 },
+    { id: "short-call", name: "Short Call", type: "call", action: "sell", strike: 155, premium: 4.90, quantity: 40 }
+  ]
 };
 
 export const initialEstateItems: EstateItem[] = [
