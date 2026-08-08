@@ -58,7 +58,9 @@ function formatPointLabel(timestamp: number, timeframe: MarketTimeframe, timezon
 
 export async function fetchMarketSeries(symbol: MarketSymbol, timeframe: MarketTimeframe): Promise<MarketSeries> {
   const query = TIMEFRAME_QUERY[timeframe];
-  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${query.range}&interval=${query.interval}&includePrePost=false`;
+  const refreshHour = Math.floor(Date.now() / (60 * 60 * 1000));
+  const clientHost = window.location.hostname;
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${query.range}&interval=${query.interval}&includePrePost=false&_client=${encodeURIComponent(clientHost)}&_refresh=${refreshHour}`;
   const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`);
   if (!response.ok) {
     throw new Error(`Market data request failed (${response.status})`);
