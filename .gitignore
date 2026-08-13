@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.gitignore
+*.xlsx
+.DS_Store
+Thumbs.db
+/.firebase/
+firebase-debug.log
+functions/node_modules
+functions/lib
