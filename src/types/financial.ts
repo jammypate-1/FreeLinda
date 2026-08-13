@@ -122,7 +122,7 @@ export interface Goal {
   currentFunding: number;
   monthlySavings: number;
   expectedReturn: number;
-  status: 'Active' | 'Complete' | 'On Track' | 'Review Needed';
+  status: 'Active' | 'Complete' | 'On Track' | 'Review Needed' | 'In Progress' | 'Planning';
   notes: string;
 }
 

@@ -31,19 +31,19 @@ import {
 } from '../data/initialData';
 
 const STORAGE_KEYS = {
-  CLIENT_PROFILE: 'freelinda_client_profile_v2',
-  ASSUMPTIONS: 'freelinda_assumptions',
-  ASSETS: 'freelinda_assets',
-  TAX_LOTS: 'freelinda_tax_lots_v2', // Incremented version to clear legacy cache
-  LIABILITIES: 'freelinda_liabilities',
-  CASH_FLOWS: 'freelinda_cash_flows',
-  GOALS: 'freelinda_goals',
-  SOCIAL_SECURITY: 'freelinda_social_security',
-  HEDGE_CONFIG: 'freelinda_hedge_config',
-  ESTATE_ITEMS: 'freelinda_estate_items',
-  BENEFICIARIES: 'freelinda_beneficiaries',
-  DOCUMENTS: 'freelinda_documents',
-  ACTION_ITEMS: 'freelinda_action_items',
+  CLIENT_PROFILE: 'freelorine_client_profile_v3',
+  ASSUMPTIONS: 'freelorine_assumptions_v3',
+  ASSETS: 'freelorine_assets_v3',
+  TAX_LOTS: 'freelorine_tax_lots_v3',
+  LIABILITIES: 'freelorine_liabilities_v3',
+  CASH_FLOWS: 'freelorine_cash_flows_v3',
+  GOALS: 'freelorine_goals_v3',
+  SOCIAL_SECURITY: 'freelorine_social_security_v3',
+  HEDGE_CONFIG: 'freelorine_hedge_config_v3',
+  ESTATE_ITEMS: 'freelorine_estate_items_v3',
+  BENEFICIARIES: 'freelorine_beneficiaries_v3',
+  DOCUMENTS: 'freelorine_documents_v3',
+  ACTION_ITEMS: 'freelorine_action_items_v3',
 };
 
 function getStorage<T>(key: string, fallback: T): T {
@@ -118,8 +118,8 @@ export const db = {
   getActionItems: (): ActionItem[] => getStorage(STORAGE_KEYS.ACTION_ITEMS, initialActionItems),
   saveActionItems: (data: ActionItem[]) => setStorage(STORAGE_KEYS.ACTION_ITEMS, data),
 
-  getMeetingNotes: (): any[] => getStorage('freelinda_meeting_notes', []),
-  saveMeetingNotes: (data: any[]) => setStorage('freelinda_meeting_notes', data),
+  getMeetingNotes: (): any[] => getStorage('freelorine_meeting_notes', []),
+  saveMeetingNotes: (data: any[]) => setStorage('freelorine_meeting_notes', data),
 
   resetToDefaults: () => {
     localStorage.clear();
