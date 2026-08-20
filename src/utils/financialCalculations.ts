@@ -238,3 +238,188 @@ export function formatCurrency(amount: number): string {
 export function formatPercent(value: number): string {
   return (value * 100).toFixed(1) + '%';
 }
+
+export interface MortgageRecastInput {
+  currentBalance: number;
+  annualInterestRate: number;
+  remainingTermMonths: number;
+  lumpSumPayoff: number;
+  recastFee?: number;
+  fedMarginalRate: number;
+  caMarginalRate: number;
+  isItemizingFed: boolean;
+  isItemizingCA: boolean;
+  altInvestmentYield?: number;
+  monthsRemainingIn2026?: number;
+}
+
+export interface TaxYear2026RecastImpact {
+  monthsIn2026: number;
+  interestDeductionLost2026: number;
+  fedTaxIncrease2026: number;
+  caTaxIncrease2026: number;
+  totalTaxIncrease2026: number;
+  safeHarborTargetIncrease2026: number;
+  cashFlowSaved2026: number;
+  netOutofPocket2026: number;
+}
+
+export interface MortgageRecastResult {
+  currentBalance: number;
+  lumpSumPayoff: number;
+  payoffPct: number;
+  newBalance: number;
+  recastFee: number;
+  origMonthlyPayment: number;
+  newMonthlyPayment: number;
+  monthlySavings: number;
+  annualSavings: number;
+  annualInterestBefore: number;
+  annualInterestAfter: number;
+  annualInterestSaved: number;
+  totalLifetimeInterestSaved: number;
+
+  // 2026 Specific Impact
+  taxYear2026: TaxYear2026RecastImpact;
+
+  fedTaxShieldLost: number;
+  caTaxShieldLost: number;
+  totalTaxShieldLost: number;
+  netAnnualBenefit: number;
+  effectiveNetReturn: number;
+  altInvestmentNetYield: number;
+  annualAltInvestmentIncome: number;
+  verdict: 'Highly Beneficial' | 'Favorable' | 'Neutral' | 'Less Favorable';
+  verdictReason: string;
+}
+
+/**
+ * Calculates Mortgage Recast and Principal Paydown math, tax impacts, and ROI vs alternative cash investment.
+ */
+export function calculateMortgageRecast(input: MortgageRecastInput): MortgageRecastResult {
+  const {
+    currentBalance,
+    annualInterestRate,
+    remainingTermMonths,
+    lumpSumPayoff,
+    recastFee = 250,
+    fedMarginalRate,
+    caMarginalRate,
+    isItemizingFed,
+    isItemizingCA,
+    altInvestmentYield = 0.045,
+    monthsRemainingIn2026 = 4
+  } = input;
+
+  const boundedPayoff = Math.min(Math.max(0, lumpSumPayoff), currentBalance);
+  const payoffPct = currentBalance > 0 ? (boundedPayoff / currentBalance) * 100 : 0;
+  const newBalance = Math.max(0, currentBalance - boundedPayoff);
+
+  const r = annualInterestRate / 12;
+  const n = remainingTermMonths;
+
+  // Monthly payment calculation
+  const calcPmt = (bal: number) => {
+    if (bal <= 0 || n <= 0) return 0;
+    if (r === 0) return bal / n;
+    return (bal * (r * Math.pow(1 + r, n))) / (Math.pow(1 + r, n) - 1);
+  };
+
+  const origMonthlyPayment = calcPmt(currentBalance);
+  const newMonthlyPayment = calcPmt(newBalance);
+  const monthlySavings = Math.max(0, origMonthlyPayment - newMonthlyPayment);
+  const annualSavings = monthlySavings * 12;
+
+  // First-year annual interest estimates
+  const annualInterestBefore = currentBalance * annualInterestRate;
+  const annualInterestAfter = newBalance * annualInterestRate;
+  const annualInterestSaved = Math.max(0, annualInterestBefore - annualInterestAfter);
+
+  // Lifetime interest saved over remaining loan term
+  const origTotalRemainingInterest = Math.max(0, origMonthlyPayment * n - currentBalance);
+  const newTotalRemainingInterest = Math.max(0, newMonthlyPayment * n - newBalance);
+  const totalLifetimeInterestSaved = Math.max(0, origTotalRemainingInterest - newTotalRemainingInterest);
+
+  // General Ongoing Tax Shield Loss calculation
+  const fedTaxShieldLost = isItemizingFed ? annualInterestSaved * fedMarginalRate : 0;
+  const caTaxShieldLost = isItemizingCA ? annualInterestSaved * caMarginalRate : 0;
+  const totalTaxShieldLost = fedTaxShieldLost + caTaxShieldLost;
+
+  // 2026 Specific Tax Year Impact (pro-rated for remaining months of 2026)
+  const monthsIn2026 = Math.min(12, Math.max(1, monthsRemainingIn2026));
+  const fraction2026 = monthsIn2026 / 12;
+  const interestDeductionLost2026 = annualInterestSaved * fraction2026;
+  const fedTaxIncrease2026 = isItemizingFed ? interestDeductionLost2026 * fedMarginalRate : 0;
+  const caTaxIncrease2026 = isItemizingCA ? interestDeductionLost2026 * caMarginalRate : 0;
+  const totalTaxIncrease2026 = fedTaxIncrease2026 + caTaxIncrease2026;
+  const safeHarborTargetIncrease2026 = totalTaxIncrease2026 * 0.90;
+  const cashFlowSaved2026 = monthlySavings * monthsIn2026;
+  const netOutofPocket2026 = boundedPayoff + recastFee + totalTaxIncrease2026 - cashFlowSaved2026;
+
+  // Net annual financial benefit of paying down principal
+  const netAnnualBenefit = Math.max(0, annualInterestSaved - totalTaxShieldLost);
+
+  // Effective net tax-adjusted return rate on the lump sum paid
+  const effectiveNetReturn = boundedPayoff > 0 ? netAnnualBenefit / boundedPayoff : annualInterestRate * (1 - (isItemizingFed ? fedMarginalRate : 0) - (isItemizingCA ? caMarginalRate : 0));
+
+  // Alternative safe cash investment (e.g. 4.5% CD) net yield
+  const altInvestmentNetYield = altInvestmentYield * (1 - (fedMarginalRate + caMarginalRate));
+  const annualAltInvestmentIncome = boundedPayoff * altInvestmentNetYield;
+
+  // Financial Verdict determination
+  let verdict: 'Highly Beneficial' | 'Favorable' | 'Neutral' | 'Less Favorable' = 'Favorable';
+  let verdictReason = '';
+
+  if (boundedPayoff <= 0) {
+    verdict = 'Neutral';
+    verdictReason = 'Select a principal paydown amount above $0 to simulate a mortgage recast.';
+  } else if (effectiveNetReturn > altInvestmentNetYield + 0.01) {
+    verdict = 'Highly Beneficial';
+    verdictReason = `Paying off principal yields a net ${formatPercent(effectiveNetReturn)} tax-adjusted return, significantly outperforming a ${formatPercent(altInvestmentYield)} CD (${formatPercent(altInvestmentNetYield)} net after tax).`;
+  } else if (effectiveNetReturn >= altInvestmentNetYield) {
+    verdict = 'Favorable';
+    verdictReason = `Paying down principal yields ${formatPercent(effectiveNetReturn)} net guaranteed return, exceeding CD/cash net returns while eliminating ${formatCurrency(monthlySavings)}/mo in required payment.`;
+  } else {
+    verdict = 'Less Favorable';
+    verdictReason = `Alternative investments returning over ${formatPercent(effectiveNetReturn)} may generate higher net after-tax returns.`;
+  }
+
+  return {
+    currentBalance,
+    lumpSumPayoff: boundedPayoff,
+    payoffPct,
+    newBalance,
+    recastFee,
+    origMonthlyPayment,
+    newMonthlyPayment,
+    monthlySavings,
+    annualSavings,
+    annualInterestBefore,
+    annualInterestAfter,
+    annualInterestSaved,
+    totalLifetimeInterestSaved,
+
+    taxYear2026: {
+      monthsIn2026,
+      interestDeductionLost2026,
+      fedTaxIncrease2026,
+      caTaxIncrease2026,
+      totalTaxIncrease2026,
+      safeHarborTargetIncrease2026,
+      cashFlowSaved2026,
+      netOutofPocket2026
+    },
+
+    fedTaxShieldLost,
+    caTaxShieldLost,
+    totalTaxShieldLost,
+    netAnnualBenefit,
+    effectiveNetReturn,
+    altInvestmentNetYield,
+    annualAltInvestmentIncome,
+    verdict,
+    verdictReason
+  };
+}
+
+

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
+import TaxModeler from './components/TaxModeler';
 
 /* ============================================================
    Objective tax model — every number on the page derives from
@@ -629,7 +630,7 @@ const CHOICE_SHORT: Record<Recommendation['choice'], string> = {
 export const App = () => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
 
-  /* Questionnaire state (supports two partners deciding together) */
+  const [mainTab, setMainTab] = useState<'cd-portfolio' | 'tax-modeling'>('cd-portfolio');
   const [stage, setStage] = useState<Stage>('intro');
   const [mode, setMode] = useState<Mode>('solo');
   const [partnerTurn, setPartnerTurn] = useState(0); // 0 = partner 1, 1 = partner 2
@@ -938,65 +939,113 @@ export const App = () => {
       </a>
 
       {/* Sticky nav */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14 gap-4">
-            <a href="#top" className="flex items-center gap-2.5 shrink-0 group">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-slate-800 to-blue-900 text-white shadow-sm group-hover:shadow-md transition-shadow">
-                <i className="fa-solid fa-scale-balanced text-xs" aria-hidden="true" />
-              </span>
-              <span className="font-bold text-slate-800 text-sm tracking-tight hidden sm:inline">
-                Capital Decision Guide
-              </span>
-            </a>
-            <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar py-1 -mr-1">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className={`nav-pill whitespace-nowrap ${
-                    activeNav === link.href.slice(1) ? 'nav-pill-active' : ''
+      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between py-2 sm:py-0 min-h-[3.5rem] gap-3 sm:gap-4">
+            
+            {/* Logo & Main View Switcher */}
+            <div className="flex items-center justify-between sm:justify-start gap-4">
+              <button 
+                onClick={() => setMainTab('cd-portfolio')}
+                className="flex items-center gap-2.5 shrink-0 text-left group focus:outline-none"
+              >
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-slate-800 to-blue-900 text-white shadow-sm group-hover:shadow-md transition-shadow">
+                  <i className="fa-solid fa-scale-balanced text-xs" aria-hidden="true" />
+                </span>
+                <span className="font-bold text-slate-900 text-sm tracking-tight">
+                  Wealth & Tax Planner
+                </span>
+              </button>
+
+              {/* Primary Navigation Tabs */}
+              <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-xs font-bold shadow-inner">
+                <button
+                  onClick={() => setMainTab('cd-portfolio')}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    mainTab === 'cd-portfolio'
+                      ? 'bg-white text-blue-700 shadow-sm font-semibold'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  {link.label}
-                </a>
-              ))}
+                  <i className="fa-solid fa-chart-pie text-[11px]" />
+                  <span>CD & Portfolio</span>
+                </button>
+                <button
+                  onClick={() => setMainTab('tax-modeling')}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    mainTab === 'tax-modeling'
+                      ? 'bg-white text-blue-700 shadow-sm font-semibold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <i className="fa-solid fa-calculator text-[11px]" />
+                  <span>Tax Modeling</span>
+                </button>
+              </div>
             </div>
+
+            {/* Sub-navigation links (shown when in CD & Portfolio tab) */}
+            {mainTab === 'cd-portfolio' && (
+              <div className="flex items-center gap-0.5 overflow-x-auto no-scrollbar py-1 -mr-1">
+                {NAV_LINKS.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className={`nav-pill whitespace-nowrap ${
+                      activeNav === link.href.slice(1) ? 'nav-pill-active' : ''
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <header id="top" className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(59,130,246,0.25),_transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(16,185,129,0.12),_transparent_50%)]" />
-        <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-slate-200 text-xs font-semibold uppercase tracking-wider mb-6">
-            <i className="fa-solid fa-flask text-sky-300" aria-hidden="true" />
-            Objective · Plain English · No Sales Pitch
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5 leading-[1.1] text-balance max-w-4xl">
-            One safe choice, one tax-smart choice.{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-emerald-300">
-              Which fits your money?
-            </span>
-          </h1>
-          <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed mb-8">
-            You have $460,000 to invest for about 2 years. Option A is a bank CD — safe, but heavily
-            taxed. Option B is a mix of bond funds and dividend stocks — no guarantee, but far lighter
-            taxes. Answer a few plain questions (individually or as a couple) and this tool shows you
-            the numbers, the risks, and a fair way to split the difference.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <a href="#guide" className="btn-primary-light">
-              <i className="fa-solid fa-compass mr-2" aria-hidden="true" />
-              Start Decision Guide
-            </a>
-            <a href="#lab" className="btn-secondary">
-              <i className="fa-solid fa-sliders mr-2" aria-hidden="true" />
-              Try the Scenario Lab
-            </a>
-          </div>
+      {mainTab === 'tax-modeling' ? (
+        <TaxModeler />
+      ) : (
+        <>
+          {/* Hero */}
+          <header id="top" className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(59,130,246,0.25),_transparent_55%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(16,185,129,0.12),_transparent_50%)]" />
+            <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-slate-200 text-xs font-semibold uppercase tracking-wider mb-6">
+                <i className="fa-solid fa-flask text-sky-300" aria-hidden="true" />
+                Objective · Plain English · No Sales Pitch
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5 leading-[1.1] text-balance max-w-4xl">
+                One safe choice, one tax-smart choice.{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-emerald-300">
+                  Which fits your money?
+                </span>
+              </h1>
+              <p className="text-base md:text-lg text-slate-300 max-w-2xl leading-relaxed mb-8">
+                You have $460,000 to invest for about 2 years. Option A is a bank CD — safe, but heavily
+                taxed. Option B is a mix of bond funds and dividend stocks — no guarantee, but far lighter
+                taxes. Answer a few plain questions (individually or as a couple) and this tool shows you
+                the numbers, the risks, and a fair way to split the difference.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a href="#guide" className="btn-primary-light">
+                  <i className="fa-solid fa-compass mr-2" aria-hidden="true" />
+                  Start Decision Guide
+                </a>
+                <a href="#lab" className="btn-secondary">
+                  <i className="fa-solid fa-sliders mr-2" aria-hidden="true" />
+                  Try the Scenario Lab
+                </a>
+                <button 
+                  onClick={() => setMainTab('tax-modeling')}
+                  className="px-4 py-2.5 rounded-xl bg-blue-600/80 hover:bg-blue-600 text-white font-semibold text-sm transition border border-blue-400/40 shadow-sm flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-calculator" aria-hidden="true" />
+                  2026 Tax Modeler
+                </button>
+              </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-12">
             {[
@@ -2373,33 +2422,57 @@ export const App = () => {
               {
                 href: 'https://www.irs.gov/individuals/net-investment-income-tax',
                 icon: 'fa-landmark-dome',
-                title: 'IRS: Net Investment Income Tax',
-                desc: 'The official 3.8% NIIT rules, including the income thresholds ($250k married filing jointly) that trigger it.',
+                title: 'IRS: Net Investment Income Tax (IRC § 1411)',
+                desc: 'The official 3.8% NIIT rules under IRC § 1411, including the MAGI thresholds ($250k MFJ) that trigger it.',
                 cta: 'Read Regulation',
                 tone: 'slate',
               },
               {
-                href: 'https://investor.vanguard.com/investor-resources-education/taxes/tax-saving-investments',
-                icon: 'fa-chart-pie',
-                title: 'Vanguard: Tax-Efficient Investments',
-                desc: 'Why tax-efficient investing matters and how tax-exempt funds benefit higher-bracket investors.',
-                cta: 'Read Research',
-                tone: 'red',
+                href: 'https://www.irs.gov/publications/p936',
+                icon: 'fa-house-chimney',
+                title: 'IRS Pub 936 & IRC § 163(h): Mortgage Interest & Recast',
+                desc: 'Official IRS rules on $750k acquisition mortgage debt limit (Schedule A) and re-amortization deductions.',
+                cta: 'Read IRS Pub 936',
+                tone: 'indigo',
               },
               {
-                href: 'https://www.finra.org/investors/insights/bonds-interest-rate-changes-duration',
-                icon: 'fa-arrow-trend-down',
-                title: 'FINRA: Interest Rate Changes & Duration',
-                desc: 'How rate moves change bond prices and what duration means for the risk of a bond fund.',
-                cta: 'Read Guide',
+                href: 'https://www.ftb.ca.gov/forms/2024/2024-540-booklet.html',
+                icon: 'fa-building-columns',
+                title: 'California FTB Form 540 & RTC § 17201 Rules',
+                desc: 'Official FTB tax booklet specifying CA $1,000,000 mortgage interest deduction limit and state SALT exemption.',
+                cta: 'Read FTB Form 540',
+                tone: 'emerald',
+              },
+              {
+                href: 'https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025',
+                icon: 'fa-file-invoice-dollar',
+                title: 'IRS Rev. Proc. 2024-40: 2026 Standard Deduction',
+                desc: 'Official IRS release establishing the $29,200 Federal Standard Deduction for Married Filing Jointly.',
+                cta: 'Read Release',
+                tone: 'purple',
+              },
+              {
+                href: 'https://www.ftb.ca.gov/forms/2024/2024-5805.pdf',
+                icon: 'fa-shield-halved',
+                title: 'IRS § 6654 & CA FTB Form 5805: Safe Harbor Rule',
+                desc: 'Statutory 90% current year / 110% prior year underpayment protection rules to avoid IRS & FTB penalties.',
+                cta: 'Read FTB Form 5805',
                 tone: 'amber',
               },
               {
+                href: 'https://www.irs.gov/newsroom/401k-limit-increases-to-23500-for-2025-contrib-limits-for-iras-remain-7000',
+                icon: 'fa-piggy-bank',
+                title: '26 U.S.C. § 402(g) & IRS Notice: 401(k) Limits',
+                desc: 'Official 2026 pre-tax 401(k) elective deferral limit ($23,500 standard / $31,000 catch-up for age 50+).',
+                cta: 'Read 401(k) Limits',
+                tone: 'blue',
+              },
+              {
                 href: 'https://www.fdic.gov/resources/deposit-insurance/faq',
-                icon: 'fa-shield-halved',
+                icon: 'fa-shield-cat',
                 title: 'FDIC: Deposit Insurance FAQ',
-                desc: 'The official $250,000 coverage limit and how ownership categories (single, joint, trust) affect protection.',
-                cta: 'Read Official FAQ',
+                desc: 'The official $250,000 coverage limit per depositor per bank, and joint account coverage rules.',
+                cta: 'Read FDIC FAQ',
                 tone: 'purple',
               },
             ].map((card) => (
@@ -2442,36 +2515,35 @@ export const App = () => {
           </div>
           <div className="max-w-3xl">
             <p className="font-bold mb-3 text-slate-500 text-sm uppercase tracking-wide">
-              Sources, Methodology & Data As-Of Dates
+              Sources, Statutory Methodology & Data As-Of Dates
             </p>
             <ul className="list-disc pl-5 space-y-2 text-sm text-slate-500 leading-relaxed">
               <li>
                 <strong className="text-slate-600">Tax model (illustrative top-bracket scenario):</strong>{' '}
                 CD interest taxed at federal + state + 3.8% NIIT (when federal ≥ 32%). Portfolio taxed
-                per fund: SGOV (40%) at federal + NIIT (state-exempt), CMF (40%) fully exempt, SCHD (20%)
-                at qualified rate + state + NIIT. Top rates used in the default scenario: 37% federal
-                (applies above ~$609k single / ~$731k married filing jointly) and 13.3% California
-                (12.3% top bracket plus a 1% surcharge on income over $1M). The Scenario Lab lets you
-                adjust both. Sources: IRS (irs.gov/individuals/net-investment-income-tax), California
-                FTB via Tax Foundation 2026 state tax data, Charles Schwab fixed-income FAQ.
+                per fund: SGOV (40%) at federal + NIIT (state-exempt under 31 U.S.C. § 3124), CMF (40%) fully exempt under IRC § 103 & CA RTC § 17133, SCHD (20%)
+                at qualified rate + state + NIIT under IRC § 1(h)(11). Top rates used in the default scenario: 37% federal
+                (applies above ~$609k single / ~$731k married filing jointly under 26 U.S.C. § 1) and 13.3% California
+                (12.3% top bracket plus a 1% surcharge on income over $1M under CA RTC § 17041). The Scenario Lab lets you
+                adjust both. Sources:{' '}
+                <a href="https://www.irs.gov/individuals/net-investment-income-tax" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">IRS NIIT Guide</a>,{' '}
+                <a href="https://www.ftb.ca.gov/forms/2024/2024-540-booklet.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">CA FTB Form 540</a>,{' '}
+                <a href="https://www.law.cornell.edu/uscode/text/26/163" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">IRC § 163(h)</a>.
               </li>
               <li>
-                <strong className="text-slate-600">CD rate:</strong> 4.50% APY is the top national
-                offer as of August 11, 2026 (NerdWallet; Popular Direct 3-yr & 5-yr, Bread Savings
-                18-month). Typical 2-year terms pay ≈4.1–4.4% (Investopedia “Best 2-Year CD Rates,” July
-                2026, up to 4.42%; Bankrate national 2-yr average 1.82%). If the CD pays 4.30% instead
+                <strong className="text-slate-600">CD rate & Treasury Benchmarks:</strong> 4.50% APY is the top national
+                offer as of August 2026 (<a href="https://www.treasurydirect.gov/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">TreasuryDirect</a> & Popular Direct 3-yr & 5-yr, Bread Savings
+                18-month). Typical 2-year terms pay ≈4.1–4.4%. If the CD pays 4.30% instead
                 of 4.50%, the 2-year net drops from ≈$19,000 to ≈$18,200.
               </li>
               <li>
                 <strong className="text-slate-600">Portfolio yield:</strong> 3.38% is the blended
                 30-day SEC yield of the three funds, weighted 40/40/20, as of early August 2026 — SGOV
-                3.59% (iShares, Aug 11, 2026), CMF 3.25% (iShares, Aug 6, 2026), SCHD 3.20% (Schwab
-                Asset Management, Aug 10, 2026). SEC yields are snapshots and will change.
+                3.59% (<a href="https://www.ishares.com/us/products/314116/ishares-0-3-month-treasury-bond-etf" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">iShares SGOV</a>), CMF 3.25% (<a href="https://www.ishares.com/us/products/239734/ishares-california-amtfree-muni-bond-etf" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">iShares CMF</a>), SCHD 3.20% (<a href="https://www.schwabassetmanagement.com/products/schd" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">Schwab SCHD</a>). SEC yields are snapshots and will change.
               </li>
               <li>
                 <strong className="text-slate-600">FDIC coverage:</strong> up to $250,000 per
-                depositor, per FDIC-insured bank, per ownership category (FDIC.gov Deposit Insurance
-                FAQ). A joint account covers up to $250,000 per co-owner, so $460,000 can be fully
+                depositor, per FDIC-insured bank, per ownership category (<a href="https://www.fdic.gov/resources/deposit-insurance/faq" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">FDIC Deposit Insurance FAQ</a>). A joint account covers up to $250,000 per co-owner, so $460,000 can be fully
                 covered if held jointly; in a single name $210,000 is uninsured.
               </li>
               <li>
@@ -2486,6 +2558,8 @@ export const App = () => {
           </div>
         </footer>
       </main>
+      </>
+      )}
     </div>
   );
 };

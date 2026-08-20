@@ -15,8 +15,7 @@ export const auth = getAuth(firebaseApp);
 export const googleProvider = new GoogleAuthProvider();
 
 export const ALLOWED_EMAILS = [
-  'jammy.pate@gmail.com',
-  'linda.a.dada@gmail.com'
+  'jammy.pate@gmail.com'
 ];
 
 export function isAllowedEmail(email: string | null | undefined): boolean {

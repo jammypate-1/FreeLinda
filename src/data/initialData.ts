@@ -15,32 +15,32 @@ import {
 } from '../types/financial';
 
 export const initialClientProfile: ClientProfile = {
-  name: "Lorine",
+  name: "Primary Client",
   relationship: "Primary Client",
   dob: "1982-08-14",
   age: 44,
   dependent: false,
   taxDependent: false,
   residency: "US Citizen, California",
-  occupation: "Engineering Executive (Peregrine)",
+  occupation: "Engineering Executive",
   healthNotes: "Good health, non-smoker",
-  planningNotes: "Married (Husband started new job mid-March). Primary equity concentration in Peregrine (QSBS common shares & ISO options). Goal: Financial independence / retire from tech upon IPO event. Target 1-year emergency reserve in SGOV/FLOT.",
+  planningNotes: "Married. Primary equity concentration in Stock (QSBS common shares & ISO options). Goal: Financial independence / retire from tech upon IPO event. Target 1-year emergency reserve in SGOV/FLOT.",
   riskTolerance: "Moderately Aggressive",
   riskScoreDate: "2026-08-11",
   riskScope: "Comprehensive Retirement, Tax, QSBS & Estate Planning",
   lossTolerance: "Moderate - comfortable with private equity growth & volatility strategy",
   liquidityPreference: "Requires 1-Year liquid emergency reserve ($60k SGOV/FLOT target)",
-  valuesConstraints: "Peregrine QSBS tax exclusion rules (IRC Sec 1202) & 10b5-1 trading plan execution",
+  valuesConstraints: "Stock QSBS tax exclusion rules (IRC Sec 1202) & 10b5-1 trading plan execution",
   advisors: [
     {
       role: "Primary Wealth Advisor",
-      name: "Jammy Pate",
-      contact: "FreeLorine Advisory",
-      email: "jammy.pate@gmail.com",
-      phone: "(650) 796-1036",
+      name: "Wealth Advisor",
+      contact: "Wealth Advisory",
+      email: "advisor@wealthadvisory.com",
+      phone: "(650) 555-0100",
       address: "California, USA",
       permission: true,
-      notes: "Lead Wealth Planner & Financial Strategist for Lorine"
+      notes: "Lead Wealth Planner & Financial Strategist"
     },
     {
       role: "CPA / Tax Accountant",
@@ -90,7 +90,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-02",
-    name: "220,000 Peregrine Common Shares (CS-82)",
+    name: "220,000 Common Shares (CS-82)",
     type: "Taxable Investment",
     institution: "Carta",
     accountLast4: "CS-82",
@@ -107,7 +107,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-03",
-    name: "10,000 Peregrine Common Shares (CS-83)",
+    name: "10,000 Common Shares (CS-83)",
     type: "Taxable Investment",
     institution: "Carta",
     accountLast4: "CS-83",
@@ -124,7 +124,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-04",
-    name: "10,000 Peregrine Common Shares (CS-127)",
+    name: "10,000 Common Shares (CS-127)",
     type: "Taxable Investment",
     institution: "Carta",
     accountLast4: "CS-127",
@@ -141,7 +141,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-05",
-    name: "7,500 Peregrine Options ISO (ES-321)",
+    name: "7,500 Options ISO (ES-321)",
     type: "Taxable Investment",
     institution: "Carta",
     accountLast4: "ES-321",
@@ -158,7 +158,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-06",
-    name: "4,000 Peregrine Options ISO (ES-739)",
+    name: "4,000 Options ISO (ES-739)",
     type: "Taxable Investment",
     institution: "Carta",
     accountLast4: "ES-739",
@@ -243,7 +243,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-11",
-    name: "Peregrine 401(k) Plan",
+    name: "Company 401(k) Plan",
     type: "Traditional Retirement",
     institution: "Vestwell",
     accountLast4: "401K",
@@ -263,9 +263,9 @@ export const initialAssetAccounts: AssetAccount[] = [
 export const initialTaxLots: TaxLot[] = [
   {
     id: "LOT-01",
-    ticker: "PEREGRINE",
-    name: "Peregrine Common Shares (CS-82)",
-    assetName: "220,000 Peregrine Common Shares (CS-82)",
+    ticker: "STOCK",
+    name: "Common Shares (CS-82)",
+    assetName: "220,000 Common Shares (CS-82)",
     acquisitionDate: "2023-05-01",
     term: "Long Term",
     shares: 220000,
@@ -278,9 +278,9 @@ export const initialTaxLots: TaxLot[] = [
   },
   {
     id: "LOT-02",
-    ticker: "PEREGRINE",
-    name: "Peregrine Common Shares (CS-83)",
-    assetName: "10,000 Peregrine Common Shares (CS-83)",
+    ticker: "STOCK",
+    name: "Common Shares (CS-83)",
+    assetName: "10,000 Common Shares (CS-83)",
     acquisitionDate: "2023-05-01",
     term: "Long Term",
     shares: 10000,
@@ -293,9 +293,9 @@ export const initialTaxLots: TaxLot[] = [
   },
   {
     id: "LOT-03",
-    ticker: "PEREGRINE",
-    name: "Peregrine Common Shares (CS-127)",
-    assetName: "10,000 Peregrine Common Shares (CS-127)",
+    ticker: "STOCK",
+    name: "Common Shares (CS-127)",
+    assetName: "10,000 Common Shares (CS-127)",
     acquisitionDate: "2024-04-01",
     term: "Long Term",
     shares: 10000,
@@ -314,8 +314,8 @@ export const initialLiabilities: Liability[] = [
     owner: "Primary Client",
     creditor: "Rocket Mortgage",
     type: "Primary Residence Mortgage",
-    securedBy: "House (1945 Bradhoff Ave)",
-    currentBalance: 623109.06,
+    securedBy: "Primary Residence",
+    currentBalance: 650000,
     interestRate: 0.06125,
     minMonthlyPayment: 3840.10,
     plannedMonthlyPayment: 3840.10,
@@ -354,7 +354,7 @@ export const initialLiabilities: Liability[] = [
     taxDeductible: false,
     variableRate: false,
     priority: "Medium",
-    notes: "Husband Tesla vehicle loan.",
+    notes: "Spouse Tesla vehicle loan.",
     status: "Active"
   },
   {
@@ -412,9 +412,9 @@ export const initialCashFlowItems: CashFlowItem[] = [
     id: "CF-01",
     type: "Income",
     category: "Salary & Wages",
-    description: "Lorine Paycheck (Peregrine)",
+    description: "Income 1 Paycheck (Stock)",
     incomeTaxClassification: "Earned",
-    owner: "Lorine",
+    owner: "Primary Client",
     frequency: "Biweekly",
     amountPerFrequency: 5928.25,
     monthlyAmount: 11856.50,
@@ -428,7 +428,7 @@ export const initialCashFlowItems: CashFlowItem[] = [
     id: "CF-02",
     type: "Income",
     category: "Salary & Wages",
-    description: "Husband Paycheck",
+    description: "Income 2 Paycheck",
     incomeTaxClassification: "Earned",
     owner: "Co-Client / Spouse",
     frequency: "Weekly",
@@ -474,12 +474,12 @@ export const initialCashFlowItems: CashFlowItem[] = [
     id: "CF-05",
     type: "Expense",
     category: "Taxes",
-    description: "Property Taxes (1945 Bradhoff Ave)",
+    description: "Property Taxes (Primary Residence)",
     owner: "Primary Client",
     frequency: "Annual",
-    amountPerFrequency: 13653.48,
-    monthlyAmount: 1137.79,
-    annualAmount: 13653.48,
+    amountPerFrequency: 10000,
+    monthlyAmount: 833.33,
+    annualAmount: 10000,
     essential: true,
     taxDeductible: true,
     notes: "Alameda County property tax.",
@@ -736,10 +736,10 @@ export const initialSocialSecurityScenarios: SocialSecurityScenario[] = [
 ];
 
 export const initialHedgeConfig: OptionHedgeConfig = {
-  underlyingTicker: "PEREGRINE",
+  underlyingTicker: "STOCK",
   underlyingPrice: 20.91,
   sharesHeld: 240000,
-  optionTicker: "PEREGRINE-COLLAR",
+  optionTicker: "STOCK-COLLAR",
   optionPrice: 1.50,
   contracts: 2400,
   longPutStrike: 18.00,
@@ -789,9 +789,9 @@ export const initialEstateItems: EstateItem[] = [
 export const initialBeneficiaries: BeneficiaryRecord[] = [
   {
     id: "BEN-01",
-    accountPolicy: "Peregrine 401(k) Plan (Vestwell)",
+    accountPolicy: "Company 401(k) Plan (Vestwell)",
     owner: "Primary Client",
-    primaryBeneficiary: "Husband",
+    primaryBeneficiary: "Spouse",
     primaryPct: 100,
     contingentBeneficiary: "Children / Trust",
     contingentPct: 100,
@@ -823,7 +823,7 @@ export const initialDocuments: DocumentItem[] = [
     dateReceived: "2026-08-05",
     storageLink: "/vault/income/paystub_aug2026.pdf",
     status: "Received",
-    notes: "Lorine $5,928.25 biweekly net paycheck stub."
+    notes: "$5,928.25 biweekly net paycheck stub."
   }
 ];
 
@@ -831,8 +831,8 @@ export const initialActionItems: ActionItem[] = [
   {
     id: "ACT-01",
     planningArea: "Option & Equity Strategy",
-    actionItem: "Create a Rule 10b5-1 trading plan for Peregrine shares",
-    owner: "Lorine & Advisor",
+    actionItem: "Create a Rule 10b5-1 trading plan for stock shares",
+    owner: "Client & Advisor",
     priority: "High",
     dueDate: "2026-09-30",
     status: "In Progress",
@@ -843,7 +843,7 @@ export const initialActionItems: ActionItem[] = [
     id: "ACT-02",
     planningArea: "Estate Planning",
     actionItem: "Open Revocable Living Trust for family asset protection",
-    owner: "Lorine",
+    owner: "Primary Client",
     priority: "High",
     dueDate: "2026-10-31",
     status: "Not Started",
@@ -854,7 +854,7 @@ export const initialActionItems: ActionItem[] = [
     id: "ACT-03",
     planningArea: "Cash & Emergency Reserve",
     actionItem: "Allocate $60,000 into SGOV or FLOT short-term treasury ETF",
-    owner: "Lorine",
+    owner: "Primary Client",
     priority: "High",
     dueDate: "2026-09-15",
     status: "In Progress",
