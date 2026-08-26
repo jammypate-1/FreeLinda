@@ -58,12 +58,13 @@ export function getFallbackMarketSeries(symbol: MarketSymbol, timeframe: MarketT
 
 export async function fetchMarketSeries(symbol: MarketSymbol, timeframe: MarketTimeframe): Promise<MarketSeries> {
   try {
-    const token = await auth.currentUser?.getIdToken();
-    if (!token) return getFallbackMarketSeries(symbol, timeframe);
+    const token = await auth.currentUser?.getIdToken().catch(() => null);
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
-    const response = await fetch(`/api/market-data?symbol=${symbol}&timeframe=${timeframe}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await fetch(`/api/market-data?symbol=${symbol}&timeframe=${timeframe}`, { headers });
     if (!response.ok) {
       return getFallbackMarketSeries(symbol, timeframe);
     }

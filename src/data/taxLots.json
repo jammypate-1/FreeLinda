@@ -8,11 +8,11 @@
     "term": "Short Term",
     "shares": 9.591,
     "costBasisPerShare": 379.38,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3638.63,
-    "totalCurrentValue": 3313.69,
-    "unrealizedGainLoss": -324.94,
-    "unrealizedGainLossPct": -8.93
+    "totalCurrentValue": 3292.97,
+    "unrealizedGainLoss": -345.66,
+    "unrealizedGainLossPct": -9.5
   },
   {
     "id": "TL-002",
@@ -23,11 +23,11 @@
     "term": "Short Term",
     "shares": 4.197,
     "costBasisPerShare": 379.38,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1592.26,
-    "totalCurrentValue": 1450.06,
-    "unrealizedGainLoss": -142.2,
-    "unrealizedGainLossPct": -8.93
+    "totalCurrentValue": 1441.0,
+    "unrealizedGainLoss": -151.26,
+    "unrealizedGainLossPct": -9.5
   },
   {
     "id": "TL-003",
@@ -38,11 +38,11 @@
     "term": "Short Term",
     "shares": 4.182,
     "costBasisPerShare": 379.38,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1586.57,
-    "totalCurrentValue": 1444.88,
-    "unrealizedGainLoss": -141.69,
-    "unrealizedGainLossPct": -8.93
+    "totalCurrentValue": 1435.85,
+    "unrealizedGainLoss": -150.72,
+    "unrealizedGainLossPct": -9.5
   },
   {
     "id": "TL-004",
@@ -53,11 +53,11 @@
     "term": "Short Term",
     "shares": 2.381,
     "costBasisPerShare": 379.38,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 903.3,
-    "totalCurrentValue": 822.64,
-    "unrealizedGainLoss": -80.66,
-    "unrealizedGainLossPct": -8.93
+    "totalCurrentValue": 817.49,
+    "unrealizedGainLoss": -85.81,
+    "unrealizedGainLossPct": -9.5
   },
   {
     "id": "TL-005",
@@ -68,11 +68,11 @@
     "term": "Short Term",
     "shares": 2.383,
     "costBasisPerShare": 345.04,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 822.23,
-    "totalCurrentValue": 823.33,
-    "unrealizedGainLoss": 1.1,
-    "unrealizedGainLossPct": 0.13
+    "totalCurrentValue": 818.18,
+    "unrealizedGainLoss": -4.05,
+    "unrealizedGainLossPct": -0.49
   },
   {
     "id": "TL-006",
@@ -83,11 +83,11 @@
     "term": "Short Term",
     "shares": 2.381,
     "costBasisPerShare": 342.32,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 815.06,
-    "totalCurrentValue": 822.64,
-    "unrealizedGainLoss": 7.58,
-    "unrealizedGainLossPct": 0.93
+    "totalCurrentValue": 817.49,
+    "unrealizedGainLoss": 2.43,
+    "unrealizedGainLossPct": 0.3
   },
   {
     "id": "TL-007",
@@ -98,11 +98,11 @@
     "term": "Short Term",
     "shares": 4.2,
     "costBasisPerShare": 345.04,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1449.17,
-    "totalCurrentValue": 1451.1,
-    "unrealizedGainLoss": 1.93,
-    "unrealizedGainLossPct": 0.13
+    "totalCurrentValue": 1442.03,
+    "unrealizedGainLoss": -7.14,
+    "unrealizedGainLossPct": -0.49
   },
   {
     "id": "TL-008",
@@ -113,11 +113,11 @@
     "term": "Short Term",
     "shares": 4.784,
     "costBasisPerShare": 345.04,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1650.67,
-    "totalCurrentValue": 1652.87,
-    "unrealizedGainLoss": 2.2,
-    "unrealizedGainLossPct": 0.13
+    "totalCurrentValue": 1642.54,
+    "unrealizedGainLoss": -8.13,
+    "unrealizedGainLossPct": -0.49
   },
   {
     "id": "TL-009",
@@ -128,11 +128,11 @@
     "term": "Short Term",
     "shares": 4.182,
     "costBasisPerShare": 342.32,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1431.58,
-    "totalCurrentValue": 1444.88,
-    "unrealizedGainLoss": 13.3,
-    "unrealizedGainLossPct": 0.93
+    "totalCurrentValue": 1435.85,
+    "unrealizedGainLoss": 4.27,
+    "unrealizedGainLossPct": 0.3
   },
   {
     "id": "TL-010",
@@ -143,11 +143,11 @@
     "term": "Short Term",
     "shares": 4.797,
     "costBasisPerShare": 342.32,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1642.11,
-    "totalCurrentValue": 1657.36,
-    "unrealizedGainLoss": 15.25,
-    "unrealizedGainLossPct": 0.93
+    "totalCurrentValue": 1647.0,
+    "unrealizedGainLoss": 4.89,
+    "unrealizedGainLossPct": 0.3
   },
   {
     "id": "TL-011",
@@ -158,11 +158,11 @@
     "term": "Short Term",
     "shares": 8.998,
     "costBasisPerShare": 345.04,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3104.67,
-    "totalCurrentValue": 3108.81,
-    "unrealizedGainLoss": 4.14,
-    "unrealizedGainLossPct": 0.13
+    "totalCurrentValue": 3089.37,
+    "unrealizedGainLoss": -15.3,
+    "unrealizedGainLossPct": -0.49
   },
   {
     "id": "TL-012",
@@ -173,11 +173,11 @@
     "term": "Short Term",
     "shares": 8.993,
     "costBasisPerShare": 342.32,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3078.48,
-    "totalCurrentValue": 3107.08,
-    "unrealizedGainLoss": 28.6,
-    "unrealizedGainLossPct": 0.93
+    "totalCurrentValue": 3087.66,
+    "unrealizedGainLoss": 9.18,
+    "unrealizedGainLossPct": 0.3
   },
   {
     "id": "TL-013",
@@ -188,11 +188,11 @@
     "term": "Short Term",
     "shares": 1.786,
     "costBasisPerShare": 289.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 516.51,
-    "totalCurrentValue": 617.06,
-    "unrealizedGainLoss": 100.55,
-    "unrealizedGainLossPct": 19.47
+    "totalCurrentValue": 613.21,
+    "unrealizedGainLoss": 96.7,
+    "unrealizedGainLossPct": 18.72
   },
   {
     "id": "TL-014",
@@ -203,11 +203,11 @@
     "term": "Short Term",
     "shares": 4.778,
     "costBasisPerShare": 328.43,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1569.24,
-    "totalCurrentValue": 1650.8,
-    "unrealizedGainLoss": 81.56,
-    "unrealizedGainLossPct": 5.2
+    "totalCurrentValue": 1640.48,
+    "unrealizedGainLoss": 71.24,
+    "unrealizedGainLossPct": 4.54
   },
   {
     "id": "TL-015",
@@ -218,11 +218,11 @@
     "term": "Short Term",
     "shares": 4.793,
     "costBasisPerShare": 328.43,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1574.16,
-    "totalCurrentValue": 1655.98,
-    "unrealizedGainLoss": 81.82,
-    "unrealizedGainLossPct": 5.2
+    "totalCurrentValue": 1645.63,
+    "unrealizedGainLoss": 71.47,
+    "unrealizedGainLossPct": 4.54
   },
   {
     "id": "TL-016",
@@ -233,11 +233,11 @@
     "term": "Short Term",
     "shares": 4.173,
     "costBasisPerShare": 318.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1328.98,
-    "totalCurrentValue": 1441.77,
-    "unrealizedGainLoss": 112.79,
-    "unrealizedGainLossPct": 8.49
+    "totalCurrentValue": 1432.76,
+    "unrealizedGainLoss": 103.78,
+    "unrealizedGainLossPct": 7.81
   },
   {
     "id": "TL-017",
@@ -248,11 +248,11 @@
     "term": "Short Term",
     "shares": 4.188,
     "costBasisPerShare": 318.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1333.75,
-    "totalCurrentValue": 1446.95,
-    "unrealizedGainLoss": 113.2,
-    "unrealizedGainLossPct": 8.49
+    "totalCurrentValue": 1437.91,
+    "unrealizedGainLoss": 104.16,
+    "unrealizedGainLossPct": 7.81
   },
   {
     "id": "TL-018",
@@ -263,11 +263,11 @@
     "term": "Short Term",
     "shares": 4.176,
     "costBasisPerShare": 315.67,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1318.24,
-    "totalCurrentValue": 1442.81,
-    "unrealizedGainLoss": 124.57,
-    "unrealizedGainLossPct": 9.45
+    "totalCurrentValue": 1433.79,
+    "unrealizedGainLoss": 115.55,
+    "unrealizedGainLossPct": 8.77
   },
   {
     "id": "TL-019",
@@ -278,11 +278,11 @@
     "term": "Short Term",
     "shares": 4.19,
     "costBasisPerShare": 315.67,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1322.66,
-    "totalCurrentValue": 1447.65,
-    "unrealizedGainLoss": 124.99,
-    "unrealizedGainLossPct": 9.45
+    "totalCurrentValue": 1438.59,
+    "unrealizedGainLoss": 115.93,
+    "unrealizedGainLossPct": 8.76
   },
   {
     "id": "TL-020",
@@ -293,11 +293,11 @@
     "term": "Short Term",
     "shares": 4.179,
     "costBasisPerShare": 310.92,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1299.33,
-    "totalCurrentValue": 1443.84,
-    "unrealizedGainLoss": 144.51,
-    "unrealizedGainLossPct": 11.12
+    "totalCurrentValue": 1434.82,
+    "unrealizedGainLoss": 135.49,
+    "unrealizedGainLossPct": 10.43
   },
   {
     "id": "TL-021",
@@ -308,11 +308,11 @@
     "term": "Short Term",
     "shares": 4.194,
     "costBasisPerShare": 310.92,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1304.0,
-    "totalCurrentValue": 1449.03,
-    "unrealizedGainLoss": 145.03,
-    "unrealizedGainLossPct": 11.12
+    "totalCurrentValue": 1439.97,
+    "unrealizedGainLoss": 135.97,
+    "unrealizedGainLossPct": 10.43
   },
   {
     "id": "TL-022",
@@ -323,11 +323,11 @@
     "term": "Short Term",
     "shares": 8.986,
     "costBasisPerShare": 328.43,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2951.27,
-    "totalCurrentValue": 3104.66,
-    "unrealizedGainLoss": 153.39,
-    "unrealizedGainLossPct": 5.2
+    "totalCurrentValue": 3085.25,
+    "unrealizedGainLoss": 133.98,
+    "unrealizedGainLossPct": 4.54
   },
   {
     "id": "TL-023",
@@ -338,11 +338,11 @@
     "term": "Short Term",
     "shares": 4.197,
     "costBasisPerShare": 289.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1213.77,
-    "totalCurrentValue": 1450.06,
-    "unrealizedGainLoss": 236.29,
-    "unrealizedGainLossPct": 19.47
+    "totalCurrentValue": 1441.0,
+    "unrealizedGainLoss": 227.23,
+    "unrealizedGainLossPct": 18.72
   },
   {
     "id": "TL-024",
@@ -353,11 +353,11 @@
     "term": "Short Term",
     "shares": 4.781,
     "costBasisPerShare": 289.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1382.67,
-    "totalCurrentValue": 1651.84,
-    "unrealizedGainLoss": 269.17,
-    "unrealizedGainLossPct": 19.47
+    "totalCurrentValue": 1641.51,
+    "unrealizedGainLoss": 258.84,
+    "unrealizedGainLossPct": 18.72
   },
   {
     "id": "TL-025",
@@ -368,11 +368,11 @@
     "term": "Short Term",
     "shares": 8.973,
     "costBasisPerShare": 318.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2857.63,
-    "totalCurrentValue": 3100.17,
-    "unrealizedGainLoss": 242.54,
-    "unrealizedGainLossPct": 8.49
+    "totalCurrentValue": 3080.79,
+    "unrealizedGainLoss": 223.16,
+    "unrealizedGainLossPct": 7.81
   },
   {
     "id": "TL-026",
@@ -383,11 +383,11 @@
     "term": "Short Term",
     "shares": 10.11,
     "costBasisPerShare": 315.67,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3191.42,
-    "totalCurrentValue": 3493.0,
-    "unrealizedGainLoss": 301.58,
-    "unrealizedGainLossPct": 9.45
+    "totalCurrentValue": 3471.17,
+    "unrealizedGainLoss": 279.75,
+    "unrealizedGainLossPct": 8.77
   },
   {
     "id": "TL-027",
@@ -398,11 +398,11 @@
     "term": "Short Term",
     "shares": 9.585,
     "costBasisPerShare": 310.92,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2980.17,
-    "totalCurrentValue": 3311.62,
-    "unrealizedGainLoss": 331.45,
-    "unrealizedGainLossPct": 11.12
+    "totalCurrentValue": 3290.91,
+    "unrealizedGainLoss": 310.74,
+    "unrealizedGainLossPct": 10.43
   },
   {
     "id": "TL-028",
@@ -413,11 +413,11 @@
     "term": "Short Term",
     "shares": 4.173,
     "costBasisPerShare": 247.83,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1034.19,
-    "totalCurrentValue": 1441.77,
-    "unrealizedGainLoss": 407.58,
-    "unrealizedGainLossPct": 39.41
+    "totalCurrentValue": 1432.76,
+    "unrealizedGainLoss": 398.57,
+    "unrealizedGainLossPct": 38.54
   },
   {
     "id": "TL-029",
@@ -428,11 +428,11 @@
     "term": "Short Term",
     "shares": 4.188,
     "costBasisPerShare": 247.83,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1037.91,
-    "totalCurrentValue": 1446.95,
-    "unrealizedGainLoss": 409.04,
-    "unrealizedGainLossPct": 39.41
+    "totalCurrentValue": 1437.91,
+    "unrealizedGainLoss": 400.0,
+    "unrealizedGainLossPct": 38.54
   },
   {
     "id": "TL-030",
@@ -443,11 +443,11 @@
     "term": "Short Term",
     "shares": 4.77,
     "costBasisPerShare": 260.51,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1242.63,
-    "totalCurrentValue": 1648.03,
-    "unrealizedGainLoss": 405.4,
-    "unrealizedGainLossPct": 32.62
+    "totalCurrentValue": 1637.73,
+    "unrealizedGainLoss": 395.1,
+    "unrealizedGainLossPct": 31.8
   },
   {
     "id": "TL-031",
@@ -458,11 +458,11 @@
     "term": "Short Term",
     "shares": 4.786,
     "costBasisPerShare": 260.51,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1246.8,
-    "totalCurrentValue": 1653.56,
-    "unrealizedGainLoss": 406.76,
-    "unrealizedGainLossPct": 32.62
+    "totalCurrentValue": 1643.23,
+    "unrealizedGainLoss": 396.43,
+    "unrealizedGainLossPct": 31.8
   },
   {
     "id": "TL-032",
@@ -473,11 +473,11 @@
     "term": "Short Term",
     "shares": 9.591,
     "costBasisPerShare": 289.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2773.72,
-    "totalCurrentValue": 3313.69,
-    "unrealizedGainLoss": 539.97,
-    "unrealizedGainLossPct": 19.47
+    "totalCurrentValue": 3292.97,
+    "unrealizedGainLoss": 519.25,
+    "unrealizedGainLossPct": 18.72
   },
   {
     "id": "TL-033",
@@ -488,11 +488,11 @@
     "term": "Short Term",
     "shares": 4.222,
     "costBasisPerShare": 206.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 872.77,
-    "totalCurrentValue": 1458.7,
-    "unrealizedGainLoss": 585.93,
-    "unrealizedGainLossPct": 67.13
+    "totalCurrentValue": 1449.58,
+    "unrealizedGainLoss": 576.81,
+    "unrealizedGainLossPct": 66.09
   },
   {
     "id": "TL-034",
@@ -503,11 +503,11 @@
     "term": "Long Term",
     "shares": 4.174,
     "costBasisPerShare": 201.9,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 842.73,
-    "totalCurrentValue": 1442.12,
-    "unrealizedGainLoss": 599.39,
-    "unrealizedGainLossPct": 71.12
+    "totalCurrentValue": 1433.1,
+    "unrealizedGainLoss": 590.37,
+    "unrealizedGainLossPct": 70.05
   },
   {
     "id": "TL-035",
@@ -518,11 +518,11 @@
     "term": "Short Term",
     "shares": 4.185,
     "costBasisPerShare": 193.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 808.54,
-    "totalCurrentValue": 1445.92,
-    "unrealizedGainLoss": 637.38,
-    "unrealizedGainLossPct": 78.83
+    "totalCurrentValue": 1436.88,
+    "unrealizedGainLoss": 628.34,
+    "unrealizedGainLossPct": 77.71
   },
   {
     "id": "TL-036",
@@ -533,11 +533,11 @@
     "term": "Short Term",
     "shares": 4.212,
     "costBasisPerShare": 193.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 813.76,
-    "totalCurrentValue": 1455.25,
-    "unrealizedGainLoss": 641.49,
-    "unrealizedGainLossPct": 78.83
+    "totalCurrentValue": 1446.15,
+    "unrealizedGainLoss": 632.39,
+    "unrealizedGainLossPct": 77.71
   },
   {
     "id": "TL-037",
@@ -548,11 +548,11 @@
     "term": "Short Term",
     "shares": 4.766,
     "costBasisPerShare": 206.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 985.23,
-    "totalCurrentValue": 1646.65,
-    "unrealizedGainLoss": 661.42,
-    "unrealizedGainLossPct": 67.13
+    "totalCurrentValue": 1636.36,
+    "unrealizedGainLoss": 651.13,
+    "unrealizedGainLossPct": 66.09
   },
   {
     "id": "TL-038",
@@ -563,11 +563,11 @@
     "term": "Long Term",
     "shares": 2.655,
     "costBasisPerShare": 89.81,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 238.45,
-    "totalCurrentValue": 917.3,
-    "unrealizedGainLoss": 678.85,
-    "unrealizedGainLossPct": 284.69
+    "totalCurrentValue": 911.57,
+    "unrealizedGainLoss": 673.12,
+    "unrealizedGainLossPct": 282.29
   },
   {
     "id": "TL-039",
@@ -578,11 +578,11 @@
     "term": "Long Term",
     "shares": 4.174,
     "costBasisPerShare": 181.19,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 756.29,
-    "totalCurrentValue": 1442.12,
-    "unrealizedGainLoss": 685.83,
-    "unrealizedGainLossPct": 90.68
+    "totalCurrentValue": 1433.1,
+    "unrealizedGainLoss": 676.81,
+    "unrealizedGainLossPct": 89.49
   },
   {
     "id": "TL-040",
@@ -593,11 +593,11 @@
     "term": "Long Term",
     "shares": 4.146,
     "costBasisPerShare": 176.33,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 731.06,
-    "totalCurrentValue": 1432.44,
-    "unrealizedGainLoss": 701.38,
-    "unrealizedGainLossPct": 95.94
+    "totalCurrentValue": 1423.49,
+    "unrealizedGainLoss": 692.43,
+    "unrealizedGainLossPct": 94.72
   },
   {
     "id": "TL-041",
@@ -608,11 +608,11 @@
     "term": "Long Term",
     "shares": 4.165,
     "costBasisPerShare": 169.93,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 707.76,
-    "totalCurrentValue": 1439.01,
-    "unrealizedGainLoss": 731.25,
-    "unrealizedGainLossPct": 103.32
+    "totalCurrentValue": 1430.01,
+    "unrealizedGainLoss": 722.25,
+    "unrealizedGainLossPct": 102.05
   },
   {
     "id": "TL-042",
@@ -623,11 +623,11 @@
     "term": "Long Term",
     "shares": 4.17,
     "costBasisPerShare": 167.74,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 699.48,
-    "totalCurrentValue": 1440.73,
-    "unrealizedGainLoss": 741.25,
-    "unrealizedGainLossPct": 105.97
+    "totalCurrentValue": 1431.73,
+    "unrealizedGainLoss": 732.25,
+    "unrealizedGainLossPct": 104.68
   },
   {
     "id": "TL-043",
@@ -638,11 +638,11 @@
     "term": "Long Term",
     "shares": 4.225,
     "costBasisPerShare": 169.59,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 716.52,
-    "totalCurrentValue": 1459.74,
-    "unrealizedGainLoss": 743.22,
-    "unrealizedGainLossPct": 103.73
+    "totalCurrentValue": 1450.61,
+    "unrealizedGainLoss": 734.09,
+    "unrealizedGainLossPct": 102.45
   },
   {
     "id": "TL-044",
@@ -653,11 +653,11 @@
     "term": "Long Term",
     "shares": 4.146,
     "costBasisPerShare": 161.1,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 667.92,
-    "totalCurrentValue": 1432.44,
-    "unrealizedGainLoss": 764.52,
-    "unrealizedGainLossPct": 114.46
+    "totalCurrentValue": 1423.49,
+    "unrealizedGainLoss": 755.57,
+    "unrealizedGainLossPct": 113.12
   },
   {
     "id": "TL-045",
@@ -668,11 +668,11 @@
     "term": "Long Term",
     "shares": 4.165,
     "costBasisPerShare": 161.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 672.52,
-    "totalCurrentValue": 1439.01,
-    "unrealizedGainLoss": 766.49,
-    "unrealizedGainLossPct": 113.97
+    "totalCurrentValue": 1430.01,
+    "unrealizedGainLoss": 757.49,
+    "unrealizedGainLossPct": 112.63
   },
   {
     "id": "TL-046",
@@ -683,11 +683,11 @@
     "term": "Long Term",
     "shares": 4.179,
     "costBasisPerShare": 161.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 674.78,
-    "totalCurrentValue": 1443.84,
-    "unrealizedGainLoss": 769.06,
-    "unrealizedGainLossPct": 113.97
+    "totalCurrentValue": 1434.82,
+    "unrealizedGainLoss": 760.04,
+    "unrealizedGainLossPct": 112.64
   },
   {
     "id": "TL-047",
@@ -698,11 +698,11 @@
     "term": "Long Term",
     "shares": 5.18,
     "costBasisPerShare": 197.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1023.41,
-    "totalCurrentValue": 1789.69,
-    "unrealizedGainLoss": 766.28,
-    "unrealizedGainLossPct": 74.88
+    "totalCurrentValue": 1778.5,
+    "unrealizedGainLoss": 755.09,
+    "unrealizedGainLossPct": 73.78
   },
   {
     "id": "TL-048",
@@ -713,11 +713,11 @@
     "term": "Long Term",
     "shares": 4.743,
     "costBasisPerShare": 180.79,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 857.49,
-    "totalCurrentValue": 1638.71,
-    "unrealizedGainLoss": 781.22,
-    "unrealizedGainLossPct": 91.11
+    "totalCurrentValue": 1628.46,
+    "unrealizedGainLoss": 770.97,
+    "unrealizedGainLossPct": 89.91
   },
   {
     "id": "TL-049",
@@ -728,11 +728,11 @@
     "term": "Long Term",
     "shares": 4.585,
     "costBasisPerShare": 174.37,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 799.49,
-    "totalCurrentValue": 1584.12,
-    "unrealizedGainLoss": 784.63,
-    "unrealizedGainLossPct": 98.14
+    "totalCurrentValue": 1574.21,
+    "unrealizedGainLoss": 774.72,
+    "unrealizedGainLossPct": 96.9
   },
   {
     "id": "TL-050",
@@ -743,11 +743,11 @@
     "term": "Long Term",
     "shares": 4.146,
     "costBasisPerShare": 151.77,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 629.24,
-    "totalCurrentValue": 1432.44,
-    "unrealizedGainLoss": 803.2,
-    "unrealizedGainLossPct": 127.65
+    "totalCurrentValue": 1423.49,
+    "unrealizedGainLoss": 794.25,
+    "unrealizedGainLossPct": 126.22
   },
   {
     "id": "TL-051",
@@ -758,11 +758,11 @@
     "term": "Long Term",
     "shares": 4.522,
     "costBasisPerShare": 167.43,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 757.12,
-    "totalCurrentValue": 1562.35,
-    "unrealizedGainLoss": 805.23,
-    "unrealizedGainLossPct": 106.35
+    "totalCurrentValue": 1552.58,
+    "unrealizedGainLoss": 795.46,
+    "unrealizedGainLossPct": 105.06
   },
   {
     "id": "TL-052",
@@ -773,11 +773,11 @@
     "term": "Long Term",
     "shares": 4.528,
     "costBasisPerShare": 166.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 754.23,
-    "totalCurrentValue": 1564.42,
-    "unrealizedGainLoss": 810.19,
-    "unrealizedGainLossPct": 107.42
+    "totalCurrentValue": 1554.64,
+    "unrealizedGainLoss": 800.41,
+    "unrealizedGainLossPct": 106.12
   },
   {
     "id": "TL-053",
@@ -788,11 +788,11 @@
     "term": "Long Term",
     "shares": 4.528,
     "costBasisPerShare": 164.53,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 744.99,
-    "totalCurrentValue": 1564.42,
-    "unrealizedGainLoss": 819.43,
-    "unrealizedGainLossPct": 109.99
+    "totalCurrentValue": 1554.64,
+    "unrealizedGainLoss": 809.65,
+    "unrealizedGainLossPct": 108.68
   },
   {
     "id": "TL-054",
@@ -803,11 +803,11 @@
     "term": "Long Term",
     "shares": 4.76,
     "costBasisPerShare": 169.59,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 807.25,
-    "totalCurrentValue": 1644.58,
-    "unrealizedGainLoss": 837.33,
-    "unrealizedGainLossPct": 103.73
+    "totalCurrentValue": 1634.3,
+    "unrealizedGainLoss": 827.05,
+    "unrealizedGainLossPct": 102.45
   },
   {
     "id": "TL-055",
@@ -818,11 +818,11 @@
     "term": "Short Term",
     "shares": 23.941,
     "costBasisPerShare": 315.67,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 7557.46,
-    "totalCurrentValue": 8271.62,
-    "unrealizedGainLoss": 714.16,
-    "unrealizedGainLossPct": 9.45
+    "totalCurrentValue": 8219.9,
+    "unrealizedGainLoss": 662.44,
+    "unrealizedGainLossPct": 8.77
   },
   {
     "id": "TL-056",
@@ -833,11 +833,11 @@
     "term": "Long Term",
     "shares": 4.777,
     "costBasisPerShare": 169.93,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 811.76,
-    "totalCurrentValue": 1650.45,
-    "unrealizedGainLoss": 838.69,
-    "unrealizedGainLossPct": 103.32
+    "totalCurrentValue": 1640.14,
+    "unrealizedGainLoss": 828.38,
+    "unrealizedGainLossPct": 102.05
   },
   {
     "id": "TL-057",
@@ -848,11 +848,11 @@
     "term": "Short Term",
     "shares": 9.57,
     "costBasisPerShare": 260.51,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2493.08,
-    "totalCurrentValue": 3306.43,
-    "unrealizedGainLoss": 813.35,
-    "unrealizedGainLossPct": 32.62
+    "totalCurrentValue": 3285.76,
+    "unrealizedGainLoss": 792.68,
+    "unrealizedGainLossPct": 31.8
   },
   {
     "id": "TL-058",
@@ -863,11 +863,11 @@
     "term": "Long Term",
     "shares": 4.783,
     "costBasisPerShare": 167.74,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 802.3,
-    "totalCurrentValue": 1652.53,
-    "unrealizedGainLoss": 850.23,
-    "unrealizedGainLossPct": 105.97
+    "totalCurrentValue": 1642.2,
+    "unrealizedGainLoss": 839.9,
+    "unrealizedGainLossPct": 104.69
   },
   {
     "id": "TL-059",
@@ -878,11 +878,11 @@
     "term": "Long Term",
     "shares": 5.174,
     "costBasisPerShare": 163.64,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 846.67,
-    "totalCurrentValue": 1787.62,
-    "unrealizedGainLoss": 940.95,
-    "unrealizedGainLossPct": 111.14
+    "totalCurrentValue": 1776.44,
+    "unrealizedGainLoss": 929.77,
+    "unrealizedGainLossPct": 109.81
   },
   {
     "id": "TL-060",
@@ -893,11 +893,11 @@
     "term": "Short Term",
     "shares": 9.604,
     "costBasisPerShare": 247.83,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2380.16,
-    "totalCurrentValue": 3318.18,
-    "unrealizedGainLoss": 938.02,
-    "unrealizedGainLossPct": 39.41
+    "totalCurrentValue": 3297.44,
+    "unrealizedGainLoss": 917.28,
+    "unrealizedGainLossPct": 38.54
   },
   {
     "id": "TL-061",
@@ -908,11 +908,11 @@
     "term": "Short Term",
     "shares": 11.963,
     "costBasisPerShare": 247.83,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2964.79,
-    "totalCurrentValue": 4133.22,
-    "unrealizedGainLoss": 1168.43,
-    "unrealizedGainLossPct": 39.41
+    "totalCurrentValue": 4107.38,
+    "unrealizedGainLoss": 1142.59,
+    "unrealizedGainLossPct": 38.54
   },
   {
     "id": "TL-062",
@@ -923,11 +923,11 @@
     "term": "Short Term",
     "shares": 8.965,
     "costBasisPerShare": 206.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1853.24,
-    "totalCurrentValue": 3097.41,
-    "unrealizedGainLoss": 1244.17,
-    "unrealizedGainLossPct": 67.13
+    "totalCurrentValue": 3078.04,
+    "unrealizedGainLoss": 1224.8,
+    "unrealizedGainLossPct": 66.09
   },
   {
     "id": "TL-063",
@@ -938,11 +938,11 @@
     "term": "Long Term",
     "shares": 8.944,
     "costBasisPerShare": 201.9,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1805.79,
-    "totalCurrentValue": 3090.15,
-    "unrealizedGainLoss": 1284.36,
-    "unrealizedGainLossPct": 71.12
+    "totalCurrentValue": 3070.83,
+    "unrealizedGainLoss": 1265.04,
+    "unrealizedGainLossPct": 70.05
   },
   {
     "id": "TL-064",
@@ -953,11 +953,11 @@
     "term": "Short Term",
     "shares": 9.563,
     "costBasisPerShare": 193.2,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1847.57,
-    "totalCurrentValue": 3304.02,
-    "unrealizedGainLoss": 1456.45,
-    "unrealizedGainLossPct": 78.83
+    "totalCurrentValue": 3283.36,
+    "unrealizedGainLoss": 1435.79,
+    "unrealizedGainLossPct": 77.71
   },
   {
     "id": "TL-065",
@@ -968,11 +968,11 @@
     "term": "Long Term",
     "shares": 8.894,
     "costBasisPerShare": 180.79,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1607.95,
-    "totalCurrentValue": 3072.88,
-    "unrealizedGainLoss": 1464.93,
-    "unrealizedGainLossPct": 91.11
+    "totalCurrentValue": 3053.67,
+    "unrealizedGainLoss": 1445.72,
+    "unrealizedGainLossPct": 89.91
   },
   {
     "id": "TL-066",
@@ -983,11 +983,11 @@
     "term": "Long Term",
     "shares": 10.359,
     "costBasisPerShare": 197.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2046.63,
-    "totalCurrentValue": 3579.03,
-    "unrealizedGainLoss": 1532.4,
-    "unrealizedGainLossPct": 74.87
+    "totalCurrentValue": 3556.66,
+    "unrealizedGainLoss": 1510.03,
+    "unrealizedGainLossPct": 73.78
   },
   {
     "id": "TL-067",
@@ -998,11 +998,11 @@
     "term": "Long Term",
     "shares": 9.54,
     "costBasisPerShare": 181.19,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1728.55,
-    "totalCurrentValue": 3296.07,
-    "unrealizedGainLoss": 1567.52,
-    "unrealizedGainLossPct": 90.68
+    "totalCurrentValue": 3275.46,
+    "unrealizedGainLoss": 1546.91,
+    "unrealizedGainLossPct": 89.49
   },
   {
     "id": "TL-068",
@@ -1013,11 +1013,11 @@
     "term": "Long Term",
     "shares": 8.965,
     "costBasisPerShare": 167.74,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1503.79,
-    "totalCurrentValue": 3097.41,
-    "unrealizedGainLoss": 1593.62,
-    "unrealizedGainLossPct": 105.97
+    "totalCurrentValue": 3078.04,
+    "unrealizedGainLoss": 1574.25,
+    "unrealizedGainLossPct": 104.69
   },
   {
     "id": "TL-069",
@@ -1028,11 +1028,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 176.33,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1670.9,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 1603.06,
-    "unrealizedGainLossPct": 95.94
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 1582.59,
+    "unrealizedGainLossPct": 94.71
   },
   {
     "id": "TL-070",
@@ -1043,11 +1043,11 @@
     "term": "Long Term",
     "shares": 8.883,
     "costBasisPerShare": 161.1,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1431.05,
-    "totalCurrentValue": 3069.08,
-    "unrealizedGainLoss": 1638.03,
-    "unrealizedGainLossPct": 114.46
+    "totalCurrentValue": 3049.89,
+    "unrealizedGainLoss": 1618.84,
+    "unrealizedGainLossPct": 113.12
   },
   {
     "id": "TL-071",
@@ -1058,11 +1058,11 @@
     "term": "Long Term",
     "shares": 8.96,
     "costBasisPerShare": 161.47,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1446.77,
-    "totalCurrentValue": 3095.68,
-    "unrealizedGainLoss": 1648.91,
-    "unrealizedGainLossPct": 113.97
+    "totalCurrentValue": 3076.33,
+    "unrealizedGainLoss": 1629.56,
+    "unrealizedGainLossPct": 112.63
   },
   {
     "id": "TL-072",
@@ -1073,11 +1073,11 @@
     "term": "Long Term",
     "shares": 9.552,
     "costBasisPerShare": 169.59,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1619.92,
-    "totalCurrentValue": 3300.22,
-    "unrealizedGainLoss": 1680.3,
-    "unrealizedGainLossPct": 103.73
+    "totalCurrentValue": 3279.58,
+    "unrealizedGainLoss": 1659.66,
+    "unrealizedGainLossPct": 102.45
   },
   {
     "id": "TL-073",
@@ -1088,11 +1088,11 @@
     "term": "Long Term",
     "shares": 9.583,
     "costBasisPerShare": 169.93,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1628.44,
-    "totalCurrentValue": 3310.93,
-    "unrealizedGainLoss": 1682.49,
-    "unrealizedGainLossPct": 103.32
+    "totalCurrentValue": 3290.23,
+    "unrealizedGainLoss": 1661.79,
+    "unrealizedGainLossPct": 102.05
   },
   {
     "id": "TL-074",
@@ -1103,11 +1103,11 @@
     "term": "Long Term",
     "shares": 9.689,
     "costBasisPerShare": 167.43,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1622.23,
-    "totalCurrentValue": 3347.55,
-    "unrealizedGainLoss": 1725.32,
-    "unrealizedGainLossPct": 106.35
+    "totalCurrentValue": 3326.62,
+    "unrealizedGainLoss": 1704.39,
+    "unrealizedGainLossPct": 105.06
   },
   {
     "id": "TL-075",
@@ -1118,11 +1118,11 @@
     "term": "Long Term",
     "shares": 8.883,
     "costBasisPerShare": 150.35,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1335.56,
-    "totalCurrentValue": 3069.08,
-    "unrealizedGainLoss": 1733.52,
-    "unrealizedGainLossPct": 129.8
+    "totalCurrentValue": 3049.89,
+    "unrealizedGainLoss": 1714.33,
+    "unrealizedGainLossPct": 128.36
   },
   {
     "id": "TL-076",
@@ -1133,11 +1133,11 @@
     "term": "Long Term",
     "shares": 9.702,
     "costBasisPerShare": 166.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1616.06,
-    "totalCurrentValue": 3352.04,
-    "unrealizedGainLoss": 1735.98,
-    "unrealizedGainLossPct": 107.42
+    "totalCurrentValue": 3331.08,
+    "unrealizedGainLoss": 1715.02,
+    "unrealizedGainLossPct": 106.12
   },
   {
     "id": "TL-077",
@@ -1148,11 +1148,11 @@
     "term": "Long Term",
     "shares": 10.479,
     "costBasisPerShare": 174.37,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1827.22,
-    "totalCurrentValue": 3620.49,
-    "unrealizedGainLoss": 1793.27,
-    "unrealizedGainLossPct": 98.14
+    "totalCurrentValue": 3597.86,
+    "unrealizedGainLoss": 1770.64,
+    "unrealizedGainLossPct": 96.9
   },
   {
     "id": "TL-078",
@@ -1163,11 +1163,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 151.77,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1438.17,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 1835.79,
-    "unrealizedGainLossPct": 127.65
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 1815.32,
+    "unrealizedGainLossPct": 126.22
   },
   {
     "id": "TL-079",
@@ -1178,11 +1178,11 @@
     "term": "Long Term",
     "shares": 10.348,
     "costBasisPerShare": 164.53,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1702.56,
-    "totalCurrentValue": 3575.23,
-    "unrealizedGainLoss": 1872.67,
-    "unrealizedGainLossPct": 109.99
+    "totalCurrentValue": 3552.88,
+    "unrealizedGainLoss": 1850.32,
+    "unrealizedGainLossPct": 108.68
   },
   {
     "id": "TL-080",
@@ -1193,11 +1193,11 @@
     "term": "Long Term",
     "shares": 10.348,
     "costBasisPerShare": 163.64,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1693.35,
-    "totalCurrentValue": 3575.23,
-    "unrealizedGainLoss": 1881.88,
-    "unrealizedGainLossPct": 111.13
+    "totalCurrentValue": 3552.88,
+    "unrealizedGainLoss": 1859.53,
+    "unrealizedGainLossPct": 109.81
   },
   {
     "id": "TL-081",
@@ -1208,11 +1208,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 145.29,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1376.77,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 1897.19,
-    "unrealizedGainLossPct": 137.8
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 1876.72,
+    "unrealizedGainLossPct": 136.31
   },
   {
     "id": "TL-082",
@@ -1223,11 +1223,11 @@
     "term": "Long Term",
     "shares": 12.948,
     "costBasisPerShare": 197.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2558.14,
-    "totalCurrentValue": 4473.53,
-    "unrealizedGainLoss": 1915.39,
-    "unrealizedGainLossPct": 74.87
+    "totalCurrentValue": 4445.57,
+    "unrealizedGainLoss": 1887.43,
+    "unrealizedGainLossPct": 73.78
   },
   {
     "id": "TL-083",
@@ -1238,11 +1238,11 @@
     "term": "Long Term",
     "shares": 11.939,
     "costBasisPerShare": 169.93,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2028.79,
-    "totalCurrentValue": 4124.92,
-    "unrealizedGainLoss": 2096.13,
-    "unrealizedGainLossPct": 103.32
+    "totalCurrentValue": 4099.14,
+    "unrealizedGainLoss": 2070.35,
+    "unrealizedGainLossPct": 102.05
   },
   {
     "id": "TL-084",
@@ -1253,11 +1253,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 121.64,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1152.66,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 2121.3,
-    "unrealizedGainLossPct": 184.04
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 2100.83,
+    "unrealizedGainLossPct": 182.26
   },
   {
     "id": "TL-085",
@@ -1268,11 +1268,11 @@
     "term": "Long Term",
     "shares": 10.468,
     "costBasisPerShare": 142.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1493.99,
-    "totalCurrentValue": 3616.69,
-    "unrealizedGainLoss": 2122.7,
-    "unrealizedGainLossPct": 142.08
+    "totalCurrentValue": 3594.08,
+    "unrealizedGainLoss": 2100.09,
+    "unrealizedGainLossPct": 140.57
   },
   {
     "id": "TL-086",
@@ -1283,11 +1283,11 @@
     "term": "Long Term",
     "shares": 11.953,
     "costBasisPerShare": 167.74,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2005.0,
-    "totalCurrentValue": 4129.76,
-    "unrealizedGainLoss": 2124.76,
-    "unrealizedGainLossPct": 105.97
+    "totalCurrentValue": 4103.94,
+    "unrealizedGainLoss": 2098.94,
+    "unrealizedGainLossPct": 104.69
   },
   {
     "id": "TL-087",
@@ -1298,11 +1298,11 @@
     "term": "Long Term",
     "shares": 11.976,
     "costBasisPerShare": 167.74,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2008.85,
-    "totalCurrentValue": 4137.71,
-    "unrealizedGainLoss": 2128.86,
-    "unrealizedGainLossPct": 105.97
+    "totalCurrentValue": 4111.84,
+    "unrealizedGainLoss": 2102.99,
+    "unrealizedGainLossPct": 104.69
   },
   {
     "id": "TL-088",
@@ -1313,11 +1313,11 @@
     "term": "Long Term",
     "shares": 10.468,
     "costBasisPerShare": 140.12,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1466.78,
-    "totalCurrentValue": 3616.69,
-    "unrealizedGainLoss": 2149.91,
-    "unrealizedGainLossPct": 146.57
+    "totalCurrentValue": 3594.08,
+    "unrealizedGainLoss": 2127.3,
+    "unrealizedGainLossPct": 145.03
   },
   {
     "id": "TL-089",
@@ -1328,11 +1328,11 @@
     "term": "Long Term",
     "shares": 10.468,
     "costBasisPerShare": 138.22,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1446.89,
-    "totalCurrentValue": 3616.69,
-    "unrealizedGainLoss": 2169.8,
-    "unrealizedGainLossPct": 149.96
+    "totalCurrentValue": 3594.08,
+    "unrealizedGainLoss": 2147.19,
+    "unrealizedGainLossPct": 148.4
   },
   {
     "id": "TL-090",
@@ -1343,11 +1343,11 @@
     "term": "Long Term",
     "shares": 13.1,
     "costBasisPerShare": 180.79,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2368.35,
-    "totalCurrentValue": 4526.05,
-    "unrealizedGainLoss": 2157.7,
-    "unrealizedGainLossPct": 91.11
+    "totalCurrentValue": 4497.75,
+    "unrealizedGainLoss": 2129.4,
+    "unrealizedGainLossPct": 89.91
   },
   {
     "id": "TL-091",
@@ -1358,11 +1358,11 @@
     "term": "Long Term",
     "shares": 10.468,
     "costBasisPerShare": 131.25,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1373.92,
-    "totalCurrentValue": 3616.69,
-    "unrealizedGainLoss": 2242.77,
-    "unrealizedGainLossPct": 163.24
+    "totalCurrentValue": 3594.08,
+    "unrealizedGainLoss": 2220.16,
+    "unrealizedGainLossPct": 161.59
   },
   {
     "id": "TL-092",
@@ -1373,11 +1373,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 106.78,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1011.85,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 2262.11,
-    "unrealizedGainLossPct": 223.56
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 2241.64,
+    "unrealizedGainLossPct": 221.54
   },
   {
     "id": "TL-093",
@@ -1388,11 +1388,11 @@
     "term": "Long Term",
     "shares": 9.476,
     "costBasisPerShare": 106.06,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1005.02,
-    "totalCurrentValue": 3273.96,
-    "unrealizedGainLoss": 2268.94,
-    "unrealizedGainLossPct": 225.76
+    "totalCurrentValue": 3253.49,
+    "unrealizedGainLoss": 2248.47,
+    "unrealizedGainLossPct": 223.72
   },
   {
     "id": "TL-094",
@@ -1403,11 +1403,11 @@
     "term": "Long Term",
     "shares": 10.612,
     "costBasisPerShare": 130.42,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1384.02,
-    "totalCurrentValue": 3666.45,
-    "unrealizedGainLoss": 2282.43,
-    "unrealizedGainLossPct": 164.91
+    "totalCurrentValue": 3643.52,
+    "unrealizedGainLoss": 2259.5,
+    "unrealizedGainLossPct": 163.26
   },
   {
     "id": "TL-095",
@@ -1418,11 +1418,11 @@
     "term": "Long Term",
     "shares": 10.285,
     "costBasisPerShare": 123.02,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1265.26,
-    "totalCurrentValue": 3553.47,
-    "unrealizedGainLoss": 2288.21,
-    "unrealizedGainLossPct": 180.85
+    "totalCurrentValue": 3531.25,
+    "unrealizedGainLoss": 2265.99,
+    "unrealizedGainLossPct": 179.09
   },
   {
     "id": "TL-096",
@@ -1433,11 +1433,11 @@
     "term": "Long Term",
     "shares": 11.844,
     "costBasisPerShare": 151.77,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1797.56,
-    "totalCurrentValue": 4092.1,
-    "unrealizedGainLoss": 2294.54,
-    "unrealizedGainLossPct": 127.65
+    "totalCurrentValue": 4066.52,
+    "unrealizedGainLoss": 2268.96,
+    "unrealizedGainLossPct": 126.22
   },
   {
     "id": "TL-097",
@@ -1448,11 +1448,11 @@
     "term": "Long Term",
     "shares": 11.845,
     "costBasisPerShare": 151.77,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1797.72,
-    "totalCurrentValue": 4092.45,
-    "unrealizedGainLoss": 2294.73,
-    "unrealizedGainLossPct": 127.65
+    "totalCurrentValue": 4066.86,
+    "unrealizedGainLoss": 2269.14,
+    "unrealizedGainLossPct": 126.22
   },
   {
     "id": "TL-098",
@@ -1463,11 +1463,11 @@
     "term": "Long Term",
     "shares": 10.612,
     "costBasisPerShare": 121.88,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1293.39,
-    "totalCurrentValue": 3666.45,
-    "unrealizedGainLoss": 2373.06,
-    "unrealizedGainLossPct": 183.48
+    "totalCurrentValue": 3643.52,
+    "unrealizedGainLoss": 2350.13,
+    "unrealizedGainLossPct": 181.7
   },
   {
     "id": "TL-099",
@@ -1478,11 +1478,11 @@
     "term": "Short Term",
     "shares": 23.925,
     "costBasisPerShare": 247.83,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 5929.33,
-    "totalCurrentValue": 8266.09,
-    "unrealizedGainLoss": 2336.76,
-    "unrealizedGainLossPct": 39.41
+    "totalCurrentValue": 8214.41,
+    "unrealizedGainLoss": 2285.08,
+    "unrealizedGainLossPct": 38.54
   },
   {
     "id": "TL-100",
@@ -1493,11 +1493,11 @@
     "term": "Long Term",
     "shares": 13.085,
     "costBasisPerShare": 142.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1867.49,
-    "totalCurrentValue": 4520.87,
-    "unrealizedGainLoss": 2653.38,
-    "unrealizedGainLossPct": 142.08
+    "totalCurrentValue": 4492.6,
+    "unrealizedGainLoss": 2625.11,
+    "unrealizedGainLossPct": 140.57
   },
   {
     "id": "TL-101",
@@ -1508,11 +1508,11 @@
     "term": "Long Term",
     "shares": 13.085,
     "costBasisPerShare": 131.25,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1717.41,
-    "totalCurrentValue": 4520.87,
-    "unrealizedGainLoss": 2803.46,
-    "unrealizedGainLossPct": 163.24
+    "totalCurrentValue": 4492.6,
+    "unrealizedGainLoss": 2775.19,
+    "unrealizedGainLossPct": 161.59
   },
   {
     "id": "TL-102",
@@ -1523,11 +1523,11 @@
     "term": "Long Term",
     "shares": 11.845,
     "costBasisPerShare": 106.06,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 1256.28,
-    "totalCurrentValue": 4092.45,
-    "unrealizedGainLoss": 2836.17,
-    "unrealizedGainLossPct": 225.76
+    "totalCurrentValue": 4066.86,
+    "unrealizedGainLoss": 2810.58,
+    "unrealizedGainLossPct": 223.72
   },
   {
     "id": "TL-103",
@@ -1538,11 +1538,11 @@
     "term": "Long Term",
     "shares": 25.897,
     "costBasisPerShare": 197.57,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 5116.47,
-    "totalCurrentValue": 8947.41,
-    "unrealizedGainLoss": 3830.94,
-    "unrealizedGainLossPct": 74.87
+    "totalCurrentValue": 8891.48,
+    "unrealizedGainLoss": 3775.01,
+    "unrealizedGainLossPct": 73.78
   },
   {
     "id": "TL-104",
@@ -1553,11 +1553,11 @@
     "term": "Long Term",
     "shares": 23.715,
     "costBasisPerShare": 180.79,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 4287.43,
-    "totalCurrentValue": 8193.53,
-    "unrealizedGainLoss": 3906.1,
-    "unrealizedGainLossPct": 91.11
+    "totalCurrentValue": 8142.31,
+    "unrealizedGainLoss": 3854.88,
+    "unrealizedGainLossPct": 89.91
   },
   {
     "id": "TL-105",
@@ -1568,11 +1568,11 @@
     "term": "Long Term",
     "shares": 23.878,
     "costBasisPerShare": 169.93,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 4057.59,
-    "totalCurrentValue": 8249.85,
-    "unrealizedGainLoss": 4192.26,
-    "unrealizedGainLossPct": 103.32
+    "totalCurrentValue": 8198.27,
+    "unrealizedGainLoss": 4140.68,
+    "unrealizedGainLossPct": 102.05
   },
   {
     "id": "TL-106",
@@ -1583,11 +1583,11 @@
     "term": "Long Term",
     "shares": 25.87,
     "costBasisPerShare": 163.64,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 4233.37,
-    "totalCurrentValue": 8938.09,
-    "unrealizedGainLoss": 4704.72,
-    "unrealizedGainLossPct": 111.13
+    "totalCurrentValue": 8882.21,
+    "unrealizedGainLoss": 4648.84,
+    "unrealizedGainLossPct": 109.81
   },
   {
     "id": "TL-107",
@@ -1598,11 +1598,11 @@
     "term": "Long Term",
     "shares": 25.87,
     "costBasisPerShare": 163.64,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 4233.37,
-    "totalCurrentValue": 8938.09,
-    "unrealizedGainLoss": 4704.72,
-    "unrealizedGainLossPct": 111.13
+    "totalCurrentValue": 8882.21,
+    "unrealizedGainLoss": 4648.84,
+    "unrealizedGainLossPct": 109.81
   },
   {
     "id": "TL-108",
@@ -1613,11 +1613,11 @@
     "term": "Long Term",
     "shares": 23.688,
     "costBasisPerShare": 123.02,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2914.1,
-    "totalCurrentValue": 8184.2,
-    "unrealizedGainLoss": 5270.1,
-    "unrealizedGainLossPct": 180.85
+    "totalCurrentValue": 8133.04,
+    "unrealizedGainLoss": 5218.94,
+    "unrealizedGainLossPct": 179.09
   },
   {
     "id": "TL-109",
@@ -1628,11 +1628,11 @@
     "term": "Long Term",
     "shares": 26.168,
     "costBasisPerShare": 142.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3734.7,
-    "totalCurrentValue": 9041.04,
-    "unrealizedGainLoss": 5306.34,
-    "unrealizedGainLossPct": 142.08
+    "totalCurrentValue": 8984.52,
+    "unrealizedGainLoss": 5249.82,
+    "unrealizedGainLossPct": 140.57
   },
   {
     "id": "TL-110",
@@ -1643,11 +1643,11 @@
     "term": "Long Term",
     "shares": 26.168,
     "costBasisPerShare": 131.25,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3434.55,
-    "totalCurrentValue": 9041.04,
-    "unrealizedGainLoss": 5606.49,
-    "unrealizedGainLossPct": 163.24
+    "totalCurrentValue": 8984.52,
+    "unrealizedGainLoss": 5549.97,
+    "unrealizedGainLossPct": 161.59
   },
   {
     "id": "TL-111",
@@ -1658,11 +1658,11 @@
     "term": "Long Term",
     "shares": 23.689,
     "costBasisPerShare": 106.06,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 2512.46,
-    "totalCurrentValue": 8184.55,
-    "unrealizedGainLoss": 5672.09,
-    "unrealizedGainLossPct": 225.76
+    "totalCurrentValue": 8133.38,
+    "unrealizedGainLoss": 5620.92,
+    "unrealizedGainLossPct": 223.72
   },
   {
     "id": "TL-112",
@@ -1673,11 +1673,11 @@
     "term": "Long Term",
     "shares": 26.528,
     "costBasisPerShare": 123.02,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 3263.47,
-    "totalCurrentValue": 9165.42,
-    "unrealizedGainLoss": 5901.95,
-    "unrealizedGainLossPct": 180.85
+    "totalCurrentValue": 9108.12,
+    "unrealizedGainLoss": 5844.65,
+    "unrealizedGainLossPct": 179.09
   },
   {
     "id": "TL-113",
@@ -1688,11 +1688,11 @@
     "term": "Long Term",
     "shares": 98.787,
     "costBasisPerShare": 180.79,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 17859.7,
-    "totalCurrentValue": 34130.91,
-    "unrealizedGainLoss": 16271.21,
-    "unrealizedGainLossPct": 91.11
+    "totalCurrentValue": 33917.53,
+    "unrealizedGainLoss": 16057.83,
+    "unrealizedGainLossPct": 89.91
   },
   {
     "id": "TL-114",
@@ -1703,11 +1703,11 @@
     "term": "Long Term",
     "shares": 106.597,
     "costBasisPerShare": 151.77,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 16178.23,
-    "totalCurrentValue": 36829.26,
-    "unrealizedGainLoss": 20651.03,
-    "unrealizedGainLossPct": 127.65
+    "totalCurrentValue": 36599.01,
+    "unrealizedGainLoss": 20420.78,
+    "unrealizedGainLossPct": 126.22
   },
   {
     "id": "TL-115",
@@ -1718,11 +1718,11 @@
     "term": "Long Term",
     "shares": 104.672,
     "costBasisPerShare": 131.25,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 13738.2,
-    "totalCurrentValue": 36164.18,
-    "unrealizedGainLoss": 22425.98,
-    "unrealizedGainLossPct": 163.24
+    "totalCurrentValue": 35938.08,
+    "unrealizedGainLoss": 22199.88,
+    "unrealizedGainLossPct": 161.59
   },
   {
     "id": "TL-116",
@@ -1733,11 +1733,11 @@
     "term": "Long Term",
     "shares": 107.182,
     "costBasisPerShare": 123.02,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 13185.53,
-    "totalCurrentValue": 37031.38,
-    "unrealizedGainLoss": 23845.85,
-    "unrealizedGainLossPct": 180.85
+    "totalCurrentValue": 36799.87,
+    "unrealizedGainLoss": 23614.34,
+    "unrealizedGainLossPct": 179.09
   },
   {
     "id": "TL-117",
@@ -1748,11 +1748,11 @@
     "term": "Long Term",
     "shares": 117.756,
     "costBasisPerShare": 142.72,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 16806.14,
-    "totalCurrentValue": 40684.7,
-    "unrealizedGainLoss": 23878.56,
-    "unrealizedGainLossPct": 142.08
+    "totalCurrentValue": 40430.35,
+    "unrealizedGainLoss": 23624.21,
+    "unrealizedGainLossPct": 140.57
   },
   {
     "id": "TL-118",
@@ -1763,11 +1763,11 @@
     "term": "Long Term",
     "shares": 106.596,
     "costBasisPerShare": 106.06,
-    "currentPrice": 345.5,
+    "currentPrice": 343.34,
     "totalCostBasis": 11305.57,
-    "totalCurrentValue": 36828.92,
-    "unrealizedGainLoss": 25523.35,
-    "unrealizedGainLossPct": 225.76
+    "totalCurrentValue": 36598.67,
+    "unrealizedGainLoss": 25293.1,
+    "unrealizedGainLossPct": 223.72
   },
   {
     "id": "TL-119",

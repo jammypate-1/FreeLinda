@@ -118,7 +118,7 @@ export const initialAssetAccounts: AssetAccount[] = [
     taxRegistration: "Individual Taxable",
     liquidity: "Immediate",
     allocationCategory: "Equities",
-    currentValue: 576483.03,
+    currentValue: 572886.13,
     costBasis: 287503.14,
     monthlyContribution: 0,
     annualReturn: 0.07,

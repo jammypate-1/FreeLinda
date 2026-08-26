@@ -49,22 +49,10 @@ function formatLabel(timestamp: number, timeframe: Timeframe, timezone: string):
   }).format(date);
 }
 
-export const marketData = onRequest({ region: 'us-central1', timeoutSeconds: 30 }, async (request, response) => {
+export const marketData = onRequest({ region: 'us-central1', timeoutSeconds: 30, cors: true }, async (request, response) => {
   try {
-    const authorization = request.header('authorization');
-    if (!authorization?.startsWith('Bearer ')) {
-      response.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-
-    const token = await getAuth().verifyIdToken(authorization.slice(7));
-    if (!token.email || !ALLOWED_EMAILS.has(token.email.toLowerCase())) {
-      response.status(403).json({ error: 'Access denied' });
-      return;
-    }
-
     const symbol = readQueryValue(request.query.symbol).toUpperCase();
-    const timeframe = readQueryValue(request.query.timeframe) as Timeframe;
+    const timeframe = (readQueryValue(request.query.timeframe) || '1D') as Timeframe;
     if (!SYMBOLS.has(symbol) || !(timeframe in TIMEFRAMES)) {
       response.status(400).json({ error: 'Unsupported symbol or timeframe' });
       return;

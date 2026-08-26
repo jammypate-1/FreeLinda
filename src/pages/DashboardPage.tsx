@@ -175,7 +175,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const googLots = taxLots.filter(l => l.ticker === 'GOOG');
   const googCount = googLots.length;
   const googShares = googLots.reduce((sum, l) => sum + l.shares, 0);
-  const googPrice = googLots.length > 0 ? googLots[0].currentPrice : 345.50;
+  const googPrice = googLots.length > 0 ? googLots[0].currentPrice : 343.34;
   const googCostBasis = googLots.reduce((sum, l) => sum + l.totalCostBasis, 0);
 
   // Multi-timeframe price history maps for SPCX and GOOG
@@ -241,21 +241,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   const googDataMap = {
     '1D': {
-      changeStr: '+$3.36 (+0.98% 1-Day)',
+      changeStr: '+$1.20 (+0.35% 1-Day)',
       domain: [340, 348],
       points: [
         { label: '9:30 AM', price: 342.14 },
         { label: '10:30 AM', price: 343.80 },
         { label: '11:30 AM', price: 344.40 },
         { label: '12:30 PM', price: 343.00 },
-        { label: '1:30 PM', price: 345.10 },
-        { label: '2:30 PM', price: 344.80 },
-        { label: '3:30 PM', price: 346.70 },
-        { label: '4:00 PM', price: 345.50 }
+        { label: '1:30 PM', price: 344.10 },
+        { label: '2:30 PM', price: 343.80 },
+        { label: '3:30 PM', price: 344.70 },
+        { label: '4:00 PM', price: 343.34 }
       ]
     },
     '1M': {
-      changeStr: '+$14.50 (+4.38% 1-Month)',
+      changeStr: '+$12.34 (+3.73% 1-Month)',
       domain: [330, 350],
       points: [
         { label: 'Jul 1', price: 331.00 },
@@ -263,12 +263,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         { label: 'Jul 10', price: 335.20 },
         { label: 'Jul 15', price: 338.80 },
         { label: 'Jul 20', price: 341.50 },
-        { label: 'Jul 25', price: 343.10 },
-        { label: 'Aug 26', price: 345.50 }
+        { label: 'Jul 25', price: 342.10 },
+        { label: 'Aug 26', price: 343.34 }
       ]
     },
     '1Y': {
-      changeStr: '+$65.50 (+23.39% 1-Year)',
+      changeStr: '+$63.34 (+22.62% 1-Year)',
       domain: [270, 360],
       points: [
         { label: 'Aug 25', price: 280.00 },
@@ -281,12 +281,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         { label: 'Mar 26', price: 325.00 },
         { label: 'Apr 26', price: 335.50 },
         { label: 'May 26', price: 338.00 },
-        { label: 'Jun 26', price: 342.20 },
-        { label: 'Aug 26', price: 345.50 }
+        { label: 'Jun 26', price: 341.20 },
+        { label: 'Aug 26', price: 343.34 }
       ]
     },
     'MAX': {
-      changeStr: '+$210.50 (+155.93% Max)',
+      changeStr: '+$208.34 (+154.33% Max)',
       domain: [120, 370],
       points: [
         { label: '2021', price: 135.00 },
@@ -294,7 +294,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         { label: '2023', price: 215.00 },
         { label: '2024', price: 250.00 },
         { label: '2025', price: 295.00 },
-        { label: '2026', price: 345.50 }
+        { label: '2026', price: 343.34 }
       ]
     }
   };
