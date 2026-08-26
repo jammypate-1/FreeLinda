@@ -44,8 +44,8 @@ import { auth, firestore } from '../firebase';
 const LEGACY_STORAGE_KEYS = {
   CLIENT_PROFILE: 'freelinda_client_profile_v2',
   ASSUMPTIONS: 'freelinda_assumptions',
-  ASSETS: 'freelinda_assets',
-  TAX_LOTS: 'freelinda_tax_lots_v2', // Incremented version to clear legacy cache
+  ASSETS: 'freelinda_assets_v3',
+  TAX_LOTS: 'freelinda_tax_lots_v3', // Incremented version to clear legacy cache
   LIABILITIES: 'freelinda_liabilities',
   CASH_FLOWS: 'freelinda_cash_flows',
   GOALS: 'freelinda_goals',

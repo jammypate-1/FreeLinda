@@ -67,7 +67,15 @@ export async function fetchMarketSeries(symbol: MarketSymbol, timeframe: MarketT
     if (!response.ok) {
       return getFallbackMarketSeries(symbol, timeframe);
     }
-    return await response.json() as MarketSeries;
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return getFallbackMarketSeries(symbol, timeframe);
+    }
+    const data = await response.json() as MarketSeries;
+    if (!data || typeof data.latestPrice !== 'number') {
+      return getFallbackMarketSeries(symbol, timeframe);
+    }
+    return data;
   } catch {
     return getFallbackMarketSeries(symbol, timeframe);
   }
