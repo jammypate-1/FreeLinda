@@ -169,132 +169,132 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const spcxLots = taxLots.filter(l => l.ticker === 'SPCX');
   const spcxCount = spcxLots.length;
   const spcxShares = spcxLots.reduce((sum, l) => sum + l.shares, 0);
-  const spcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 112.42;
+  const spcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 137.95;
   const spcxCostBasis = spcxLots.reduce((sum, l) => sum + l.totalCostBasis, 0);
 
   const googLots = taxLots.filter(l => l.ticker === 'GOOG');
   const googCount = googLots.length;
   const googShares = googLots.reduce((sum, l) => sum + l.shares, 0);
-  const googPrice = googLots.length > 0 ? googLots[0].currentPrice : 332.56;
+  const googPrice = googLots.length > 0 ? googLots[0].currentPrice : 345.50;
   const googCostBasis = googLots.reduce((sum, l) => sum + l.totalCostBasis, 0);
 
   // Multi-timeframe price history maps for SPCX and GOOG
   const spcxDataMap = {
     '1D': {
-      changeStr: '+$0.62 (+0.55% 1-Day)',
-      domain: [111, 113],
+      changeStr: '+$2.95 (+2.19% 1-Day)',
+      domain: [134, 140],
       points: [
-        { label: '9:30 AM', price: 111.80 },
-        { label: '10:30 AM', price: 111.95 },
-        { label: '11:30 AM', price: 112.10 },
-        { label: '12:30 PM', price: 112.05 },
-        { label: '1:30 PM', price: 112.30 },
-        { label: '2:30 PM', price: 112.25 },
-        { label: '3:30 PM', price: 112.38 },
-        { label: '4:00 PM', price: 112.42 }
+        { label: '9:30 AM', price: 136.10 },
+        { label: '10:30 AM', price: 136.94 },
+        { label: '11:30 AM', price: 137.20 },
+        { label: '12:30 PM', price: 136.85 },
+        { label: '1:30 PM', price: 138.10 },
+        { label: '2:30 PM', price: 137.60 },
+        { label: '3:30 PM', price: 139.75 },
+        { label: '4:00 PM', price: 137.95 }
       ]
     },
     '1M': {
-      changeStr: '+$3.92 (+3.61% 1-Month)',
-      domain: [107, 114],
+      changeStr: '+$8.95 (+6.94% 1-Month)',
+      domain: [128, 142],
       points: [
-        { label: 'Jul 1', price: 108.50 },
-        { label: 'Jul 5', price: 109.20 },
-        { label: 'Jul 10', price: 109.80 },
-        { label: 'Jul 15', price: 110.40 },
-        { label: 'Jul 20', price: 111.10 },
-        { label: 'Jul 25', price: 111.80 },
-        { label: 'Jul 30', price: 112.42 }
+        { label: 'Jul 1', price: 129.00 },
+        { label: 'Jul 5', price: 131.20 },
+        { label: 'Jul 10', price: 133.80 },
+        { label: 'Jul 15', price: 134.40 },
+        { label: 'Jul 20', price: 136.10 },
+        { label: 'Jul 25', price: 137.20 },
+        { label: 'Aug 25', price: 137.95 }
       ]
     },
     '1Y': {
-      changeStr: '+$19.92 (+21.54% 1-Year)',
-      domain: [85, 125],
+      changeStr: '+$33.12 (+31.60% 1-Year)',
+      domain: [100, 145],
       points: [
-        { label: 'Aug 25', price: 92.50 },
-        { label: 'Sep 25', price: 95.00 },
-        { label: 'Oct 25', price: 98.20 },
-        { label: 'Nov 25', price: 101.50 },
-        { label: 'Dec 25', price: 100.00 },
-        { label: 'Jan 26', price: 103.80 },
-        { label: 'Feb 26', price: 106.50 },
-        { label: 'Mar 26', price: 105.00 },
-        { label: 'Apr 26', price: 108.20 },
-        { label: 'May 26', price: 110.00 },
-        { label: 'Jun 26', price: 111.50 },
-        { label: 'Jul 26', price: 112.42 }
+        { label: 'Aug 25', price: 104.83 },
+        { label: 'Sep 25', price: 108.00 },
+        { label: 'Oct 25', price: 112.20 },
+        { label: 'Nov 25', price: 116.50 },
+        { label: 'Dec 25', price: 120.00 },
+        { label: 'Jan 26', price: 124.80 },
+        { label: 'Feb 26', price: 128.50 },
+        { label: 'Mar 26', price: 126.00 },
+        { label: 'Apr 26', price: 131.20 },
+        { label: 'May 26', price: 134.00 },
+        { label: 'Jun 26', price: 136.50 },
+        { label: 'Aug 26', price: 137.95 }
       ]
     },
     'MAX': {
-      changeStr: '+$67.42 (+149.82% Max)',
-      domain: [40, 130],
+      changeStr: '+$92.95 (+206.55% Max)',
+      domain: [40, 150],
       points: [
         { label: '2021', price: 45.00 },
-        { label: '2022', price: 58.00 },
-        { label: '2023', price: 72.00 },
-        { label: '2024', price: 85.00 },
-        { label: '2025', price: 98.00 },
-        { label: '2026', price: 112.42 }
+        { label: '2022', price: 62.00 },
+        { label: '2023', price: 81.00 },
+        { label: '2024', price: 98.00 },
+        { label: '2025', price: 118.00 },
+        { label: '2026', price: 137.95 }
       ]
     }
   };
 
   const googDataMap = {
     '1D': {
-      changeStr: '+$2.46 (+0.75% 1-Day)',
-      domain: [329, 334],
+      changeStr: '+$3.36 (+0.98% 1-Day)',
+      domain: [340, 348],
       points: [
-        { label: '9:30 AM', price: 330.10 },
-        { label: '10:30 AM', price: 330.80 },
-        { label: '11:30 AM', price: 331.40 },
-        { label: '12:30 PM', price: 331.00 },
-        { label: '1:30 PM', price: 332.10 },
-        { label: '2:30 PM', price: 331.80 },
-        { label: '3:30 PM', price: 332.30 },
-        { label: '4:00 PM', price: 332.56 }
+        { label: '9:30 AM', price: 342.14 },
+        { label: '10:30 AM', price: 343.80 },
+        { label: '11:30 AM', price: 344.40 },
+        { label: '12:30 PM', price: 343.00 },
+        { label: '1:30 PM', price: 345.10 },
+        { label: '2:30 PM', price: 344.80 },
+        { label: '3:30 PM', price: 346.70 },
+        { label: '4:00 PM', price: 345.50 }
       ]
     },
     '1M': {
-      changeStr: '+$11.56 (+3.60% 1-Month)',
-      domain: [318, 335],
+      changeStr: '+$14.50 (+4.38% 1-Month)',
+      domain: [330, 350],
       points: [
-        { label: 'Jul 1', price: 321.00 },
-        { label: 'Jul 5', price: 323.50 },
-        { label: 'Jul 10', price: 325.20 },
-        { label: 'Jul 15', price: 327.80 },
-        { label: 'Jul 20', price: 329.50 },
-        { label: 'Jul 25', price: 331.10 },
-        { label: 'Jul 30', price: 332.56 }
+        { label: 'Jul 1', price: 331.00 },
+        { label: 'Jul 5', price: 333.50 },
+        { label: 'Jul 10', price: 335.20 },
+        { label: 'Jul 15', price: 338.80 },
+        { label: 'Jul 20', price: 341.50 },
+        { label: 'Jul 25', price: 343.10 },
+        { label: 'Aug 26', price: 345.50 }
       ]
     },
     '1Y': {
-      changeStr: '+$52.56 (+18.77% 1-Year)',
-      domain: [260, 350],
+      changeStr: '+$65.50 (+23.39% 1-Year)',
+      domain: [270, 360],
       points: [
         { label: 'Aug 25', price: 280.00 },
         { label: 'Sep 25', price: 292.50 },
-        { label: 'Oct 25', price: 285.00 },
-        { label: 'Nov 25', price: 305.00 },
-        { label: 'Dec 25', price: 312.00 },
-        { label: 'Jan 26', price: 308.50 },
-        { label: 'Feb 26', price: 320.00 },
-        { label: 'Mar 26', price: 315.00 },
-        { label: 'Apr 26', price: 325.50 },
-        { label: 'May 26', price: 328.00 },
-        { label: 'Jun 26', price: 330.20 },
-        { label: 'Jul 26', price: 332.56 }
+        { label: 'Oct 25', price: 298.00 },
+        { label: 'Nov 25', price: 312.00 },
+        { label: 'Dec 25', price: 320.00 },
+        { label: 'Jan 26', price: 318.50 },
+        { label: 'Feb 26', price: 330.00 },
+        { label: 'Mar 26', price: 325.00 },
+        { label: 'Apr 26', price: 335.50 },
+        { label: 'May 26', price: 338.00 },
+        { label: 'Jun 26', price: 342.20 },
+        { label: 'Aug 26', price: 345.50 }
       ]
     },
     'MAX': {
-      changeStr: '+$197.56 (+146.34% Max)',
-      domain: [120, 360],
+      changeStr: '+$210.50 (+155.93% Max)',
+      domain: [120, 370],
       points: [
         { label: '2021', price: 135.00 },
         { label: '2022', price: 180.00 },
         { label: '2023', price: 215.00 },
         { label: '2024', price: 250.00 },
-        { label: '2025', price: 290.00 },
-        { label: '2026', price: 332.56 }
+        { label: '2025', price: 295.00 },
+        { label: '2026', price: 345.50 }
       ]
     }
   };

@@ -20,8 +20,8 @@ export interface MarketSeries {
 }
 
 const FALLBACK_PRICES: Record<MarketSymbol, number> = {
-  SPCX: 112.42,
-  GOOG: 175.50
+  SPCX: 137.95,
+  GOOG: 345.50
 };
 
 export function getFallbackMarketSeries(symbol: MarketSymbol, timeframe: MarketTimeframe): MarketSeries {

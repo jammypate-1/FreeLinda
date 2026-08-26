@@ -118,13 +118,13 @@ export const initialAssetAccounts: AssetAccount[] = [
     taxRegistration: "Individual Taxable",
     liquidity: "Immediate",
     allocationCategory: "Equities",
-    currentValue: 554892.99,
+    currentValue: 576483.03,
     costBasis: 287503.14,
     monthlyContribution: 0,
     annualReturn: 0.07,
     status: "Active",
     notes: "1,668.55 shares vested equity compensation.",
-    lastUpdated: "2026-07-01"
+    lastUpdated: "2026-08-25"
   },
   {
     id: "A-03",
@@ -135,13 +135,13 @@ export const initialAssetAccounts: AssetAccount[] = [
     taxRegistration: "Individual Taxable",
     liquidity: "Illiquid",
     allocationCategory: "Equities",
-    currentValue: 2276505.00,
+    currentValue: 2793487.50,
     costBasis: 66300.00,
     monthlyContribution: 0,
     annualReturn: 0.10,
     status: "Active",
     notes: "20,250 shares private company stock.",
-    lastUpdated: "2026-07-01"
+    lastUpdated: "2026-08-25"
   },
   {
     id: "A-04",
@@ -470,7 +470,7 @@ export const initialSocialSecurityScenarios: SocialSecurityScenario[] = [
 
 export const initialHedgeConfig: OptionHedgeConfig = {
   underlyingTicker: "SPCX",
-  underlyingPrice: 133.00,
+  underlyingPrice: 137.95,
   sharesHeld: 4050,
   contracts: 40,
   longPutStrike: 130.00,

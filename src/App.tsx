@@ -43,8 +43,8 @@ const PlannerApp: React.FC = () => {
   const [actionItems, setActionItems] = useState(db.defaults.actionItems);
   const [meetingNotes, setMeetingNotes] = useState(db.defaults.meetingNotes);
   const [latestPrices, setLatestPrices] = useState<Partial<Record<MarketSymbol, number>>>({
-    SPCX: 112.42,
-    GOOG: 175.50
+    SPCX: 137.95,
+    GOOG: 345.50
   });
 
   useEffect(() => db.subscribe(data => {

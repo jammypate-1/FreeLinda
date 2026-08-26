@@ -54,7 +54,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
   // SPCX stock specific calculations for 90-year goal solvency
   const spcxLots = taxLots.filter(l => l.ticker === 'SPCX');
   const spcxShares = spcxLots.reduce((sum, l) => sum + l.shares, 0); // 20,250 shares
-  const currentSpcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 112.42;
+  const currentSpcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 137.95;
 
   const spcxCurrentValue = spcxShares * currentSpcxPrice;
   const nonSpcxLiquidPortfolio = Math.max(0, initialLiquidPortfolio - spcxCurrentValue);
