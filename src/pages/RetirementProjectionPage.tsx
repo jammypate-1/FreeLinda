@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PlanningAssumptions, DashboardMetrics, TaxLot, CashFlowItem } from '../types/financial';
-import { calculateRetirementProjection, formatCurrency, formatPercent } from '../utils/financialCalculations';
+import { calculateRetirementProjection, calculateMinSpcxPrice, calculateSpcxSensitivityMatrix, formatCurrency, formatPercent } from '../utils/financialCalculations';
 import { runLifetimeTaxSimulation } from '../utils/taxSimulator';
 import { LineChart as ReLineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import { LineChart, Calendar, TrendingUp, Layers, ChevronDown, ChevronUp, ShieldCheck, Sparkles, Calculator, CheckCircle2 } from 'lucide-react';
+import { LineChart, Calendar, TrendingUp, Layers, ChevronDown, ChevronUp, ShieldCheck, Sparkles, Calculator, CheckCircle2, Target, Sliders, Gauge, RefreshCw } from 'lucide-react';
 
 interface RetirementProjectionPageProps {
   assumptions: PlanningAssumptions;
@@ -51,6 +51,23 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
 
   const [showLotsDrawer, setShowLotsDrawer] = useState<boolean>(false);
 
+  // SPCX stock specific calculations for 90-year goal solvency
+  const spcxLots = taxLots.filter(l => l.ticker === 'SPCX');
+  const spcxShares = spcxLots.reduce((sum, l) => sum + l.shares, 0); // 20,250 shares
+  const currentSpcxPrice = spcxLots.length > 0 ? spcxLots[0].currentPrice : 112.42;
+
+  const spcxCurrentValue = spcxShares * currentSpcxPrice;
+  const nonSpcxLiquidPortfolio = Math.max(0, initialLiquidPortfolio - spcxCurrentValue);
+
+  const [simulatedSpcxPrice, setSimulatedSpcxPrice] = useState<number>(currentSpcxPrice);
+  const [isOverridingSpcx, setIsOverridingSpcx] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isOverridingSpcx) {
+      setSimulatedSpcxPrice(currentSpcxPrice);
+    }
+  }, [currentSpcxPrice, isOverridingSpcx]);
+
   useEffect(() => {
     setLiquidPortfolio(initialLiquidPortfolio);
   }, [initialLiquidPortfolio]);
@@ -80,11 +97,54 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
     { num: 12, name: 'December' }
   ];
 
+  // Minimum SPCX Stock Price Solver for 90-Year Solvency Goal
+  const solvencyResult = calculateMinSpcxPrice(
+    spcxShares,
+    nonSpcxLiquidPortfolio,
+    currentSpcxPrice,
+    currentAge,
+    retireYear,
+    retireMonth,
+    realEstateVal,
+    mortgageBalance,
+    annualSavings,
+    annualExpenses,
+    preReturn,
+    postReturn,
+    inflation,
+    ssMonthlyBenefit * 12,
+    ssStartAge
+  );
+
+  const sensitivityMatrix = calculateSpcxSensitivityMatrix(
+    spcxShares,
+    nonSpcxLiquidPortfolio,
+    solvencyResult.minSpcxPrice,
+    currentSpcxPrice,
+    currentAge,
+    retireYear,
+    retireMonth,
+    realEstateVal,
+    mortgageBalance,
+    annualSavings,
+    annualExpenses,
+    preReturn,
+    postReturn,
+    inflation,
+    ssMonthlyBenefit * 12,
+    ssStartAge
+  );
+
+  // Use simulated SPCX price if user enabled stress test override
+  const activeLiquidPortfolio = isOverridingSpcx
+    ? Math.round(nonSpcxLiquidPortfolio + (spcxShares * simulatedSpcxPrice))
+    : liquidPortfolio;
+
   const projectionData = calculateRetirementProjection(
     currentAge,
     retireYear,
     retireMonth,
-    liquidPortfolio,
+    activeLiquidPortfolio,
     realEstateVal,
     mortgageBalance,
     annualSavings,
@@ -329,6 +389,291 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
               onChange={e => setAnnualSavings(Number(e.target.value))}
               className="w-full accent-emerald-500 bg-slate-950 rounded-lg h-2"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* SPCX Stock Goal to Age 90: Minimum Price Analysis Spotlight */}
+      <div className="bg-slate-900 border border-emerald-500/40 rounded-2xl p-6 space-y-6 shadow-xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/30">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+              <Target className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-base font-bold text-white tracking-tight">SPCX Stock Goal to Age 90: Minimum Price Analysis</h2>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+                  Solvency Engine
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Solves for the exact minimum SPCX price needed for Linda's liquid portfolio to stay positive through <strong className="text-white">Age 90 (2080)</strong>, assuming all other portfolio assets perform based on assumptions.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 shrink-0">
+            <div className="text-right">
+              <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Current SPCX Live Price</p>
+              <p className="text-lg font-black text-emerald-400">${solvencyResult.currentSpcxPrice.toFixed(2)}</p>
+            </div>
+            <div className="h-8 w-px bg-slate-800" />
+            <div className="text-right">
+              <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Total SPCX Shares</p>
+              <p className="text-lg font-extrabold text-white">{spcxShares.toLocaleString()} sh</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Spotlight Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Minimum SPCX Price Card */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/40 space-y-1 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 text-emerald-500/20 group-hover:text-emerald-500/30 transition">
+              <Gauge className="w-12 h-12" />
+            </div>
+            <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-extrabold flex items-center space-x-1">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span>Minimum SPCX Stock Price</span>
+            </p>
+            <p className="text-3xl font-black text-white tracking-tight">${solvencyResult.minSpcxPrice.toFixed(2)} <span className="text-xs text-slate-400 font-normal">/ share</span></p>
+            <p className="text-[11px] text-slate-400">
+              Required for liquid solvency through age 90
+            </p>
+          </div>
+
+          {/* Price Cushion / Safety Buffer Card */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Safety Margin / Cushion</p>
+            <p className={`text-2xl font-extrabold ${solvencyResult.priceBuffer >= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {solvencyResult.priceBuffer >= 0 ? `+$${solvencyResult.priceBuffer.toFixed(2)}` : `-$${Math.abs(solvencyResult.priceBuffer).toFixed(2)}`}
+              <span className="text-xs font-bold text-sky-400 ml-1">
+                ({solvencyResult.priceBufferPct >= 0 ? `+${solvencyResult.priceBufferPct.toFixed(1)}%` : `${solvencyResult.priceBufferPct.toFixed(1)}%`})
+              </span>
+            </p>
+            <p className="text-[11px] text-slate-400">
+              {solvencyResult.priceBuffer >= 0
+                ? `Current live price is $${solvencyResult.priceBuffer.toFixed(2)} above minimum threshold`
+                : `Current live price is $${Math.abs(solvencyResult.priceBuffer).toFixed(2)} below minimum threshold`}
+            </p>
+          </div>
+
+          {/* Minimum Required Equity Valuation Card */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Required SPCX Valuation</p>
+            <p className="text-2xl font-extrabold text-sky-400">{formatCurrency(solvencyResult.minSpcxValue)}</p>
+            <p className="text-[11px] text-slate-400">
+              vs {formatCurrency(solvencyResult.currentSpcxValue)} current position value
+            </p>
+          </div>
+
+          {/* Solvency Status Card */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1 bg-gradient-to-br from-slate-950 to-emerald-950/20">
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Age 90 Solvency Status</p>
+            <div className="flex items-center space-x-1.5 pt-0.5">
+              <ShieldCheck className={`w-5 h-5 ${solvencyResult.isSolventAtCurrentPrice ? 'text-emerald-400' : 'text-amber-400'}`} />
+              <span className={`text-lg font-extrabold ${solvencyResult.isSolventAtCurrentPrice ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {solvencyResult.isSolventAtCurrentPrice ? 'Fully Solvent' : `Depletes @ Age ${solvencyResult.depletionAgeAtCurrentPrice ?? 85}`}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-300">
+              {solvencyResult.isSolventAtCurrentPrice
+                ? `${formatCurrency(solvencyResult.age90LiquidBalanceAtCurrentPrice)} liquid reserve remaining at age 90`
+                : `Requires $${solvencyResult.minSpcxPrice.toFixed(2)}/sh for 90-year solvency`}
+            </p>
+          </div>
+        </div>
+
+        {/* Interactive SPCX Price Stress Tester & Slider */}
+        <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+            <div className="flex items-center space-x-2">
+              <Sliders className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Interactive SPCX Price Stress Tester</h3>
+            </div>
+            <div className="flex items-center space-x-3 text-xs">
+              <label className="flex items-center space-x-2 cursor-pointer text-slate-300 hover:text-white transition">
+                <input
+                  type="checkbox"
+                  checked={isOverridingSpcx}
+                  onChange={e => setIsOverridingSpcx(e.target.checked)}
+                  className="rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20"
+                />
+                <span className="font-semibold">Apply simulated price to lifetime trajectory chart & schedule</span>
+              </label>
+              {isOverridingSpcx && (
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(currentSpcxPrice); setIsOverridingSpcx(false); }}
+                  className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] flex items-center space-x-1 font-semibold transition"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Reset to Live</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Slider & Presets */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-7 space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 font-semibold">Simulated SPCX Stock Price:</span>
+                <span className="text-xl font-black text-emerald-400 font-mono">${simulatedSpcxPrice.toFixed(2)} / share</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="250"
+                step="1"
+                value={simulatedSpcxPrice}
+                onChange={e => { setSimulatedSpcxPrice(Number(e.target.value)); setIsOverridingSpcx(true); }}
+                className="w-full accent-emerald-500 bg-slate-900 rounded-lg h-2.5 cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-slate-500 font-semibold">
+                <span>$0.00 (Wipeout)</span>
+                <span>Min Req: ${solvencyResult.minSpcxPrice.toFixed(2)}</span>
+                <span>Live: ${currentSpcxPrice.toFixed(2)}</span>
+                <span>$250.00</span>
+              </div>
+            </div>
+
+            {/* Quick Presets Buttons */}
+            <div className="lg:col-span-5 space-y-1.5">
+              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Quick Scenario Presets:</p>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(0); setIsOverridingSpcx(true); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                    simulatedSpcxPrice === 0
+                      ? 'bg-rose-600 text-white border-rose-500'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                  }`}
+                >
+                  💥 $0 (Wipeout)
+                </button>
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(50); setIsOverridingSpcx(true); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                    simulatedSpcxPrice === 50
+                      ? 'bg-amber-600 text-white border-amber-500'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                  }`}
+                >
+                  $50.00
+                </button>
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(solvencyResult.minSpcxPrice); setIsOverridingSpcx(true); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                    Math.abs(simulatedSpcxPrice - solvencyResult.minSpcxPrice) < 0.5
+                      ? 'bg-sky-600 text-white border-sky-500 shadow-md shadow-sky-600/30'
+                      : 'bg-slate-900 hover:bg-slate-800 text-sky-400 border-sky-500/40'
+                  }`}
+                >
+                  🎯 Min Req (${solvencyResult.minSpcxPrice.toFixed(2)})
+                </button>
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(currentSpcxPrice); setIsOverridingSpcx(true); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                    Math.abs(simulatedSpcxPrice - currentSpcxPrice) < 0.5
+                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/30'
+                      : 'bg-slate-900 hover:bg-slate-800 text-emerald-400 border-emerald-500/40'
+                  }`}
+                >
+                  ⚡ Live (${currentSpcxPrice.toFixed(2)})
+                </button>
+                <button
+                  onClick={() => { setSimulatedSpcxPrice(150); setIsOverridingSpcx(true); }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                    simulatedSpcxPrice === 150
+                      ? 'bg-emerald-600 text-white border-emerald-500'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
+                  }`}
+                >
+                  $150.00
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SPCX Stock Price Sensitivity Matrix Table */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-white flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span>SPCX Price Sensitivity Scenario Matrix (Impact on Lifetime Net Worth)</span>
+            </span>
+            <span className="text-slate-400">Assuming other assets perform based on assumptions</span>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-900 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800 text-[11px]">
+                <tr>
+                  <th className="py-2.5 px-3">Scenario / Price</th>
+                  <th className="py-2.5 px-3">SPCX Position Value</th>
+                  <th className="py-2.5 px-3">Starting Liquid Assets</th>
+                  <th className="py-2.5 px-3">NW at Retire ({retireYear})</th>
+                  <th className="py-2.5 px-3">NW at Age 60</th>
+                  <th className="py-2.5 px-3">NW at Age 75</th>
+                  <th className="py-2.5 px-3">NW at Age 90</th>
+                  <th className="py-2.5 px-3">Age 90 Outcome</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80 text-slate-200 text-[11px]">
+                {sensitivityMatrix.map((pt, idx) => {
+                  const isMinRow = Math.abs(pt.spcxPrice - solvencyResult.minSpcxPrice) < 0.05;
+                  const isCurrentRow = Math.abs(pt.spcxPrice - currentSpcxPrice) < 0.05;
+                  return (
+                    <tr
+                      key={idx}
+                      className={`hover:bg-slate-900/80 transition ${
+                        isMinRow
+                          ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold'
+                          : isCurrentRow
+                          ? 'bg-emerald-950/40 border-l-4 border-emerald-400 font-bold'
+                          : ''
+                      }`}
+                    >
+                      <td className="py-2 px-3 font-semibold text-white">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-mono text-emerald-400 font-bold">${pt.spcxPrice.toFixed(2)}</span>
+                          {pt.label && (
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
+                              isMinRow ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' :
+                              isCurrentRow ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                              'bg-slate-800 text-slate-300'
+                            }`}>
+                              {pt.label}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2 px-3 font-medium text-slate-300">{formatCurrency(pt.spcxValue)}</td>
+                      <td className="py-2 px-3 font-medium text-slate-300">{formatCurrency(pt.initialLiquidPortfolio)}</td>
+                      <td className="py-2 px-3 font-semibold text-emerald-400">{formatCurrency(pt.retireNetWorth)}</td>
+                      <td className="py-2 px-3 font-semibold text-sky-400">{formatCurrency(pt.age60NetWorth)}</td>
+                      <td className="py-2 px-3 text-indigo-300">{formatCurrency(pt.age75NetWorth)}</td>
+                      <td className={`py-2 px-3 font-extrabold ${pt.age90NetWorth > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {formatCurrency(pt.age90NetWorth)}
+                      </td>
+                      <td className="py-2 px-3">
+                        {pt.isSolvent ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Solvent ({formatCurrency(pt.age90LiquidBalance)})
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                            Depletes @ Age {pt.depletionAge ?? 85}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

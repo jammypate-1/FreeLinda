@@ -227,6 +227,204 @@ export function calculateHedgeMatrix(config: OptionHedgeConfig): HedgeMatrixPoin
   return points;
 }
 
+export interface SpcxSolvencyResult {
+  minSpcxPrice: number;
+  minSpcxValue: number;
+  currentSpcxPrice: number;
+  currentSpcxValue: number;
+  priceBuffer: number;
+  priceBufferPct: number;
+  isSolventAtCurrentPrice: boolean;
+  depletionAgeAtCurrentPrice: number | null;
+  age90LiquidBalanceAtCurrentPrice: number;
+  age90NetWorthAtCurrentPrice: number;
+}
+
+export interface SpcxSensitivityPoint {
+  spcxPrice: number;
+  spcxValue: number;
+  initialLiquidPortfolio: number;
+  retireNetWorth: number;
+  age60NetWorth: number;
+  age75NetWorth: number;
+  age90NetWorth: number;
+  age90LiquidBalance: number;
+  depletionAge: number | null;
+  isSolvent: boolean;
+  label?: string;
+}
+
+/**
+ * Solves for the exact minimum price per share of SPCX stock needed
+ * for Linda's liquid portfolio balance to remain positive through age 90.
+ */
+export function calculateMinSpcxPrice(
+  spcxShares: number,
+  nonSpcxLiquidPortfolio: number,
+  currentSpcxPrice: number,
+  currentAge: number,
+  retireYear: number,
+  retireMonth: number,
+  realEstateVal: number,
+  mortgageBalance: number,
+  annualSavings: number,
+  annualExpenses: number,
+  preReturn: number,
+  postReturn: number,
+  inflation: number,
+  ssAnnualBenefit: number,
+  ssStartAge: number
+): SpcxSolvencyResult {
+  if (spcxShares <= 0) {
+    return {
+      minSpcxPrice: 0,
+      minSpcxValue: 0,
+      currentSpcxPrice,
+      currentSpcxValue: 0,
+      priceBuffer: 0,
+      priceBufferPct: 0,
+      isSolventAtCurrentPrice: true,
+      depletionAgeAtCurrentPrice: null,
+      age90LiquidBalanceAtCurrentPrice: 0,
+      age90NetWorthAtCurrentPrice: 0,
+    };
+  }
+
+  const runProjectionForPrice = (price: number) => {
+    const testLiquid = nonSpcxLiquidPortfolio + (spcxShares * price);
+    const projection = calculateRetirementProjection(
+      currentAge,
+      retireYear,
+      retireMonth,
+      testLiquid,
+      realEstateVal,
+      mortgageBalance,
+      annualSavings,
+      annualExpenses,
+      preReturn,
+      postReturn,
+      inflation,
+      ssAnnualBenefit,
+      ssStartAge
+    );
+    const age90Point = projection[projection.length - 1];
+    const depletedPoint = projection.find(p => p.endingLiquidBalance <= 0);
+    return {
+      projection,
+      age90Point,
+      isSolvent: age90Point.endingLiquidBalance > 0,
+      depletionAge: depletedPoint ? depletedPoint.age : null
+    };
+  };
+
+  let low = 0;
+  let high = 2000;
+  let minPrice = 0;
+
+  if (runProjectionForPrice(0).isSolvent) {
+    minPrice = 0;
+  } else {
+    for (let i = 0; i < 30; i++) {
+      const mid = (low + high) / 2;
+      const res = runProjectionForPrice(mid);
+      if (res.isSolvent) {
+        minPrice = mid;
+        high = mid;
+      } else {
+        low = mid;
+      }
+    }
+  }
+
+  const currentRes = runProjectionForPrice(currentSpcxPrice);
+  const minSpcxValue = minPrice * spcxShares;
+  const currentSpcxValue = currentSpcxPrice * spcxShares;
+  const priceBuffer = currentSpcxPrice - minPrice;
+  const priceBufferPct = minPrice > 0 ? ((currentSpcxPrice - minPrice) / minPrice) * 100 : 100;
+
+  return {
+    minSpcxPrice: Math.round(minPrice * 100) / 100,
+    minSpcxValue: Math.round(minSpcxValue),
+    currentSpcxPrice,
+    currentSpcxValue: Math.round(currentSpcxValue),
+    priceBuffer: Math.round(priceBuffer * 100) / 100,
+    priceBufferPct: Math.round(priceBufferPct * 10) / 10,
+    isSolventAtCurrentPrice: currentRes.isSolvent,
+    depletionAgeAtCurrentPrice: currentRes.depletionAge,
+    age90LiquidBalanceAtCurrentPrice: currentRes.age90Point.endingLiquidBalance,
+    age90NetWorthAtCurrentPrice: currentRes.age90Point.netWorth
+  };
+}
+
+/**
+ * Generates SPCX stock price sensitivity matrix points across range of share prices.
+ */
+export function calculateSpcxSensitivityMatrix(
+  spcxShares: number,
+  nonSpcxLiquidPortfolio: number,
+  minSpcxPrice: number,
+  currentSpcxPrice: number,
+  currentAge: number,
+  retireYear: number,
+  retireMonth: number,
+  realEstateVal: number,
+  mortgageBalance: number,
+  annualSavings: number,
+  annualExpenses: number,
+  preReturn: number,
+  postReturn: number,
+  inflation: number,
+  ssAnnualBenefit: number,
+  ssStartAge: number
+): SpcxSensitivityPoint[] {
+  const priceSteps = [0, 25, 50, minSpcxPrice, currentSpcxPrice, 150, 200, 250];
+  const uniquePrices = Array.from(new Set(priceSteps.map(p => Math.round(p * 100) / 100))).sort((a, b) => a - b);
+
+  return uniquePrices.map(price => {
+    const initialLiquid = Math.round(nonSpcxLiquidPortfolio + (spcxShares * price));
+    const proj = calculateRetirementProjection(
+      currentAge,
+      retireYear,
+      retireMonth,
+      initialLiquid,
+      realEstateVal,
+      mortgageBalance,
+      annualSavings,
+      annualExpenses,
+      preReturn,
+      postReturn,
+      inflation,
+      ssAnnualBenefit,
+      ssStartAge
+    );
+
+    const retirePt = proj.find(p => p.year === retireYear) || proj[0];
+    const age60Pt = proj.find(p => p.age === 60) || proj[0];
+    const age75Pt = proj.find(p => p.age === 75) || proj[0];
+    const age90Pt = proj[proj.length - 1];
+    const depletedPt = proj.find(p => p.endingLiquidBalance <= 0);
+
+    let label: string | undefined;
+    if (price === 0) label = '$0 (Wipeout)';
+    else if (Math.abs(price - minSpcxPrice) < 0.05) label = `Min Required ($${minSpcxPrice.toFixed(2)})`;
+    else if (Math.abs(price - currentSpcxPrice) < 0.05) label = `Current Live ($${currentSpcxPrice.toFixed(2)})`;
+
+    return {
+      spcxPrice: price,
+      spcxValue: Math.round(price * spcxShares),
+      initialLiquidPortfolio: initialLiquid,
+      retireNetWorth: retirePt.netWorth,
+      age60NetWorth: age60Pt.netWorth,
+      age75NetWorth: age75Pt.netWorth,
+      age90NetWorth: age90Pt.netWorth,
+      age90LiquidBalance: age90Pt.endingLiquidBalance,
+      depletionAge: depletedPt ? depletedPt.age : null,
+      isSolvent: age90Pt.endingLiquidBalance > 0,
+      label
+    };
+  });
+}
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -238,3 +436,4 @@ export function formatCurrency(amount: number): string {
 export function formatPercent(value: number): string {
   return (value * 100).toFixed(1) + '%';
 }
+
