@@ -13,5 +13,12 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    proxy: {
+      '/api/market-data': {
+        target: 'http://127.0.0.1:5001',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api\/market-data/, '/freelinda/us-central1/marketData')
+      }
+    }
   },
 })
