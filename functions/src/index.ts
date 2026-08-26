@@ -4,7 +4,7 @@ import { onRequest } from 'firebase-functions/v2/https';
 
 initializeApp();
 
-const ALLOWED_EMAILS = new Set(['jammy.pate@gmail.com', 'linda.a.dada@gmail.com']);
+const ALLOWED_EMAILS = new Set(['jammy.pate@gmail.com']);
 const SYMBOLS = new Set(['SPCX', 'GOOG']);
 const TIMEFRAMES = {
   '1D': { range: '1d', interval: '1h' },
@@ -76,7 +76,7 @@ export const marketData = onRequest({ region: 'us-central1', timeoutSeconds: 30 
     url.searchParams.set('interval', query.interval);
     url.searchParams.set('includePrePost', 'false');
 
-    const upstream = await fetch(url, { headers: { 'User-Agent': 'FreeLinda/1.0' } });
+    const upstream = await fetch(url, { headers: { 'User-Agent': 'WealthPlanner/1.0' } });
     if (!upstream.ok) {
       throw new Error(`Market data provider returned ${upstream.status}`);
     }

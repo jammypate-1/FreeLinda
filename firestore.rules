@@ -5,8 +5,7 @@ service cloud.firestore {
     function isAuthorizedUser() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && (request.auth.token.email == 'jammy.pate@gmail.com'
-          || request.auth.token.email == 'linda.a.dada@gmail.com');
+        && request.auth.token.email == 'jammy.pate@gmail.com';
     }
 
     match /sharedData/{document} {
