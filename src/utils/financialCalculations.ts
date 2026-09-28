@@ -22,7 +22,7 @@ export function calculateDashboardMetrics(
   const totalLiabilities = activeLiabilities.reduce((sum, l) => sum + l.currentBalance, 0);
   const netWorth = totalAssets - totalLiabilities;
 
-  // Liquid assets: Cash/Bank and Taxable Investments (excluding real estate & retirement)
+  // Liquid assets: Cash/Bank and Taxable Investments (excluding real estate & financial freedom accounts)
   const liquidAssets = activeAssets
     .filter(a => a.type === 'Cash / Bank' || (a.type === 'Taxable Investment' && a.liquidity === 'Immediate'))
     .reduce((sum, a) => sum + a.currentValue, 0);
@@ -94,23 +94,23 @@ export interface YearProjectionPoint {
   annualWithdrawal: number;
   socialSecurityIncome: number;
   investmentGrowth: number;
-  phase: 'Accumulation' | 'Retirement';
+  phase: 'Accumulation' | 'Financial Freedom';
 }
 
 /**
- * Calculates lifetime retirement projection and net worth balance trajectory
+ * Calculates lifetime financial freedom projection and net worth balance trajectory
  */
-export function calculateRetirementProjection(
+export function calculateFinancialFreedomProjection(
   currentAge: number,
-  retirementYear: number,
-  retirementMonth: number, // 1-12 (e.g. 4 for April)
+  financialFreedomYear: number,
+  financialFreedomMonth: number, // 1-12 (e.g. 4 for April)
   liquidPortfolio: number,
   realEstateVal: number,
   mortgageBalance: number,
   annualSavings: number,
-  annualExpensesInRetirement: number,
-  preRetirementReturn: number,
-  retirementReturn: number,
+  annualExpensesInFinancialFreedom: number,
+  preFinancialFreedomReturn: number,
+  financialFreedomReturn: number,
   inflationRate: number,
   ssAnnualBenefit: number,
   ssStartAge: number
@@ -126,9 +126,9 @@ export function calculateRetirementProjection(
   for (let age = currentAge; age <= 90; age++) {
     const projectionYear = startYear + (age - currentAge);
     
-    // Check if this year is before, at, or after target retirement year/month
-    const isRetirement = projectionYear > retirementYear || (projectionYear === retirementYear && retirementMonth <= 4);
-    const returnRate = isRetirement ? retirementReturn : preRetirementReturn;
+    // Check if this year is before, at, or after target financial freedom year/month
+    const isFinancialFreedom = projectionYear > financialFreedomYear || (projectionYear === financialFreedomYear && financialFreedomMonth <= 4);
+    const returnRate = isFinancialFreedom ? financialFreedomReturn : preFinancialFreedomReturn;
     
     const inflationFactor = Math.pow(1 + inflationRate, age - currentAge);
 
@@ -151,7 +151,7 @@ export function calculateRetirementProjection(
     let ssIncome = 0;
     let growth = 0;
 
-    if (!isRetirement) {
+    if (!isFinancialFreedom) {
       annualContrib = annualSavings * inflationFactor;
       growth = (portfolio + annualContrib / 2) * returnRate;
       portfolio = portfolio + annualContrib + growth;
@@ -159,7 +159,7 @@ export function calculateRetirementProjection(
       if (age >= ssStartAge) {
         ssIncome = ssAnnualBenefit * Math.pow(1 + inflationRate, age - ssStartAge);
       }
-      const neededExpenses = annualExpensesInRetirement * inflationFactor;
+      const neededExpenses = annualExpensesInFinancialFreedom * inflationFactor;
       annualWithdrawal = Math.max(0, neededExpenses - ssIncome);
 
       growth = (portfolio - annualWithdrawal / 2) * returnRate;
@@ -171,7 +171,7 @@ export function calculateRetirementProjection(
 
     points.push({
       year: projectionYear,
-      month: projectionYear === retirementYear ? monthsMap[retirementMonth - 1] : 'Dec',
+      month: projectionYear === financialFreedomYear ? monthsMap[financialFreedomMonth - 1] : 'Dec',
       age,
       beginningLiquidBalance,
       endingLiquidBalance,
@@ -182,7 +182,7 @@ export function calculateRetirementProjection(
       annualWithdrawal: Math.round(annualWithdrawal),
       socialSecurityIncome: Math.round(ssIncome),
       investmentGrowth: Math.round(growth),
-      phase: isRetirement ? 'Retirement' : 'Accumulation'
+      phase: isFinancialFreedom ? 'Financial Freedom' : 'Accumulation'
     });
   }
 
@@ -292,7 +292,7 @@ export function calculateMinSpcxPrice(
 
   const runProjectionForPrice = (price: number) => {
     const testLiquid = nonSpcxLiquidPortfolio + (spcxShares * price);
-    const projection = calculateRetirementProjection(
+    const projection = calculateFinancialFreedomProjection(
       currentAge,
       retireYear,
       retireMonth,
@@ -382,7 +382,7 @@ export function calculateSpcxSensitivityMatrix(
 
   return uniquePrices.map(price => {
     const initialLiquid = Math.round(nonSpcxLiquidPortfolio + (spcxShares * price));
-    const proj = calculateRetirementProjection(
+    const proj = calculateFinancialFreedomProjection(
       currentAge,
       retireYear,
       retireMonth,

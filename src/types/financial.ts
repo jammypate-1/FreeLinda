@@ -30,16 +30,16 @@ export interface ClientProfile {
 
 export interface PlanningAssumptions {
   inflationRate: number;
-  preRetirementReturn: number;
-  retirementReturn: number;
+  preFinancialFreedomReturn: number;
+  financialFreedomReturn: number;
   cashReturn: number;
   emergencyFundMonthsTarget: number;
   dtiWatchLimit: number;
   highInterestThreshold: number;
   estateReviewCadenceYears: number;
   insuranceReviewCadenceYears: number;
-  primaryRetirementAge: number;
-  coClientRetirementAge: number;
+  primaryFinancialFreedomAge: number;
+  coClientFinancialFreedomAge: number;
   asOfDate: string;
 }
 
@@ -126,7 +126,7 @@ export interface Goal {
   notes: string;
 }
 
-export interface RetirementIncomeSource {
+export interface FinancialFreedomIncomeSource {
   id: string;
   owner: string;
   type: string;
@@ -243,3 +243,121 @@ export interface DashboardMetrics {
   monthlyDebtPayments: number;
   dtiRatio: number;
 }
+
+export type WaccCalculationMode = 'custom' | 'capm';
+export type TerminalValueMethod = 'gordon' | 'exit_multiple';
+
+export interface SpcxRevenueStream {
+  id: string;
+  name: string;
+  category: string;
+  annualRevenue: number; // in $ Millions
+  projectedGrowth: number; // annual growth rate decimal (e.g. 0.10)
+  marginPct?: number; // optional segment margin %
+  notes?: string;
+}
+
+export interface SpcxCostItem {
+  id: string;
+  name: string;
+  category: 'COGS' | 'Personnel' | 'Technology & Data' | 'Compliance & Admin' | 'Marketing & Distribution' | 'CapEx' | 'Other';
+  annualCost: number; // in $ Millions
+  inflationRate: number; // annual cost inflation rate decimal (e.g. 0.03)
+  isCapEx?: boolean;
+  notes?: string;
+}
+
+export interface SpcxDcfAssumptions {
+  id?: string;
+  scenarioName?: string;
+  
+  // Baseline Financials Mode
+  useGranularBreakdown: boolean;
+  fcfBaseline: number; // in $ Millions (e.g. 145.0)
+  sharesOutstanding: number; // in Millions (e.g. 20.25)
+  cashAndEquivalents: number; // in $ Millions (e.g. 85.0)
+  totalDebt: number; // in $ Millions (e.g. 110.0)
+  currentPrice: number; // Market Price per share ($)
+
+  // Granular Revenue & Cost Breakdown
+  revenueStreams: SpcxRevenueStream[];
+  costItems: SpcxCostItem[];
+
+  // Growth Rate Assumptions
+  projectionHorizonYears: number; // 5 to 10 years
+  cagrYears1To5: number; // Stage 1 growth rate (decimal, e.g. 0.095 = 9.5%)
+  cagrYears6To10: number; // Stage 2 growth rate (decimal, e.g. 0.05 = 5.0%)
+  terminalGrowthRate: number; // Perpetual growth rate (decimal, e.g. 0.025 = 2.5%)
+
+  // Discount Rate / WACC
+  waccMode: WaccCalculationMode;
+  customWacc: number; // Custom WACC rate (decimal, e.g. 0.085 = 8.5%)
+  riskFreeRate: number; // decimal (e.g. 0.042)
+  beta: number; // multiplier (e.g. 1.12)
+  equityRiskPremium: number; // decimal (e.g. 0.055)
+  costOfDebtPreTax: number; // decimal (e.g. 0.058)
+  taxRate: number; // decimal (e.g. 0.21)
+  debtWeight: number; // proportion (e.g. 0.20)
+  equityWeight: number; // proportion (e.g. 0.80)
+
+  // Terminal Value Method
+  terminalMethod: TerminalValueMethod;
+  exitMultiple: number; // Exit FCF / EV Multiple (e.g. 15.0)
+}
+
+export interface ProjectedCashFlowYear {
+  year: number;
+  growthRate: number;
+  undiscountedFcf: number;
+  discountFactor: number;
+  pvFcf: number;
+}
+
+export interface DcfSimulationResult {
+  effectiveWacc: number;
+  costOfEquity: number;
+  costOfDebtAfterTax: number;
+  projectedCashFlows: ProjectedCashFlowYear[];
+  pvExplicitCashFlows: number;
+  terminalValue: number;
+  pvTerminalValue: number;
+  enterpriseValue: number;
+  netDebt: number;
+  equityValue: number;
+  fairValuePerShare: number;
+  marginOfSafetyPct: number;
+  valuationStatus: 'Strong Buy' | 'Undervalued' | 'Fairly Valued' | 'Overvalued';
+  totalPortfolioValueMarket: number;
+  totalPortfolioValueIntrinsic: number;
+  portfolioValueDelta: number;
+}
+
+export interface SensitivityCell {
+  wacc: number;
+  terminalGrowth: number;
+  fairValuePerShare: number;
+  marginOfSafetyPct: number;
+  status: 'Undervalued' | 'Fairly Valued' | 'Overvalued';
+}
+
+export interface DcfScenarioPreset {
+  id: string;
+  name: string;
+  description: string;
+  assumptions: SpcxDcfAssumptions;
+}
+
+export type PortfolioBucketKey = 'spending' | 'income' | 'emergency' | 'growth' | 'nest_egg';
+
+export interface PortfoliosConfig {
+  emergencyTargetMonths: number;
+  monthlyDistributionFromIncome: number;
+  distributionFrequency: 'Monthly' | 'Quarterly';
+  customAccountMappings: Record<string, PortfolioBucketKey>;
+  nestEggAnnualDiversificationPct: number;
+  spendingTargetBufferMonths: number;
+  useEssentialExpensesForEmergency: boolean;
+  notes: string;
+}
+
+

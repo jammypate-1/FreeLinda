@@ -11,7 +11,8 @@ import {
   EstateItem,
   BeneficiaryRecord,
   DocumentItem,
-  ActionItem
+  ActionItem,
+  PortfoliosConfig
 } from '../types/financial';
 
 import {
@@ -27,7 +28,8 @@ import {
   initialEstateItems,
   initialBeneficiaries,
   initialDocuments,
-  initialActionItems
+  initialActionItems,
+  initialPortfoliosConfig
 } from '../data/initialData';
 import {
   collection,
@@ -55,7 +57,8 @@ const LEGACY_STORAGE_KEYS = {
   BENEFICIARIES: 'freelinda_beneficiaries',
   DOCUMENTS: 'freelinda_documents',
   ACTION_ITEMS: 'freelinda_action_items',
-  MEETING_NOTES: 'freelinda_meeting_notes'
+  MEETING_NOTES: 'freelinda_meeting_notes',
+  PORTFOLIOS_CONFIG: 'freelinda_portfolios_config'
 };
 
 export interface SharedData {
@@ -73,6 +76,7 @@ export interface SharedData {
   documents: DocumentItem[];
   actionItems: ActionItem[];
   meetingNotes: any[];
+  portfoliosConfig: PortfoliosConfig;
 }
 
 type SharedDataKey = keyof SharedData;
@@ -91,7 +95,8 @@ const DEFAULT_DATA: SharedData = {
   beneficiaries: initialBeneficiaries,
   documents: initialDocuments,
   actionItems: initialActionItems,
-  meetingNotes: []
+  meetingNotes: [],
+  portfoliosConfig: initialPortfoliosConfig
 };
 
 const LEGACY_KEYS_BY_DATA: Record<SharedDataKey, string> = {
@@ -108,7 +113,8 @@ const LEGACY_KEYS_BY_DATA: Record<SharedDataKey, string> = {
   beneficiaries: LEGACY_STORAGE_KEYS.BENEFICIARIES,
   documents: LEGACY_STORAGE_KEYS.DOCUMENTS,
   actionItems: LEGACY_STORAGE_KEYS.ACTION_ITEMS,
-  meetingNotes: LEGACY_STORAGE_KEYS.MEETING_NOTES
+  meetingNotes: LEGACY_STORAGE_KEYS.MEETING_NOTES,
+  portfoliosConfig: LEGACY_STORAGE_KEYS.PORTFOLIOS_CONFIG
 };
 
 const DATA_COLLECTION = 'sharedData';
@@ -209,6 +215,7 @@ export const db = {
   saveDocuments: (data: DocumentItem[]) => save('documents', data),
   saveActionItems: (data: ActionItem[]) => save('actionItems', data),
   saveMeetingNotes: (data: any[]) => save('meetingNotes', data),
+  savePortfoliosConfig: (data: PortfoliosConfig) => save('portfoliosConfig', data),
 
   async resetToDefaults(): Promise<void> {
     const batch = writeBatch(firestore);

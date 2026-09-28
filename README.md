@@ -1,6 +1,6 @@
-# FreeLinda - Wealth & Retirement Planning Suite
+# FreeLinda - Wealth & Financial Freedom Planning Suite
 
-A comprehensive retirement planning and wealth management dashboard built with React, TypeScript, and Vite.
+A comprehensive financial freedom planning and wealth management dashboard built with React, TypeScript, and Vite.
 
 ## Requirements
 
@@ -52,7 +52,7 @@ npm run preview
 - Financial assumptions configuration
 - Asset and liability tracking
 - Cash flow analysis
-- Retirement projections
+- Financial freedom projections
 - Tax lot management
 - Social Security optimization
 - Estate and beneficiary planning

@@ -21,11 +21,11 @@ export interface MarketSeries {
 
 const FALLBACK_PRICES: Record<MarketSymbol, number> = {
   SPCX: 137.95,
-  GOOG: 345.50
+  GOOG: 343.34
 };
 
-export function getFallbackMarketSeries(symbol: MarketSymbol, timeframe: MarketTimeframe): MarketSeries {
-  const basePrice = FALLBACK_PRICES[symbol] ?? 100;
+export function getFallbackMarketSeries(symbol: MarketSymbol, timeframe: MarketTimeframe, customPrice?: number): MarketSeries {
+  const basePrice = customPrice ?? (FALLBACK_PRICES[symbol] ?? 100);
   const now = Date.now();
 
   const labelsMap: Record<MarketTimeframe, string[]> = {

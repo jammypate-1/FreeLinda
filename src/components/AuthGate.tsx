@@ -70,7 +70,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-black text-white">FreeLinda</h1>
-            <p className="text-sm text-slate-400">Retirement Planning Suite</p>
+            <p className="text-sm text-slate-400">Financial Freedom Planning Suite</p>
           </div>
 
           {error && (

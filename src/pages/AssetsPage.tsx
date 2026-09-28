@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AssetAccount } from '../types/financial';
 import { formatCurrency, formatPercent } from '../utils/financialCalculations';
 import { Building2, Plus, Trash2, CheckCircle2, Shield } from 'lucide-react';
@@ -10,6 +10,10 @@ interface AssetsPageProps {
 
 export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) => {
   const [assetList, setAssetList] = useState<AssetAccount[]>(assets);
+
+  useEffect(() => {
+    setAssetList(assets);
+  }, [assets]);
   const [isAdding, setIsAdding] = useState(false);
   const [newAsset, setNewAsset] = useState<Partial<AssetAccount>>({
     name: '',
@@ -127,8 +131,8 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               >
                 <option value="Cash / Bank">Cash / Bank</option>
                 <option value="Taxable Investment">Taxable Investment</option>
-                <option value="Traditional Retirement">Traditional Retirement</option>
-                <option value="Roth Retirement">Roth Retirement</option>
+                <option value="Traditional Financial Freedom">Traditional Financial Freedom</option>
+                <option value="Roth Financial Freedom">Roth Financial Freedom</option>
                 <option value="HSA">HSA</option>
                 <option value="Real Estate">Real Estate</option>
               </select>

@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ metrics, profile }) => {
           <div className="flex items-center space-x-2">
             <h2 className="text-sm sm:text-base font-bold text-white">
               <span className="sm:hidden">{profile.name}'s Wealth Suite</span>
-              <span className="hidden sm:inline">{profile.name}'s Wealth & Retirement Suite</span>
+              <span className="hidden sm:inline">{profile.name}'s Wealth & Financial Freedom Suite</span>
             </h2>
             <span className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
               {profile.occupation}

@@ -13,13 +13,16 @@ import { CashFlowPage } from './pages/CashFlowPage';
 import { AssetsPage } from './pages/AssetsPage';
 import { TaxLotsPage } from './pages/TaxLotsPage';
 import { LiabilitiesPage } from './pages/LiabilitiesPage';
-import { RetirementProjectionPage } from './pages/RetirementProjectionPage';
+import { FinancialFreedomProjectionPage } from './pages/FinancialFreedomProjectionPage';
 import { TaxesPage } from './pages/TaxesPage';
 import { SocialSecurityPage } from './pages/SocialSecurityPage';
+import { HealthcarePage } from './pages/HealthcarePage';
 import { HedgeCalculatorPage } from './pages/HedgeCalculatorPage';
+import { SpcxDcfValuationPage } from './pages/SpcxDcfValuationPage';
 import { EstateBeneficiariesPage } from './pages/EstateBeneficiariesPage';
 import { DocumentsActionPlanPage } from './pages/DocumentsActionPlanPage';
 import { MeetingNotesPage } from './pages/MeetingNotesPage';
+import { PortfoliosPage } from './pages/PortfoliosPage';
 
 const MARKET_REFRESH_INTERVAL = 60 * 60 * 1000;
 const LIVE_TICKERS = new Set<MarketSymbol>(['SPCX', 'GOOG']);
@@ -42,6 +45,7 @@ const PlannerApp: React.FC = () => {
   const [documents, setDocuments] = useState(db.defaults.documents);
   const [actionItems, setActionItems] = useState(db.defaults.actionItems);
   const [meetingNotes, setMeetingNotes] = useState(db.defaults.meetingNotes);
+  const [portfoliosConfig, setPortfoliosConfig] = useState(db.defaults.portfoliosConfig);
   const [latestPrices, setLatestPrices] = useState<Partial<Record<MarketSymbol, number>>>({
     SPCX: 137.95,
     GOOG: 343.34
@@ -61,6 +65,7 @@ const PlannerApp: React.FC = () => {
     setDocuments(data.documents);
     setActionItems(data.actionItems);
     setMeetingNotes(data.meetingNotes);
+    if (data.portfoliosConfig) setPortfoliosConfig(data.portfoliosConfig);
     setSyncError(null);
     setIsDataLoaded(true);
   }, error => {
@@ -145,6 +150,19 @@ const PlannerApp: React.FC = () => {
         return <AssumptionsPage assumptions={assumptions} onSaveAssumptions={updated => { setAssumptions(updated); db.saveAssumptions(updated); }} />;
       case 'cashflow':
         return <CashFlowPage cashFlows={cashFlows} onSaveCashFlows={updated => { setCashFlows(updated); db.saveCashFlows(updated); }} />;
+      case 'portfolios':
+        return (
+          <PortfoliosPage
+            assets={valuedAssets}
+            taxLots={valuedTaxLots}
+            cashFlows={cashFlows}
+            assumptions={assumptions}
+            metrics={metrics}
+            portfoliosConfig={portfoliosConfig}
+            onSavePortfoliosConfig={updated => { setPortfoliosConfig(updated); db.savePortfoliosConfig(updated); }}
+            onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }}
+          />
+        );
       case 'assets':
         return <AssetsPage assets={valuedAssets} onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }} />;
       case 'taxlots':
@@ -152,11 +170,15 @@ const PlannerApp: React.FC = () => {
       case 'liabilities':
         return <LiabilitiesPage liabilities={liabilities} onSaveLiabilities={updated => { setLiabilities(updated); db.saveLiabilities(updated); }} />;
       case 'projection':
-        return <RetirementProjectionPage assumptions={assumptions} metrics={metrics} taxLots={valuedTaxLots} cashFlows={cashFlows} />;
+        return <FinancialFreedomProjectionPage assumptions={assumptions} metrics={metrics} taxLots={valuedTaxLots} cashFlows={cashFlows} />;
       case 'taxes':
         return <TaxesPage taxLots={valuedTaxLots} assumptions={assumptions} metrics={metrics} />;
       case 'socialsecurity':
         return <SocialSecurityPage scenarios={socialSecurityScenarios} />;
+      case 'healthcare':
+        return <HealthcarePage assumptions={assumptions} metrics={metrics} taxLots={valuedTaxLots} cashFlows={cashFlows} />;
+      case 'spcxdcf':
+        return <SpcxDcfValuationPage liveSpcxPrice={latestPrices.SPCX} taxLots={valuedTaxLots} />;
       case 'hedge':
         return <HedgeCalculatorPage config={hedgeConfig} liveUnderlyingPrice={latestPrices.SPCX} onSaveConfig={updated => { setHedgeConfig(updated); db.saveHedgeConfig(updated); }} />;
       case 'estate':

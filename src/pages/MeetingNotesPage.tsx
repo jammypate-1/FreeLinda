@@ -18,12 +18,12 @@ const defaultNotes: SimpleMeetingNote[] = [
   {
     id: 'NOTE-2026-07-30',
     date: '2026-07-30',
-    title: 'Advisory Review: Early Retirement Readiness & Cash Surplus',
+    title: 'Advisory Review: Early Financial Freedom Readiness & Cash Surplus',
     content: `Meeting Date: July 30, 2026
 Attendees: Jammy Pate & Linda
 
 KEY STRATEGIC NOTES:
-- Confirmed Target Retirement Date: April 2027 (Age 37).
+- Confirmed Target Financial Freedom Date: April 2027 (Age 37).
 - Net Worth is $2,870,227 across 123 stock tax lots ($2.83M) and liquid bank cash ($98,423).
 - Monthly net cash surplus is +$11,166/mo including base earned income ($22,000/mo) and harvested stock tax lot proceeds ($10,000/mo equivalent).
 - Action Items: Configure brokerage accounts for HIFO (Highest-Cost-Basis-First) share harvesting prior to initial $120k liquidation in April 2027.`,

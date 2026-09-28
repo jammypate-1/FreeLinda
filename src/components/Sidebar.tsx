@@ -13,7 +13,10 @@ import {
   FileCheck,
   CheckSquare,
   Calculator,
-  FileText
+  FileText,
+  HeartPulse,
+  Binary,
+  Briefcase
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,13 +31,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'assumptions', label: 'Assumptions', icon: Sliders, category: 'Overview' },
 
     { id: 'cashflow', label: 'Cash Flow', icon: Wallet, category: 'Financial Plan' },
+    { id: 'portfolios', label: 'Portfolios Tier System', icon: Briefcase, category: 'Financial Plan' },
     { id: 'assets', label: 'Assets & Accounts', icon: Building2, category: 'Financial Plan' },
     { id: 'taxlots', label: 'Tax Lots & Equity', icon: TrendingUp, category: 'Financial Plan' },
     { id: 'liabilities', label: 'Liabilities & Debt', icon: CreditCard, category: 'Financial Plan' },
 
-    { id: 'projection', label: 'Retirement Engine', icon: LineChart, category: 'Analysis & Strategy' },
+    { id: 'projection', label: 'Financial Freedom Engine', icon: LineChart, category: 'Analysis & Strategy' },
     { id: 'taxes', label: 'Taxes', icon: Calculator, category: 'Analysis & Strategy' },
     { id: 'socialsecurity', label: 'Social Security', icon: ShieldCheck, category: 'Analysis & Strategy' },
+    { id: 'healthcare', label: 'Healthcare & Covered CA', icon: HeartPulse, category: 'Analysis & Strategy' },
+    { id: 'spcxdcf', label: 'SPCX DCF Valuation', icon: Binary, category: 'Analysis & Strategy' },
     { id: 'hedge', label: 'Hedge', icon: ShieldAlert, category: 'Analysis & Strategy' },
 
     { id: 'estate', label: 'Estate & Beneficiaries', icon: FileCheck, category: 'Governance' },
@@ -52,9 +58,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
           <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-sky-500 opacity-30 blur-md group-hover:opacity-70 transition duration-500"></div>
           <div className="relative w-11 h-11 rounded-2xl bg-slate-950 border border-amber-500/30 flex items-center justify-center shadow-2xl">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L3 7V12C3 17.5228 7.02944 22.1953 12 23C16.9706 22.1953 21 17.5228 21 12V7L12 2Z" stroke="url(#gold-grad)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 6L16 10L12 18L8 10L12 6Z" fill="url(#emerald-grad)" opacity="0.9"/>
-              <path d="M12 6V18" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+              <path d="M12 2L3 7V12C3 17.5228 7.02944 22.1953 12 23C16.9706 22.1953 21 17.5228 21 12V7L12 2Z" stroke="url(#gold-grad)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 6L16 10L12 18L8 10L12 6Z" fill="url(#emerald-grad)" opacity="0.9" />
+              <path d="M12 6V18" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
               <defs>
                 <linearGradient id="gold-grad" x1="3" y1="2" x2="21" y2="23" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#f59e0b" />
@@ -89,11 +95,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                     onClick={() => setActiveTab(item.id)}
                     aria-label={item.label}
                     title={item.label}
-                    className={`w-full flex items-center justify-center sm:justify-start sm:space-x-3 px-2 sm:px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
-                      isActive
+                    className={`w-full flex items-center justify-center sm:justify-start sm:space-x-3 px-2 sm:px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${isActive
                         ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
                         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                    }`}
+                      }`}
                   >
                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                     <span className="hidden sm:inline">{item.label}</span>

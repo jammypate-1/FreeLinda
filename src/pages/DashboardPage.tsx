@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardMetrics, AssetAccount, Liability, CashFlowItem, PlanningAssumptions, TaxLot } from '../types/financial';
-import { calculateRetirementProjection, formatCurrency, formatPercent } from '../utils/financialCalculations';
+import { calculateFinancialFreedomProjection, formatCurrency, formatPercent } from '../utils/financialCalculations';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
   TrendingUp,
@@ -107,8 +107,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   }, [derivedAnnualSavings, derivedAnnualExpenses]);
 
-  // Synchronized Retirement Engine Lifetime Net Worth Trajectory (100% matched to Retirement Engine!)
-  const projectionData = calculateRetirementProjection(
+  // Synchronized Financial Freedom Engine Lifetime Net Worth Trajectory (100% matched to Financial Freedom Engine!)
+  const projectionData = calculateFinancialFreedomProjection(
     currentAge,
     retireYear,
     retireMonth,
@@ -117,8 +117,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     metrics.totalLiabilities || 397892, // Mortgage balance
     annualSavings,
     annualExpenses,
-    assumptions.preRetirementReturn || 0.06,
-    assumptions.retirementReturn || 0.05,
+    assumptions.preFinancialFreedomReturn || 0.06,
+    assumptions.financialFreedomReturn || 0.05,
     assumptions.inflationRate || 0.02,
     36000, // Social Security annual benefit
     67 // SS start age
@@ -368,7 +368,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       ok: metrics.dtiRatio <= assumptions.dtiWatchLimit
     },
     {
-      title: 'Target Retirement Date',
+      title: 'Target Financial Freedom Date',
       status: 'OK',
       detail: 'April 2027 (Age 37) active simulation target',
       ok: true
@@ -394,15 +394,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </h1>
 
             <p className="text-sm text-slate-300 leading-relaxed">
-              Synchronized lifetime trajectory targeting retirement in <strong className="text-sky-400 font-bold">April 2027 (Age 37)</strong> with <strong className="text-emerald-400 font-bold">{taxLots.length} stock tax lots</strong> ({formatCurrency(totalTaxLotsValue)}) and {formatCurrency(metrics.netWorth)} total net worth.
+              Synchronized lifetime trajectory targeting financial freedom in <strong className="text-sky-400 font-bold">April 2027 (Age 37)</strong> with <strong className="text-emerald-400 font-bold">{taxLots.length} stock tax lots</strong> ({formatCurrency(totalTaxLotsValue)}) and {formatCurrency(metrics.netWorth)} total net worth.
             </p>
           </div>
 
-          {/* Quick Target Retirement Countdown Badge */}
+          {/* Quick Target Financial Freedom Countdown Badge */}
           <div className="bg-slate-950/80 border border-sky-500/30 rounded-2xl p-5 space-y-2 shrink-0 shadow-xl backdrop-blur">
             <div className="flex items-center space-x-2 text-xs font-semibold text-slate-400">
               <Calendar className="w-4 h-4 text-sky-400" />
-              <span>Target Retirement Date</span>
+              <span>Target Financial Freedom Date</span>
             </div>
             <p className="text-2xl font-black text-white">April 2027</p>
             <div className="flex items-center space-x-2 text-xs">
@@ -473,7 +473,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* Synchronized Lifetime Net Worth Trajectory Area Chart (100% Matched to Retirement Engine) */}
+      {/* Synchronized Lifetime Net Worth Trajectory Area Chart (100% Matched to Financial Freedom Engine) */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 className="text-base font-bold text-white flex items-center space-x-2">
@@ -481,7 +481,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             <span>Synchronized Lifetime Net Worth Trajectory (April 2027 Target)</span>
           </h3>
           <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-            100% Matched to Retirement Engine
+            100% Matched to Financial Freedom Engine
           </span>
         </div>
 
@@ -733,7 +733,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* HIGHLIGHT: Next 6 Months Strategic Action Roadmap (Pre-Retirement Checklist for April 2027) */}
+      {/* HIGHLIGHT: Next 6 Months Strategic Action Roadmap (Pre-Financial Freedom Checklist for April 2027) */}
       <div className="bg-slate-900 border border-sky-500/40 rounded-2xl p-6 space-y-5 shadow-xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950/20">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div className="flex items-center space-x-3">
@@ -742,19 +742,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-base font-bold text-white">Next 6 Months Strategic Pre-Retirement Action Roadmap</h3>
+                <h3 className="text-base font-bold text-white">Next 6 Months Strategic Pre-Financial Freedom Action Roadmap</h3>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   {completedActionIds.length} of 5 Completed ({Math.round((completedActionIds.length / 5) * 100)}%)
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Prerequisite tasks to execute between <strong className="text-white">August 2026 and February 2027</strong> for Linda's <strong className="text-sky-400">April 2027 (Age 37)</strong> retirement.
+                Prerequisite tasks to execute between <strong className="text-white">August 2026 and February 2027</strong> for Linda's <strong className="text-sky-400">April 2027 (Age 37)</strong> financial freedom.
               </p>
             </div>
           </div>
 
           <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20 shrink-0">
-            Retirement Readiness Target: April 2027
+            Financial Freedom Readiness Target: April 2027
           </span>
         </div>
 
@@ -793,8 +793,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             {
               id: 'RDMAP-4',
               timeline: 'Months 4–5 (Nov - Dec 2026)',
-              title: 'Early Retirement Health Plan Selection',
-              description: 'Evaluate COBRA vs Covered California health insurance coverage for post-April 2027 early retirement at Age 37 prior to COBRA deadline.',
+              title: 'Early Financial Freedom Health Plan Selection',
+              description: 'Evaluate COBRA vs Covered California health insurance coverage for post-April 2027 early financial freedom at Age 37 prior to COBRA deadline.',
               requiredFor: 'Healthcare',
               priority: 'High',
               defaultStatus: 'Scheduled',

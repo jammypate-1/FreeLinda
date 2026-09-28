@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { PlanningAssumptions, DashboardMetrics, TaxLot, CashFlowItem } from '../types/financial';
-import { calculateRetirementProjection, calculateMinSpcxPrice, calculateSpcxSensitivityMatrix, formatCurrency, formatPercent } from '../utils/financialCalculations';
+import { calculateFinancialFreedomProjection, calculateMinSpcxPrice, calculateSpcxSensitivityMatrix, formatCurrency, formatPercent } from '../utils/financialCalculations';
 import { runLifetimeTaxSimulation } from '../utils/taxSimulator';
 import { LineChart as ReLineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { LineChart, Calendar, TrendingUp, Layers, ChevronDown, ChevronUp, ShieldCheck, Sparkles, Calculator, CheckCircle2, Target, Sliders, Gauge, RefreshCw } from 'lucide-react';
 
-interface RetirementProjectionPageProps {
+interface FinancialFreedomProjectionPageProps {
   assumptions: PlanningAssumptions;
   metrics: DashboardMetrics;
   taxLots: TaxLot[];
   cashFlows: CashFlowItem[];
 }
 
-export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> = ({ assumptions, metrics, taxLots = [], cashFlows = [] }) => {
+export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjectionPageProps> = ({ assumptions, metrics, taxLots = [], cashFlows = [] }) => {
   const currentAge = 36;
   const startYear = 2026;
 
@@ -43,8 +43,8 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
 
   const [annualSavings, setAnnualSavings] = useState<number>(derivedAnnualSavings || 30000);
   const [annualExpenses, setAnnualExpenses] = useState<number>(derivedAnnualExpenses || 120000);
-  const [preReturn, setPreReturn] = useState<number>(assumptions.preRetirementReturn || 0.06);
-  const [postReturn, setPostReturn] = useState<number>(assumptions.retirementReturn || 0.05);
+  const [preReturn, setPreReturn] = useState<number>(assumptions.preFinancialFreedomReturn || 0.06);
+  const [postReturn, setPostReturn] = useState<number>(assumptions.financialFreedomReturn || 0.05);
   const [inflation, setInflation] = useState<number>(assumptions.inflationRate || 0.02);
   const [ssStartAge, setSsStartAge] = useState<number>(67);
   const [ssMonthlyBenefit, setSsMonthlyBenefit] = useState<number>(3000);
@@ -140,7 +140,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
     ? Math.round(nonSpcxLiquidPortfolio + (spcxShares * simulatedSpcxPrice))
     : liquidPortfolio;
 
-  const projectionData = calculateRetirementProjection(
+  const projectionData = calculateFinancialFreedomProjection(
     currentAge,
     retireYear,
     retireMonth,
@@ -156,7 +156,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
     ssStartAge
   );
 
-  const retirementPoint = projectionData.find(p => p.year === retireYear) || projectionData[0];
+  const financialFreedomPoint = projectionData.find(p => p.year === retireYear) || projectionData[0];
   const age60Point = projectionData.find(p => p.age === 60) || projectionData[0];
   const age75Point = projectionData.find(p => p.age === 75) || projectionData[0];
   const age90Point = projectionData[projectionData.length - 1];
@@ -178,7 +178,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
       {/* Title & Preset Quick Selectors */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Lifetime Net Worth & Retirement Projection</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Lifetime Net Worth & Financial Freedom Projection</h1>
           <p className="text-sm text-slate-400 mt-1">
             Incorporates all <strong className="text-emerald-400">{taxLots.length} authentic stock tax lots</strong> ({formatCurrency(totalTaxLotsValue)}) directly into Linda's net worth trajectory.
           </p>
@@ -192,31 +192,28 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
         <div className="flex items-center space-x-2 bg-slate-900 border border-slate-800 p-1.5 rounded-xl shrink-0">
           <button
             onClick={() => { setRetireYear(2027); setRetireMonth(4); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              isApril2027
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${isApril2027
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
                 : 'text-slate-400 hover:text-white'
-            }`}
+              }`}
           >
             🎯 April 2027 (Linda's Target)
           </button>
           <button
             onClick={() => { setRetireYear(2030); setRetireMonth(1); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              retireYear === 2030
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${retireYear === 2030
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
                 : 'text-slate-400 hover:text-white'
-            }`}
+              }`}
           >
             Jan 2030 (Age 40)
           </button>
           <button
             onClick={() => { setRetireYear(2045); setRetireMonth(5); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              retireYear === 2045
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${retireYear === 2045
                 ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
                 : 'text-slate-400 hover:text-white'
-            }`}
+              }`}
           >
             May 2045 (Age 55)
           </button>
@@ -293,9 +290,8 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
                         <td className="py-1.5 px-3 font-mono text-slate-400">{lot.id}</td>
                         <td className="py-1.5 px-3 font-bold text-sky-400">{lot.ticker}</td>
                         <td className="py-1.5 px-3">
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                            lot.term === 'Long Term' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                          }`}>
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${lot.term === 'Long Term' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                            }`}>
                             {lot.term}
                           </span>
                         </td>
@@ -316,12 +312,12 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
         )}
       </div>
 
-      {/* Target Retirement Date Control Panel */}
+      {/* Target Financial Freedom Date Control Panel */}
       <div className="bg-slate-900 border border-sky-500/40 rounded-2xl p-6 space-y-6 shadow-xl bg-gradient-to-b from-slate-900 via-slate-900 to-sky-950/20">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center space-x-2">
             <Calendar className="w-5 h-5 text-sky-400" />
-            <h2 className="text-base font-bold text-white">Adjust Retirement Date & Trajectory Parameters</h2>
+            <h2 className="text-base font-bold text-white">Adjust Financial Freedom Date & Trajectory Parameters</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20">
             Selected Date: {monthsMap.find(m => m.num === retireMonth)?.name} {retireYear} (Age {(retireYear - startYear + currentAge)})
@@ -329,9 +325,9 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-xs">
-          {/* Retirement Month */}
+          {/* Financial Freedom Month */}
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Retirement Target Month</label>
+            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Month</label>
             <select
               value={retireMonth}
               onChange={e => setRetireMonth(Number(e.target.value))}
@@ -343,9 +339,9 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
             </select>
           </div>
 
-          {/* Retirement Year */}
+          {/* Financial Freedom Year */}
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Retirement Target Year</label>
+            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Year</label>
             <select
               value={retireYear}
               onChange={e => setRetireYear(Number(e.target.value))}
@@ -374,10 +370,10 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
             />
           </div>
 
-          {/* Annual Savings Until Retirement */}
+          {/* Annual Savings Until Financial Freedom */}
           <div>
             <div className="flex justify-between font-semibold mb-1">
-              <span className="text-slate-400">Annual Pre-Retirement Savings</span>
+              <span className="text-slate-400">Annual Pre-Financial Freedom Savings</span>
               <span className="text-emerald-400 font-bold">{formatCurrency(annualSavings)}/yr</span>
             </div>
             <input
@@ -544,51 +540,46 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
               <div className="flex flex-wrap gap-1.5">
                 <button
                   onClick={() => { setSimulatedSpcxPrice(0); setIsOverridingSpcx(true); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                    simulatedSpcxPrice === 0
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${simulatedSpcxPrice === 0
                       ? 'bg-rose-600 text-white border-rose-500'
                       : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                  }`}
+                    }`}
                 >
                   💥 $0 (Wipeout)
                 </button>
                 <button
                   onClick={() => { setSimulatedSpcxPrice(50); setIsOverridingSpcx(true); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                    simulatedSpcxPrice === 50
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${simulatedSpcxPrice === 50
                       ? 'bg-amber-600 text-white border-amber-500'
                       : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                  }`}
+                    }`}
                 >
                   $50.00
                 </button>
                 <button
                   onClick={() => { setSimulatedSpcxPrice(solvencyResult.minSpcxPrice); setIsOverridingSpcx(true); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                    Math.abs(simulatedSpcxPrice - solvencyResult.minSpcxPrice) < 0.5
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${Math.abs(simulatedSpcxPrice - solvencyResult.minSpcxPrice) < 0.5
                       ? 'bg-sky-600 text-white border-sky-500 shadow-md shadow-sky-600/30'
                       : 'bg-slate-900 hover:bg-slate-800 text-sky-400 border-sky-500/40'
-                  }`}
+                    }`}
                 >
                   🎯 Min Req (${solvencyResult.minSpcxPrice.toFixed(2)})
                 </button>
                 <button
                   onClick={() => { setSimulatedSpcxPrice(currentSpcxPrice); setIsOverridingSpcx(true); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                    Math.abs(simulatedSpcxPrice - currentSpcxPrice) < 0.5
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${Math.abs(simulatedSpcxPrice - currentSpcxPrice) < 0.5
                       ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/30'
                       : 'bg-slate-900 hover:bg-slate-800 text-emerald-400 border-emerald-500/40'
-                  }`}
+                    }`}
                 >
                   ⚡ Live (${currentSpcxPrice.toFixed(2)})
                 </button>
                 <button
                   onClick={() => { setSimulatedSpcxPrice(150); setIsOverridingSpcx(true); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                    simulatedSpcxPrice === 150
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${simulatedSpcxPrice === 150
                       ? 'bg-emerald-600 text-white border-emerald-500'
                       : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800'
-                  }`}
+                    }`}
                 >
                   $150.00
                 </button>
@@ -614,7 +605,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
                   <th className="py-2.5 px-3">Scenario / Price</th>
                   <th className="py-2.5 px-3">SPCX Position Value</th>
                   <th className="py-2.5 px-3">Starting Liquid Assets</th>
-                  <th className="py-2.5 px-3">NW at Retire ({retireYear})</th>
+                  <th className="py-2.5 px-3">NW at Financial Freedom ({retireYear})</th>
                   <th className="py-2.5 px-3">NW at Age 60</th>
                   <th className="py-2.5 px-3">NW at Age 75</th>
                   <th className="py-2.5 px-3">NW at Age 90</th>
@@ -628,23 +619,21 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
                   return (
                     <tr
                       key={idx}
-                      className={`hover:bg-slate-900/80 transition ${
-                        isMinRow
+                      className={`hover:bg-slate-900/80 transition ${isMinRow
                           ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold'
                           : isCurrentRow
-                          ? 'bg-emerald-950/40 border-l-4 border-emerald-400 font-bold'
-                          : ''
-                      }`}
+                            ? 'bg-emerald-950/40 border-l-4 border-emerald-400 font-bold'
+                            : ''
+                        }`}
                     >
                       <td className="py-2 px-3 font-semibold text-white">
                         <div className="flex items-center space-x-1.5">
                           <span className="font-mono text-emerald-400 font-bold">${pt.spcxPrice.toFixed(2)}</span>
                           {pt.label && (
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${
-                              isMinRow ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' :
-                              isCurrentRow ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-                              'bg-slate-800 text-slate-300'
-                            }`}>
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold ${isMinRow ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' :
+                                isCurrentRow ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                                  'bg-slate-800 text-slate-300'
+                              }`}>
                               {pt.label}
                             </span>
                           )}
@@ -682,10 +671,10 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-            Net Worth at Retirement ({monthsMap.find(m => m.num === retireMonth)?.name} {retireYear})
+            Net Worth at Financial Freedom ({monthsMap.find(m => m.num === retireMonth)?.name} {retireYear})
           </p>
-          <p className="text-2xl font-extrabold text-emerald-400">{formatCurrency(retirementPoint.netWorth)}</p>
-          <p className="text-[11px] text-slate-400">Liquid Portfolio: {formatCurrency(retirementPoint.portfolioBalance)}</p>
+          <p className="text-2xl font-extrabold text-emerald-400">{formatCurrency(financialFreedomPoint.netWorth)}</p>
+          <p className="text-[11px] text-slate-400">Liquid Portfolio: {formatCurrency(financialFreedomPoint.portfolioBalance)}</p>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
@@ -719,7 +708,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
             <span>Linda's Lifetime Net Worth Trajectory Chart (2026 to 2080)</span>
           </h3>
           <span className="text-xs text-slate-400 font-medium">
-            Retirement Target: {monthsMap.find(m => m.num === retireMonth)?.name} {retireYear}
+            Financial Freedom Target: {monthsMap.find(m => m.num === retireMonth)?.name} {retireYear}
           </span>
         </div>
 
@@ -771,9 +760,8 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
               {projectionData.map((pt, idx) => (
                 <tr
                   key={idx}
-                  className={`hover:bg-slate-800/40 transition ${
-                    pt.year === retireYear ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold' : ''
-                  }`}
+                  className={`hover:bg-slate-800/40 transition ${pt.year === retireYear ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold' : ''
+                    }`}
                 >
                   <td className="py-2.5 px-4 font-semibold text-slate-300">
                     {pt.year} {pt.month ? `(${pt.month})` : ''}
@@ -781,11 +769,10 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
                   <td className="py-2.5 px-4 font-bold text-white">Age {pt.age}</td>
                   <td className="py-2.5 px-4">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        pt.phase === 'Accumulation'
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${pt.phase === 'Accumulation'
                           ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                      }`}
+                        }`}
                     >
                       {pt.phase}
                     </span>
@@ -824,7 +811,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
         </div>
 
         <p className="text-xs text-slate-400">
-          In each year of retirement starting <strong className="text-sky-400">April 2027</strong>, specific stock tax lots are selected and sold to produce the exact net cash required for Linda's living expenses ({formatCurrency(annualExpenses)}/yr).
+          In each year of financial freedom starting <strong className="text-sky-400">April 2027</strong>, specific stock tax lots are selected and sold to produce the exact net cash required for Linda's living expenses ({formatCurrency(annualExpenses)}/yr).
         </p>
 
         <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950">
@@ -844,7 +831,7 @@ export const RetirementProjectionPage: React.FC<RetirementProjectionPageProps> =
             </thead>
             <tbody className="divide-y divide-slate-800/80 text-slate-200">
               {runLifetimeTaxSimulation(taxLots, currentAge, retireYear, retireMonth, annualExpenses, inflation, ssMonthlyBenefit * 12, ssStartAge)
-                .filter(p => p.phase === 'Retirement')
+                .filter(p => p.phase === 'Financial Freedom')
                 .map((tPt, idx) => (
                   <tr key={idx} className="hover:bg-slate-900/60">
                     <td className="py-2.5 px-4 font-semibold text-slate-300">{tPt.year}</td>

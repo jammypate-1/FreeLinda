@@ -3,7 +3,7 @@ import { TaxLot } from '../types/financial';
 export interface AnnualTaxSimulationPoint {
   year: number;
   age: number;
-  phase: 'Accumulation' | 'Retirement';
+  phase: 'Accumulation' | 'Financial Freedom';
   grossProceedsHarvested: number;
   netCashForExpenses: number;
   realizedSTGain: number;
@@ -24,8 +24,8 @@ export interface AnnualTaxSimulationPoint {
 export function runLifetimeTaxSimulation(
   taxLots: TaxLot[],
   currentAge: number,
-  retireYear: number,
-  retireMonth: number,
+  financialFreedomYear: number,
+  financialFreedomMonth: number,
   baseAnnualExpenses: number,
   inflationRate: number,
   ssAnnualBenefit: number,
@@ -45,7 +45,7 @@ export function runLifetimeTaxSimulation(
   for (let age = currentAge; age <= 90; age++) {
     const projectionYear = startYear + (age - currentAge);
     const yearsFromStart = age - currentAge;
-    const isRetirement = projectionYear > retireYear || (projectionYear === retireYear && retireMonth <= 4);
+    const isFinancialFreedom = projectionYear > financialFreedomYear || (projectionYear === financialFreedomYear && financialFreedomMonth <= 4);
 
     const inflationFactor = Math.pow(1 + inflationRate, yearsFromStart);
 
@@ -69,7 +69,7 @@ export function runLifetimeTaxSimulation(
     let caTax = 0;
     let lotsSold = 0;
 
-    if (!isRetirement) {
+    if (!isFinancialFreedom) {
       // Accumulation phase: standard salary mode, lots appreciate
       const remainingVal = inventory.reduce((sum, l) => sum + (l.shares * l.currentPrice * Math.pow(1.06, yearsFromStart)), 0);
       simulation.push({
@@ -93,7 +93,7 @@ export function runLifetimeTaxSimulation(
         remainingPortfolioValue: Math.round(remainingVal)
       });
     } else {
-      // Retirement Phase: Harvest tax lots to match expenses after COLA Social Security
+      // Financial Freedom Phase: Harvest tax lots to match expenses after COLA Social Security
       const totalLivingExpensesNeeded = baseAnnualExpenses * inflationFactor;
       netCashNeeded = Math.max(0, totalLivingExpensesNeeded - ssColaBenefit);
 
@@ -168,7 +168,7 @@ export function runLifetimeTaxSimulation(
       simulation.push({
         year: projectionYear,
         age,
-        phase: 'Retirement',
+        phase: 'Financial Freedom',
         grossProceedsHarvested: grossHarvested,
         netCashForExpenses: Math.round(netCashNeeded),
         realizedSTGain: Math.round(stGain),

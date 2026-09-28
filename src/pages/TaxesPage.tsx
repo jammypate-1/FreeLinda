@@ -15,7 +15,7 @@ export const TaxesPage: React.FC<TaxesPageProps> = ({ taxLots = [], assumptions,
   const currentAge = 36;
   const startYear = 2026;
 
-  // Linda's target retirement: April 2027
+  // Linda's target financial freedom: April 2027
   const [retireYear, setRetireYear] = useState<number>(2027);
   const [retireMonth, setRetireMonth] = useState<number>(4); // April
 
@@ -136,13 +136,13 @@ export const TaxesPage: React.FC<TaxesPageProps> = ({ taxLots = [], assumptions,
             <h2 className="text-base font-bold text-white">Tax Simulation & COLA Parameters</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            Retirement: {monthsMap.find(m => m.num === retireMonth)?.name} {retireYear}
+            Financial Freedom: {monthsMap.find(m => m.num === retireMonth)?.name} {retireYear}
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Retirement Target Month</label>
+            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Month</label>
             <select
               value={retireMonth}
               onChange={e => setRetireMonth(Number(e.target.value))}
@@ -155,7 +155,7 @@ export const TaxesPage: React.FC<TaxesPageProps> = ({ taxLots = [], assumptions,
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Retirement Target Year</label>
+            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Year</label>
             <select
               value={retireYear}
               onChange={e => setRetireYear(Number(e.target.value))}
@@ -237,7 +237,7 @@ export const TaxesPage: React.FC<TaxesPageProps> = ({ taxLots = [], assumptions,
 
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={taxSimulation.filter(p => p.phase === 'Retirement')} margin={{ top: 10, right: 30, left: 30, bottom: 0 }}>
+            <BarChart data={taxSimulation.filter(p => p.phase === 'Financial Freedom')} margin={{ top: 10, right: 30, left: 30, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="age" label={{ value: 'Age', position: 'insideBottom', offset: -5 }} stroke="#64748b" />
               <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} stroke="#64748b" />

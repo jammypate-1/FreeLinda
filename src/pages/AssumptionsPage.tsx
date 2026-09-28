@@ -40,7 +40,7 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
       {savedSuccess && (
         <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-semibold flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4" />
-          <span>Planning parameters successfully saved! Dashboard & Retirement Engine updated.</span>
+          <span>Planning parameters successfully saved! Dashboard & Financial Freedom Engine updated.</span>
         </div>
       )}
 
@@ -73,36 +73,36 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
 
             <div>
               <div className="flex justify-between font-semibold mb-1">
-                <span className="text-slate-300">Pre-Retirement Portfolio Return</span>
-                <span className="text-emerald-400 font-bold">{formatPercent(formData.preRetirementReturn)}</span>
+                <span className="text-slate-300">Pre-Financial Freedom Portfolio Return</span>
+                <span className="text-emerald-400 font-bold">{formatPercent(formData.preFinancialFreedomReturn)}</span>
               </div>
               <input
                 type="range"
                 min="0.02"
                 max="0.12"
                 step="0.005"
-                value={formData.preRetirementReturn}
-                onChange={e => setFormData({ ...formData, preRetirementReturn: parseFloat(e.target.value) })}
+                value={formData.preFinancialFreedomReturn}
+                onChange={e => setFormData({ ...formData, preFinancialFreedomReturn: parseFloat(e.target.value) })}
                 className="w-full accent-emerald-500 bg-slate-950 rounded-lg h-2"
               />
-              <p className="text-[11px] text-slate-500 mt-1">Growth modeling rate prior to primary retirement age.</p>
+              <p className="text-[11px] text-slate-500 mt-1">Growth modeling rate prior to primary financial freedom age.</p>
             </div>
 
             <div>
               <div className="flex justify-between font-semibold mb-1">
-                <span className="text-slate-300">Retirement Distribution Return</span>
-                <span className="text-amber-400 font-bold">{formatPercent(formData.retirementReturn)}</span>
+                <span className="text-slate-300">Financial Freedom Distribution Return</span>
+                <span className="text-amber-400 font-bold">{formatPercent(formData.financialFreedomReturn)}</span>
               </div>
               <input
                 type="range"
                 min="0.02"
                 max="0.10"
                 step="0.005"
-                value={formData.retirementReturn}
-                onChange={e => setFormData({ ...formData, retirementReturn: parseFloat(e.target.value) })}
+                value={formData.financialFreedomReturn}
+                onChange={e => setFormData({ ...formData, financialFreedomReturn: parseFloat(e.target.value) })}
                 className="w-full accent-amber-500 bg-slate-950 rounded-lg h-2"
               />
-              <p className="text-[11px] text-slate-500 mt-1">Conservative rate applied during retirement distribution phase.</p>
+              <p className="text-[11px] text-slate-500 mt-1">Conservative rate applied during financial freedom distribution phase.</p>
             </div>
 
             <div>
@@ -133,11 +133,11 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Primary Retirement Age Target</label>
+              <label className="block text-slate-400 font-semibold mb-1">Primary Financial Freedom Age Target</label>
               <input
                 type="number"
-                value={formData.primaryRetirementAge}
-                onChange={e => setFormData({ ...formData, primaryRetirementAge: Number(e.target.value) })}
+                value={formData.primaryFinancialFreedomAge}
+                onChange={e => setFormData({ ...formData, primaryFinancialFreedomAge: Number(e.target.value) })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-semibold focus:outline-none focus:border-sky-500"
               />
             </div>

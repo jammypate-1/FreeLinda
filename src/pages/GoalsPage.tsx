@@ -14,7 +14,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
   const [newGoal, setNewGoal] = useState<Partial<Goal>>({
     name: '',
     owner: 'Primary Client',
-    planningArea: 'Retirement',
+    planningArea: 'Financial Freedom',
     priority: 'High',
     targetDate: '2055-05-15',
     targetAmount: 1000000,
@@ -36,7 +36,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
       id: `G-${Date.now().toString().slice(-4)}`,
       name: newGoal.name || 'New Goal',
       owner: newGoal.owner || 'Primary Client',
-      planningArea: newGoal.planningArea || 'Retirement',
+      planningArea: newGoal.planningArea || 'Financial Freedom',
       priority: (newGoal.priority as 'High' | 'Medium' | 'Low') || 'High',
       targetDate: newGoal.targetDate || '2050-01-01',
       targetAmount: Number(newGoal.targetAmount) || 0,
@@ -63,7 +63,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Financial Goals & Objectives</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Capture, prioritize, and track funding progress for retirement, debt payoff, education, and major capital expenditures.
+            Capture, prioritize, and track funding progress for financial freedom, debt payoff, education, and major capital expenditures.
           </p>
         </div>
         <button
@@ -90,7 +90,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
                 value={newGoal.name}
                 onChange={e => setNewGoal({ ...newGoal, name: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-sky-500"
-                placeholder="e.g. Vacation Home / Early Retirement"
+                placeholder="e.g. Vacation Home / Early Financial Freedom"
               />
             </div>
             <div>
@@ -100,7 +100,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
                 onChange={e => setNewGoal({ ...newGoal, planningArea: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-sky-500"
               >
-                <option value="Retirement">Retirement</option>
+                <option value="Financial Freedom">Financial Freedom</option>
                 <option value="Debt Paydown">Debt Paydown</option>
                 <option value="Education">Education</option>
                 <option value="Major Purchase">Major Purchase</option>

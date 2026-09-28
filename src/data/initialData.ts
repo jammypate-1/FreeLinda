@@ -12,7 +12,8 @@ import {
   EstateItem,
   BeneficiaryRecord,
   DocumentItem,
-  ActionItem
+  ActionItem,
+  PortfoliosConfig
 } from '../types/financial';
 
 export const initialClientProfile: ClientProfile = {
@@ -25,10 +26,10 @@ export const initialClientProfile: ClientProfile = {
   residency: "US Citizen, California",
   occupation: "Full-Time Staff Software Engineer",
   healthNotes: "Good health, non-smoker",
-  planningNotes: "Divorced, single income, risk-averse investment profile. Focus on long-term wealth preservation and retirement independence.",
+  planningNotes: "Divorced, single income, risk-averse investment profile. Focus on long-term wealth preservation and financial freedom independence.",
   riskTolerance: "Risk-averse",
   riskScoreDate: "2026-06-01",
-  riskScope: "Comprehensive Retirement, Tax & Estate Planning",
+  riskScope: "Comprehensive Financial Freedom, Tax & Estate Planning",
   lossTolerance: "Low - prefers capital preservation with balanced equity growth",
   liquidityPreference: "Requires minimum 6-12 months cash reserve in HYSA",
   valuesConstraints: "Tech equity concentration hedging, broad index funds",
@@ -78,16 +79,16 @@ export const initialClientProfile: ClientProfile = {
 
 export const initialAssumptions: PlanningAssumptions = {
   inflationRate: 0.02,
-  preRetirementReturn: 0.06,
-  retirementReturn: 0.05,
+  preFinancialFreedomReturn: 0.06,
+  financialFreedomReturn: 0.05,
   cashReturn: 0.02,
   emergencyFundMonthsTarget: 6.0,
   dtiWatchLimit: 0.36,
   highInterestThreshold: 0.08,
   estateReviewCadenceYears: 3.0,
   insuranceReviewCadenceYears: 2.0,
-  primaryRetirementAge: 65,
-  coClientRetirementAge: 65,
+  primaryFinancialFreedomAge: 65,
+  coClientFinancialFreedomAge: 65,
   asOfDate: "2026-07-30"
 };
 
@@ -247,8 +248,8 @@ export const initialAssetAccounts: AssetAccount[] = [
   },
   {
     id: "A-10",
-    name: "Google 401(k) Retirement Plan",
-    type: "Traditional Retirement",
+    name: "Google 401(k) Financial Freedom Plan",
+    type: "Traditional Financial Freedom",
     institution: "Vanguard",
     accountLast4: "4011",
     taxRegistration: "401(k) Pre-Tax",
@@ -265,7 +266,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   {
     id: "A-11",
     name: "SpaceX Prior 401(k) Rollover",
-    type: "Traditional Retirement",
+    type: "Traditional Financial Freedom",
     institution: "Fidelity Investments",
     accountLast4: "6233",
     taxRegistration: "Traditional IRA Rollover",
@@ -282,7 +283,7 @@ export const initialAssetAccounts: AssetAccount[] = [
   {
     id: "A-12",
     name: "Keysight Legacy 401(k)",
-    type: "Traditional Retirement",
+    type: "Traditional Financial Freedom",
     institution: "Fidelity Investments",
     accountLast4: "0082",
     taxRegistration: "Traditional IRA Rollover",
@@ -410,9 +411,9 @@ export const initialCashFlowItems: CashFlowItem[] = [
 export const initialGoals: Goal[] = [
   {
     id: "G-01",
-    name: "Retirement Independence at Age 65",
+    name: "Financial Freedom Independence at Age 65",
     owner: "Primary Client",
-    planningArea: "Retirement",
+    planningArea: "Financial Freedom",
     priority: "High",
     targetDate: "2055-05-15",
     targetAmount: 4500000.00,
@@ -424,7 +425,7 @@ export const initialGoals: Goal[] = [
   },
   {
     id: "G-02",
-    name: "Mortgage Payoff before Retirement",
+    name: "Mortgage Payoff before Financial Freedom",
     owner: "Primary Client",
     planningArea: "Debt Paydown",
     priority: "Medium",
@@ -434,7 +435,7 @@ export const initialGoals: Goal[] = [
     monthlySavings: 2334.29,
     expectedReturn: 0.0575,
     status: "On Track",
-    notes: "Amortize mortgage balance prior to retirement."
+    notes: "Amortize mortgage balance prior to financial freedom."
   }
 ];
 
@@ -644,3 +645,54 @@ export const initialActionItems: ActionItem[] = [
     notes: "Excess liability protection over primary home policy."
   }
 ];
+
+export const initialSpcxDcfAssumptions = {
+  id: 'bear-case',
+  scenarioName: 'Bear Case (Conservative / Macro Downturn)',
+  useGranularBreakdown: false,
+  fcfBaseline: 145.0,
+  sharesOutstanding: 20.25,
+  cashAndEquivalents: 85.0,
+  totalDebt: 110.0,
+  currentPrice: 137.95,
+  projectionHorizonYears: 10,
+  cagrYears1To5: 0.045,
+  cagrYears6To10: 0.025,
+  terminalGrowthRate: 0.015,
+  waccMode: 'capm' as const,
+  customWacc: 0.098,
+  riskFreeRate: 0.045,
+  beta: 1.35,
+  equityRiskPremium: 0.055,
+  costOfDebtPreTax: 0.065,
+  taxRate: 0.21,
+  debtWeight: 0.20,
+  equityWeight: 0.80,
+  terminalMethod: 'gordon' as const,
+  exitMultiple: 11.5
+};
+
+export const initialPortfoliosConfig: PortfoliosConfig = {
+  emergencyTargetMonths: 18,
+  monthlyDistributionFromIncome: 4000,
+  distributionFrequency: 'Monthly',
+  customAccountMappings: {
+    'A-05': 'spending',   // Redwood Credit Union Checking
+    'A-06': 'emergency',  // Redwood Credit Union Savings
+    'A-07': 'emergency',  // Marcus HYSA
+    'A-08': 'emergency',  // Wealthfront HYSA Reserve
+    'A-09': 'emergency',  // Health Equity HSA
+    'A-04': 'growth',     // Keysight & Agilent Portfolio
+    'A-10': 'growth',     // Google 401(k)
+    'A-11': 'growth',     // SpaceX Rollover IRA
+    'A-12': 'growth',     // Keysight Legacy 401(k)
+    'A-02': 'nest_egg',   // Google Stock Portfolio
+    'A-03': 'nest_egg'    // SpaceX Equity Stock
+  },
+  nestEggAnnualDiversificationPct: 10,
+  spendingTargetBufferMonths: 2,
+  useEssentialExpensesForEmergency: true,
+  notes: '5-Tier Portfolio Architecture: Nest Egg (SPCX & GOOG concentration), Growth (>18M horizon), Emergency (18M reserve), Income (equal distribution pool), Spending (checking).'
+};
+
+
