@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { initializeFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -26,5 +26,5 @@ export function isAllowedEmail(email: string | null | undefined): boolean {
   return ALLOWED_EMAILS.includes(email.toLowerCase());
 }
 
-export { signInWithPopup, signOut, onAuthStateChanged };
+export { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 export type { User } from 'firebase/auth';
