@@ -65,7 +65,7 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
                 max="0.10"
                 step="0.0025"
                 value={formData.inflationRate}
-                onChange={e => setFormData({ ...formData, inflationRate: parseFloat(e.target.value) })}
+                onChange={e => setFormData({ ...formData, inflationRate: Number.parseFloat(e.target.value) })}
                 className="w-full accent-sky-500 bg-slate-950 rounded-lg h-2"
               />
               <p className="text-[11px] text-slate-500 mt-1">Applied to future purchasing power & living expenses.</p>
@@ -82,7 +82,7 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
                 max="0.12"
                 step="0.005"
                 value={formData.preFinancialFreedomReturn}
-                onChange={e => setFormData({ ...formData, preFinancialFreedomReturn: parseFloat(e.target.value) })}
+                onChange={e => setFormData({ ...formData, preFinancialFreedomReturn: Number.parseFloat(e.target.value) })}
                 className="w-full accent-emerald-500 bg-slate-950 rounded-lg h-2"
               />
               <p className="text-[11px] text-slate-500 mt-1">Growth modeling rate prior to primary financial freedom age.</p>
@@ -99,7 +99,7 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
                 max="0.10"
                 step="0.005"
                 value={formData.financialFreedomReturn}
-                onChange={e => setFormData({ ...formData, financialFreedomReturn: parseFloat(e.target.value) })}
+                onChange={e => setFormData({ ...formData, financialFreedomReturn: Number.parseFloat(e.target.value) })}
                 className="w-full accent-amber-500 bg-slate-950 rounded-lg h-2"
               />
               <p className="text-[11px] text-slate-500 mt-1">Conservative rate applied during financial freedom distribution phase.</p>
@@ -116,7 +116,7 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
                 max="0.07"
                 step="0.0025"
                 value={formData.cashReturn}
-                onChange={e => setFormData({ ...formData, cashReturn: parseFloat(e.target.value) })}
+                onChange={e => setFormData({ ...formData, cashReturn: Number.parseFloat(e.target.value) })}
                 className="w-full accent-sky-300 bg-slate-950 rounded-lg h-2"
               />
               <p className="text-[11px] text-slate-500 mt-1">Annual interest yield on emergency cash reserves.</p>
@@ -133,8 +133,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Primary Financial Freedom Age Target</label>
+              <label htmlFor="primaryFinancialFreedomAge" className="block text-slate-400 font-semibold mb-1">Primary Financial Freedom Age Target</label>
               <input
+                id="primaryFinancialFreedomAge"
                 type="number"
                 value={formData.primaryFinancialFreedomAge}
                 onChange={e => setFormData({ ...formData, primaryFinancialFreedomAge: Number(e.target.value) })}
@@ -143,8 +144,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Emergency Reserve Target (Months)</label>
+              <label htmlFor="emergencyFundMonthsTarget" className="block text-slate-400 font-semibold mb-1">Emergency Reserve Target (Months)</label>
               <input
+                id="emergencyFundMonthsTarget"
                 type="number"
                 step="0.5"
                 value={formData.emergencyFundMonthsTarget}
@@ -154,8 +156,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">DTI Watch Limit (%)</label>
+              <label htmlFor="dtiWatchLimit" className="block text-slate-400 font-semibold mb-1">DTI Watch Limit (%)</label>
               <input
+                id="dtiWatchLimit"
                 type="number"
                 step="0.01"
                 value={formData.dtiWatchLimit}
@@ -166,8 +169,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">High-Interest Debt Threshold (%)</label>
+              <label htmlFor="highInterestThreshold" className="block text-slate-400 font-semibold mb-1">High-Interest Debt Threshold (%)</label>
               <input
+                id="highInterestThreshold"
                 type="number"
                 step="0.01"
                 value={formData.highInterestThreshold}
@@ -178,8 +182,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Estate Review Cadence (Years)</label>
+              <label htmlFor="estateReviewCadenceYears" className="block text-slate-400 font-semibold mb-1">Estate Review Cadence (Years)</label>
               <input
+                id="estateReviewCadenceYears"
                 type="number"
                 value={formData.estateReviewCadenceYears}
                 onChange={e => setFormData({ ...formData, estateReviewCadenceYears: Number(e.target.value) })}
@@ -188,8 +193,9 @@ export const AssumptionsPage: React.FC<AssumptionsPageProps> = ({ assumptions, o
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">As-Of Date</label>
+              <label htmlFor="asOfDate" className="block text-slate-400 font-semibold mb-1">As-Of Date</label>
               <input
+                id="asOfDate"
                 type="date"
                 value={formData.asOfDate}
                 onChange={e => setFormData({ ...formData, asOfDate: e.target.value })}
