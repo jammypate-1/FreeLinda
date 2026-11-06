@@ -1,7 +1,7 @@
 import React from 'react';
 import { DashboardMetrics, ClientProfile } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { ShieldCheck, RotateCcw, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, AlertTriangle } from 'lucide-react';
 
 interface NavbarProps {
   metrics: DashboardMetrics;
