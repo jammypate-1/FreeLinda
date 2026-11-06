@@ -152,8 +152,8 @@ export const DcfMasterclassModal: React.FC<DcfMasterclassModalProps> = ({ isOpen
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Key Principles & Application:</h4>
             <ul className="space-y-2">
-              {current.details.map((detail, idx) => (
-                <li key={idx} className="flex items-start space-x-2 text-xs text-slate-300">
+              {current.details.map(detail => (
+                <li key={detail} className="flex items-start space-x-2 text-xs text-slate-300">
                   <CheckCircle className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
                   <span>{detail}</span>
                 </li>
