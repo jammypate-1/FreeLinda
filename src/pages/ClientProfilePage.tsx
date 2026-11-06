@@ -80,8 +80,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Full Legal Name</label>
+            <label htmlFor="client-name" className="block text-slate-400 font-semibold mb-1">Full Legal Name</label>
             <input
+              id="client-name"
               type="text"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -89,8 +90,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Date of Birth</label>
+            <label htmlFor="client-dob" className="block text-slate-400 font-semibold mb-1">Date of Birth</label>
             <input
+              id="client-dob"
               type="date"
               value={formData.dob}
               onChange={e => setFormData({ ...formData, dob: e.target.value })}
@@ -98,8 +100,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Age</label>
+            <label htmlFor="client-age" className="block text-slate-400 font-semibold mb-1">Age</label>
             <input
+              id="client-age"
               type="number"
               value={formData.age}
               onChange={e => setFormData({ ...formData, age: Number(e.target.value) })}
@@ -108,8 +111,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Tax Residency / State</label>
+            <label htmlFor="client-residency" className="block text-slate-400 font-semibold mb-1">Tax Residency / State</label>
             <input
+              id="client-residency"
               type="text"
               value={formData.residency}
               onChange={e => setFormData({ ...formData, residency: e.target.value })}
@@ -117,8 +121,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Occupation & Employer</label>
+            <label htmlFor="client-occupation" className="block text-slate-400 font-semibold mb-1">Occupation & Employer</label>
             <input
+              id="client-occupation"
               type="text"
               value={formData.occupation}
               onChange={e => setFormData({ ...formData, occupation: e.target.value })}
@@ -126,8 +131,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Planning Scope</label>
+            <label htmlFor="client-risk-scope" className="block text-slate-400 font-semibold mb-1">Planning Scope</label>
             <input
+              id="client-risk-scope"
               type="text"
               value={formData.riskScope}
               onChange={e => setFormData({ ...formData, riskScope: e.target.value })}
@@ -137,8 +143,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
         </div>
 
         <div>
-          <label className="block text-slate-400 font-semibold mb-1 text-xs">Planning & Life Notes</label>
+          <label htmlFor="client-notes" className="block text-slate-400 font-semibold mb-1 text-xs">Planning & Life Notes</label>
           <textarea
+            id="client-notes"
             rows={3}
             value={formData.planningNotes}
             onChange={e => setFormData({ ...formData, planningNotes: e.target.value })}
@@ -156,8 +163,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Risk Tolerance Rating</label>
+            <label htmlFor="client-risk-tolerance" className="block text-slate-400 font-semibold mb-1">Risk Tolerance Rating</label>
             <input
+              id="client-risk-tolerance"
               type="text"
               value={formData.riskTolerance}
               onChange={e => setFormData({ ...formData, riskTolerance: e.target.value })}
@@ -165,8 +173,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Loss Tolerance Capacity</label>
+            <label htmlFor="client-loss-tolerance" className="block text-slate-400 font-semibold mb-1">Loss Tolerance Capacity</label>
             <input
+              id="client-loss-tolerance"
               type="text"
               value={formData.lossTolerance}
               onChange={e => setFormData({ ...formData, lossTolerance: e.target.value })}
@@ -174,8 +183,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Liquidity Preference</label>
+            <label htmlFor="client-liquidity" className="block text-slate-400 font-semibold mb-1">Liquidity Preference</label>
             <input
+              id="client-liquidity"
               type="text"
               value={formData.liquidityPreference}
               onChange={e => setFormData({ ...formData, liquidityPreference: e.target.value })}
@@ -183,8 +193,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
             />
           </div>
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Values / Concentration Constraints</label>
+            <label htmlFor="client-values" className="block text-slate-400 font-semibold mb-1">Values / Concentration Constraints</label>
             <input
+              id="client-values"
               type="text"
               value={formData.valuesConstraints}
               onChange={e => setFormData({ ...formData, valuesConstraints: e.target.value })}
@@ -203,7 +214,7 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {formData.advisors.map((advisor, idx) => (
-            <div key={idx} className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3 relative group">
+            <div key={`${advisor.role}-${advisor.email}`} className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3 relative group">
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
                 <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider">{advisor.role}</span>
                 <button
@@ -256,8 +267,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Name</label>
+                <label htmlFor="advisor-name" className="block text-slate-400 font-semibold mb-1">Name</label>
                 <input
+                  id="advisor-name"
                   type="text"
                   value={advisorEditForm.name}
                   onChange={e => setAdvisorEditForm({ ...advisorEditForm, name: e.target.value })}
@@ -266,8 +278,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Firm / Organization</label>
+                <label htmlFor="advisor-contact" className="block text-slate-400 font-semibold mb-1">Firm / Organization</label>
                 <input
+                  id="advisor-contact"
                   type="text"
                   value={advisorEditForm.contact}
                   onChange={e => setAdvisorEditForm({ ...advisorEditForm, contact: e.target.value })}
@@ -277,8 +290,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Email Address</label>
+                  <label htmlFor="advisor-email" className="block text-slate-400 font-semibold mb-1">Email Address</label>
                   <input
+                    id="advisor-email"
                     type="email"
                     value={advisorEditForm.email}
                     onChange={e => setAdvisorEditForm({ ...advisorEditForm, email: e.target.value })}
@@ -286,8 +300,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Phone Number</label>
+                  <label htmlFor="advisor-phone" className="block text-slate-400 font-semibold mb-1">Phone Number</label>
                   <input
+                    id="advisor-phone"
                     type="text"
                     value={advisorEditForm.phone}
                     onChange={e => setAdvisorEditForm({ ...advisorEditForm, phone: e.target.value })}
@@ -297,8 +312,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Address / Location</label>
+                <label htmlFor="advisor-address" className="block text-slate-400 font-semibold mb-1">Address / Location</label>
                 <input
+                  id="advisor-address"
                   type="text"
                   value={advisorEditForm.address}
                   onChange={e => setAdvisorEditForm({ ...advisorEditForm, address: e.target.value })}
@@ -307,8 +323,9 @@ export const ClientProfilePage: React.FC<ClientProfilePageProps> = ({ profile, o
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Notes / Special Instructions</label>
+                <label htmlFor="advisor-notes" className="block text-slate-400 font-semibold mb-1">Notes / Special Instructions</label>
                 <textarea
+                  id="advisor-notes"
                   rows={2}
                   value={advisorEditForm.notes}
                   onChange={e => setAdvisorEditForm({ ...advisorEditForm, notes: e.target.value })}
