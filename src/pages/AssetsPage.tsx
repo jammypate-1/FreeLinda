@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AssetAccount } from '../types/financial';
-import { formatCurrency, formatPercent } from '../utils/financialCalculations';
-import { Building2, Plus, Trash2, CheckCircle2, Shield } from 'lucide-react';
+import { formatCurrency } from '../utils/financialCalculations';
+import { Building2, Plus, Trash2 } from 'lucide-react';
 
 interface AssetsPageProps {
   assets: AssetAccount[];
@@ -113,8 +113,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Account / Asset Name</label>
+              <label htmlFor="asset-name" className="block text-slate-400 font-semibold mb-1">Account / Asset Name</label>
               <input
+                id="asset-name"
                 type="text"
                 value={newAsset.name}
                 onChange={e => setNewAsset({ ...newAsset, name: e.target.value })}
@@ -123,8 +124,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Asset Type</label>
+              <label htmlFor="asset-type" className="block text-slate-400 font-semibold mb-1">Asset Type</label>
               <select
+                id="asset-type"
                 value={newAsset.type}
                 onChange={e => setNewAsset({ ...newAsset, type: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-sky-500"
@@ -138,8 +140,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Custodian / Institution</label>
+              <label htmlFor="asset-institution" className="block text-slate-400 font-semibold mb-1">Custodian / Institution</label>
               <input
+                id="asset-institution"
                 type="text"
                 value={newAsset.institution}
                 onChange={e => setNewAsset({ ...newAsset, institution: e.target.value })}
@@ -148,8 +151,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Current Market Value ($)</label>
+              <label htmlFor="asset-current-value" className="block text-slate-400 font-semibold mb-1">Current Market Value ($)</label>
               <input
+                id="asset-current-value"
                 type="number"
                 value={newAsset.currentValue}
                 onChange={e => setNewAsset({ ...newAsset, currentValue: Number(e.target.value) })}
@@ -157,8 +161,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Cost Basis ($)</label>
+              <label htmlFor="asset-cost-basis" className="block text-slate-400 font-semibold mb-1">Cost Basis ($)</label>
               <input
+                id="asset-cost-basis"
                 type="number"
                 value={newAsset.costBasis}
                 onChange={e => setNewAsset({ ...newAsset, costBasis: Number(e.target.value) })}
@@ -166,8 +171,9 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Monthly Contribution ($)</label>
+              <label htmlFor="asset-monthly-contribution" className="block text-slate-400 font-semibold mb-1">Monthly Contribution ($)</label>
               <input
+                id="asset-monthly-contribution"
                 type="number"
                 value={newAsset.monthlyContribution}
                 onChange={e => setNewAsset({ ...newAsset, monthlyContribution: Number(e.target.value) })}
@@ -216,7 +222,7 @@ export const AssetsPage: React.FC<AssetsPageProps> = ({ assets, onSaveAssets }) 
               const isActive = asset.status === 'Active';
 
               return (
-                <tr key={asset.id} className={`hover:bg-slate-800/40 transition ${!isActive ? 'opacity-50' : ''}`}>
+                <tr key={asset.id} className={`hover:bg-slate-800/40 transition ${isActive ? '' : 'opacity-50'}`}>
                   <td className="py-3 px-4">
                     <div className="font-bold text-white">{asset.name}</div>
                     <div className="text-[10px] text-slate-400">{asset.notes}</div>
