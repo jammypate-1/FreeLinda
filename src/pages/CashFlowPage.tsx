@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CashFlowItem } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { Wallet, Plus, Trash2, CheckCircle2, DollarSign, Filter, Layers } from 'lucide-react';
+import { Plus, Trash2, DollarSign, Layers } from 'lucide-react';
 
 interface CashFlowPageProps {
   cashFlows: CashFlowItem[];
@@ -145,10 +145,11 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Type</label>
+              <label htmlFor="cash-flow-type" className="block text-slate-400 font-semibold mb-1">Type</label>
               <select
+                id="cash-flow-type"
                 value={newItem.type}
-                onChange={e => setNewItem({ ...newItem, type: e.target.value as any })}
+                onChange={e => setNewItem({ ...newItem, type: e.target.value as CashFlowItem['type'] })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white font-bold focus:outline-none focus:border-emerald-500"
               >
                 <option value="Income">Income (+)</option>
@@ -157,8 +158,9 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Description / Source Name</label>
+              <label htmlFor="cash-flow-description" className="block text-slate-400 font-semibold mb-1">Description / Source Name</label>
               <input
+                id="cash-flow-description"
                 type="text"
                 value={newItem.description || ''}
                 onChange={e => setNewItem({ ...newItem, description: e.target.value })}
@@ -168,8 +170,9 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Category</label>
+              <label htmlFor="cash-flow-category" className="block text-slate-400 font-semibold mb-1">Category</label>
               <input
+                id="cash-flow-category"
                 type="text"
                 value={newItem.category || ''}
                 onChange={e => setNewItem({ ...newItem, category: e.target.value })}
@@ -180,10 +183,11 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
 
             {newItem.type === 'Income' && (
               <div>
-                <label className="block text-emerald-400 font-bold mb-1">Income Tax Classification</label>
+                <label htmlFor="cash-flow-income-tax-classification" className="block text-emerald-400 font-bold mb-1">Income Tax Classification</label>
                 <select
+                  id="cash-flow-income-tax-classification"
                   value={newItem.incomeTaxClassification || 'Earned'}
-                  onChange={e => setNewItem({ ...newItem, incomeTaxClassification: e.target.value as any })}
+                  onChange={e => setNewItem({ ...newItem, incomeTaxClassification: e.target.value as CashFlowItem['incomeTaxClassification'] })}
                   className="w-full bg-slate-950 border border-emerald-500/50 rounded-lg p-2.5 text-emerald-400 font-bold focus:outline-none"
                 >
                   <option value="Earned">Earned Income (W-2 / Salary / Self-Employment)</option>
@@ -195,10 +199,11 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
             )}
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Frequency</label>
+              <label htmlFor="cash-flow-frequency" className="block text-slate-400 font-semibold mb-1">Frequency</label>
               <select
+                id="cash-flow-frequency"
                 value={newItem.frequency}
-                onChange={e => setNewItem({ ...newItem, frequency: e.target.value as any })}
+                onChange={e => setNewItem({ ...newItem, frequency: e.target.value as CashFlowItem['frequency'] })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="Monthly">Monthly</option>
@@ -210,8 +215,9 @@ export const CashFlowPage: React.FC<CashFlowPageProps> = ({ cashFlows, onSaveCas
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Amount per Frequency ($)</label>
+              <label htmlFor="cash-flow-amount" className="block text-slate-400 font-semibold mb-1">Amount per Frequency ($)</label>
               <input
+                id="cash-flow-amount"
                 type="number"
                 value={newItem.amountPerFrequency}
                 onChange={e => setNewItem({ ...newItem, amountPerFrequency: Number(e.target.value) })}
