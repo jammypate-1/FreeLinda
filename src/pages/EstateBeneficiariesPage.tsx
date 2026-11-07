@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EstateItem, BeneficiaryRecord } from '../types/financial';
-import { FileCheck, Shield, CheckCircle2, AlertTriangle, Plus, Trash2 } from 'lucide-react';
+import { FileCheck, Shield, AlertTriangle } from 'lucide-react';
 
 interface EstateBeneficiariesPageProps {
   estateItems: EstateItem[];
@@ -16,7 +16,7 @@ export const EstateBeneficiariesPage: React.FC<EstateBeneficiariesPageProps> = (
   onSaveBeneficiaries
 }) => {
   const [eList, setEList] = useState<EstateItem[]>(estateItems);
-  const [bList, setBList] = useState<BeneficiaryRecord[]>(beneficiaries);
+  const [bList] = useState<BeneficiaryRecord[]>(beneficiaries);
 
   const handleEstateStatus = (id: string, newStatus: EstateItem['status']) => {
     const updated = eList.map(e => (e.id === id ? { ...e, status: newStatus } : e));
@@ -64,7 +64,7 @@ export const EstateBeneficiariesPage: React.FC<EstateBeneficiariesPageProps> = (
               <div className="flex items-center space-x-3 shrink-0">
                 <select
                   value={item.status}
-                  onChange={e => handleEstateStatus(item.id, e.target.value as any)}
+                  onChange={e => handleEstateStatus(item.id, e.target.value as EstateItem['status'])}
                   className="bg-slate-900 border border-slate-800 rounded-lg text-xs font-semibold px-3 py-1.5 text-white focus:outline-none focus:border-sky-500"
                 >
                   <option value="Complete">Complete</option>
