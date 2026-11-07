@@ -34,12 +34,12 @@ export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const currentUser = result.user;
 
-      if (!isAllowedEmail(currentUser.email)) {
+      if (isAllowedEmail(currentUser.email)) {
+        setUser(currentUser);
+      } else {
         setError('Access denied. Your email is not authorized.');
         await signOut(auth);
         setUser(null);
-      } else {
-        setUser(currentUser);
       }
     } catch (err: any) {
       const code = err?.code || '';
