@@ -482,6 +482,399 @@ export default function TaxModeler() {
     monthsRemaining
   ]);
 
+  function renderFormulasTab() {
+    return (
+      <div className="space-y-6">
+
+        {/* Formula 1 */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">1</span>{" "}
+            Mortgage Re-Amortization Formula (Standard Fixed Annuity)
+          </div>
+          <div className="bg-slate-900 text-emerald-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
+            Payment (P) = Balance × [ r(1 + r)ⁿ ] / [ (1 + r)ⁿ - 1 ]
+          </div>
+          <ul className="list-disc pl-5 space-y-1 text-slate-600">
+            <li><strong>Balance (B):</strong> Current remaining principal balance ($620,000 baseline).</li>
+            <li><strong>Monthly Interest Rate (r):</strong> Annual interest rate ÷ 12 (6.125% ÷ 12 = 0.0051041667).</li>
+            <li><strong>Remaining Term (n):</strong> {recastTermMonths} remaining months (~{(recastTermMonths / 12).toFixed(1)} years).</li>
+            <li><strong>Baseline Payment:</strong> $620,000 × [ 0.005104 × (1.005104)³⁴⁵ ] / [ (1.005104)³⁴⁵ - 1 ] = <strong>{formatCurrency(recastResult.origMonthlyPayment)}/mo</strong>.</li>
+            <li><strong>Recast Payment (${formatCurrencyInt(lumpSumPayoff)} Payoff):</strong> New balance {formatCurrency(recastResult.newBalance)} → <strong>{formatCurrency(recastResult.newMonthlyPayment)}/mo</strong>.</li>
+            <li><strong>Monthly Cash Flow Saved:</strong> {formatCurrency(recastResult.origMonthlyPayment)} - {formatCurrency(recastResult.newMonthlyPayment)} = <strong className="text-emerald-700">+{formatCurrency(recastResult.monthlySavings)}/month</strong>.</li>
+          </ul>
+        </div>
+
+        {/* Formula 2 */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">2</span>{" "}
+            Annual Pre-Tax Interest Saved Formula
+          </div>
+          <div className="bg-slate-900 text-sky-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
+            Annual Interest Saved (ΔI) = Lump Sum Payoff × Annual Interest Rate
+          </div>
+          <div className="text-slate-600 space-y-1">
+            <p>For a principal paydown of <strong>{formatCurrency(lumpSumPayoff)}</strong> at <strong>{formatPercent(recastRate)}</strong> interest:</p>
+            <p className="font-mono text-slate-900 font-bold bg-slate-100 p-2 rounded-lg inline-block">
+              {formatCurrency(lumpSumPayoff)} × {(recastRate * 100).toFixed(3)}% = <span className="text-blue-700 font-extrabold">{formatCurrency(recastResult.annualInterestSaved)}/year saved</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Formula 3 */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">3</span>{" "}
+            Tax Shield Deduction Loss & Itemized Threshold Formula
+          </div>
+          <div className="bg-slate-900 text-amber-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
+            Annual Tax Shield Lost = ΔI × (Marginal Fed Bracket + Marginal CA Bracket)
+          </div>
+          <ul className="list-disc pl-5 space-y-1 text-slate-600">
+            <li><strong>Federal Tax Bracket:</strong> {calculations.isItemizingFed ? '24.0% (IRC § 1(j))' : '0.0% (Standard Deduction Used)'}.</li>
+            <li><strong>California State Tax Bracket:</strong> {calculations.isItemizingCA ? '9.3% (CA RTC § 17041)' : '0.0% (Standard Deduction Used)'}.</li>
+            <li><strong>Combined Effective Tax Shield Rate:</strong> {((calculations.isItemizingFed ? 0.24 : 0) + (calculations.isItemizingCA ? 0.093 : 0) * 100).toFixed(1)}%.</li>
+            <li><strong>Annual Tax Benefit Reduction:</strong> {formatCurrency(recastResult.annualInterestSaved)} × {((calculations.isItemizingFed ? 0.24 : 0) + (calculations.isItemizingCA ? 0.093 : 0) * 100).toFixed(1)}% = <strong className="text-amber-700">-{formatCurrency(recastResult.totalTaxShieldLost)}/year</strong>.</li>
+          </ul>
+        </div>
+
+        {/* Formula 4 */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">4</span>{" "}
+            Net Tax-Adjusted Return vs. 4.50% Bank CD Formula
+          </div>
+          <div className="bg-slate-900 text-purple-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
+            Effective Net Return = [ Annual Interest Saved - Tax Shield Lost ] ÷ Lump Sum Payoff
+          </div>
+          <div className="text-slate-600 space-y-2">
+            <p><strong>Recast Net Yield:</strong> [ {formatCurrency(recastResult.annualInterestSaved)} - {formatCurrency(recastResult.totalTaxShieldLost)} ] ÷ {formatCurrency(lumpSumPayoff)} = <strong className="text-purple-700 font-extrabold text-sm">{(recastResult.effectiveNetReturn * 100).toFixed(2)}% Net Return</strong>.</p>
+            <p><strong>4.50% Bank CD Net Yield:</strong> 4.50% × (1 - 0.333) = <strong className="text-slate-900 font-bold">{formatPercent(recastResult.altInvestmentNetYield)} Net After-Tax</strong>.</p>
+            <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-emerald-900 font-bold">
+              ✨ Net Advantage: Recasting beats holding safe cash CDs by <span className="text-emerald-700 underline font-extrabold">+{( (recastResult.effectiveNetReturn - recastResult.altInvestmentNetYield) * 100 ).toFixed(2)}% net per year</span>!
+            </div>
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  function renderSourcesTab() {
+    return (
+      <div className="space-y-4">
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+              26 U.S.C. § 163(h)(3)(F) — Federal Home Mortgage Interest Limitation
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              Federal Code (TCJA)
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            Under the Tax Cuts and Jobs Act (TCJA), primary residence acquisition debt incurred after Dec 15, 2017 is capped at <strong>$750,000</strong> for Married Filing Jointly ($375,000 for MFS). Interest paid on qualifying mortgage debt up to $750k is fully deductible on IRS Form 1040 Schedule A.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://www.law.cornell.edu/uscode/text/26/163"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
+            >
+              26 U.S.C. § 163 Statutory Text <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.irs.gov/publications/p936"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
+            >
+              IRS Publication 936 (Home Mortgage Interest) <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-blue-600 shrink-0" />
+              26 U.S.C. § 164(b)(6) — State & Local Tax (SALT) Deduction Cap
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              Federal Code
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            Federal itemized deductions for state income taxes and real estate property taxes combined are capped at <strong>$10,000</strong> ($40,000 under new 2026 proposals). Home mortgage interest is deducted separately under § 163(h) and is <strong>exempt from the SALT cap</strong>.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://www.law.cornell.edu/uscode/text/26/164"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
+            >
+              26 U.S.C. § 164 Statutory Text <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.irs.gov/instructions/i1040sa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
+            >
+              IRS Schedule A (Form 1040) Instructions <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-purple-600 shrink-0" />
+              IRS Rev. Proc. 2024-40 & IRC § 63(c) — 2026 Standard Deduction
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+              Official IRS Inflation Release
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            The Federal Standard Deduction for Married Filing Jointly (MFJ) for Tax Year 2026 is <strong>$29,200</strong>. Taxpayers only obtain a tax benefit from Schedule A itemized deductions to the extent total itemized deductions exceed $29,200.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-purple-700 hover:text-purple-900 font-bold underline"
+            >
+              IRS Official Inflation Adjustments Release <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.irs.gov/taxtopics/tc551"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-purple-700 hover:text-purple-900 font-bold underline"
+            >
+              IRS Topic 551 Standard Deduction <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
+              California Rev. & Tax Code § 17201 & Form 540 — CA Tax Rules
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              CA State Statute
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            California allows mortgage interest deductions on up to <strong>$1,000,000</strong> of mortgage debt and permits full property tax deductions <strong>without the federal $10k SALT cap</strong>. CA Standard Deduction is <strong>$10,726</strong> for MFJ.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=17201"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
+            >
+              CA RTC § 17201 Statutory Code <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.ftb.ca.gov/forms/misc/1001.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
+            >
+              CA FTB Publication 1001 (Schedule CA Adjustments) <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.ftb.ca.gov/forms/2024/2024-540-booklet.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
+            >
+              CA FTB Form 540 Official Tax Booklet <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-amber-600 shrink-0" />
+              26 U.S.C. § 6654 & CA FTB Form 5805 — Safe Harbor Penalty Protection
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              IRS & FTB Underpayment Code
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            Taxpayers avoid underpayment penalties if total payroll withholding equals at least <strong>90% of current year tax liability</strong> or <strong>110% of prior year tax liability</strong> (if prior AGI &gt; $150k). IRS statutory underpayment interest rate is <strong>8.00%</strong> (IRC § 6621); CA FTB rate is <strong>7.00%</strong> (CA RTC § 19521).
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://www.law.cornell.edu/uscode/text/26/6654"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
+            >
+              26 U.S.C. § 6654 Statutory Text <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.irs.gov/publications/p505"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
+            >
+              IRS Publication 505 (Tax Withholding & Estimated Tax) <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.ftb.ca.gov/forms/2024/2024-5805.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
+            >
+              CA FTB Form 5805 Official PDF <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-sky-600 shrink-0" />
+              Federal Reserve H.15 & TreasuryDirect — Benchmark CD / Yield References
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+              U.S. Treasury Benchmark
+            </span>
+          </div>
+          <p className="text-slate-600 leading-relaxed">
+            Alternative cash benchmark yields (4.50% APY Bank CD / Treasury rate) reflect official U.S. Treasury yield curves and Federal Reserve Board H.15 statistical releases.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
+            <a
+              href="https://www.treasurydirect.gov/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sky-700 hover:text-sky-900 font-bold underline"
+            >
+              TreasuryDirect.gov Official Site <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://www.federalreserve.gov/releases/h15/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sky-700 hover:text-sky-900 font-bold underline"
+            >
+              Federal Reserve H.15 Statistical Release <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  function renderVerificationTab() {
+    return (
+      <div className="space-y-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div className="font-bold text-xs text-slate-900 uppercase tracking-wider">Live Calculation Audit Matrix</div>
+          <p className="text-slate-600">
+            Every calculation below is derived dynamically from your current active inputs:
+          </p>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+          <table className="w-full text-xs text-left">
+            <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+              <tr>
+                <th className="py-2.5 px-3">Parameter Name</th>
+                <th className="py-2.5 px-3">Symbol</th>
+                <th className="py-2.5 px-3 text-right">Active Value</th>
+                <th className="py-2.5 px-3">Math Rule / Citation</th>
+                <th className="py-2.5 px-3 text-center">Audit Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+              <tr>
+                <td className="py-2 px-3 font-semibold">Mortgage Principal Balance</td>
+                <td className="py-2 px-3 font-mono text-slate-500">B_orig</td>
+                <td className="py-2 px-3 text-right font-bold tabular-nums">{formatCurrency(recastResult.currentBalance)}</td>
+                <td className="py-2 px-3 text-slate-600">Rocket Mortgage Primary Residence Loan</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">Interest Rate</td>
+                <td className="py-2 px-3 font-mono text-slate-500">r_annual</td>
+                <td className="py-2 px-3 text-right font-bold tabular-nums">{(recastRate * 100).toFixed(3)}%</td>
+                <td className="py-2 px-3 text-slate-600">Fixed Rate Origination (May 2025)</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">Remaining Loan Term</td>
+                <td className="py-2 px-3 font-mono text-slate-500">n</td>
+                <td className="py-2 px-3 text-right font-bold tabular-nums">{recastTermMonths} mo</td>
+                <td className="py-2 px-3 text-slate-600">Remaining term to maturity (June 2055)</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">Lump Sum Payoff</td>
+                <td className="py-2 px-3 font-mono text-slate-500">L</td>
+                <td className="py-2 px-3 text-right font-bold text-emerald-700 tabular-nums">{formatCurrency(lumpSumPayoff)}</td>
+                <td className="py-2 px-3 text-slate-600">Active User Slider Selection</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Active User Input</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">New Principal Balance</td>
+                <td className="py-2 px-3 font-mono text-slate-500">B_new</td>
+                <td className="py-2 px-3 text-right font-bold tabular-nums">{formatCurrency(recastResult.newBalance)}</td>
+                <td className="py-2 px-3 text-slate-600">B_orig - L</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">Monthly Payment Saved</td>
+                <td className="py-2 px-3 font-mono text-slate-500">ΔP</td>
+                <td className="py-2 px-3 text-right font-bold text-emerald-700 tabular-nums">+{formatCurrency(recastResult.monthlySavings)}/mo</td>
+                <td className="py-2 px-3 text-slate-600">P_orig - P_new (Fixed Annuity Equation)</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">2026 Additional Tax Cost</td>
+                <td className="py-2 px-3 font-mono text-slate-500">T_2026</td>
+                <td className="py-2 px-3 text-right font-bold text-amber-700 tabular-nums">+{formatCurrency(recastResult.taxYear2026.totalTaxIncrease2026)}</td>
+                <td className="py-2 px-3 text-slate-600">Pro-rated Deduction Loss × Combined Marginal Rate</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">Net Effective Return</td>
+                <td className="py-2 px-3 font-mono text-slate-500">ROI_net</td>
+                <td className="py-2 px-3 text-right font-bold text-purple-700 tabular-nums">{(recastResult.effectiveNetReturn * 100).toFixed(2)}%</td>
+                <td className="py-2 px-3 text-slate-600">[ ΔI - Tax Shield Lost ] / L</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-semibold">4.50% CD Net After-Tax Yield</td>
+                <td className="py-2 px-3 font-mono text-slate-500">Y_CD,net</td>
+                <td className="py-2 px-3 text-right font-bold text-slate-900 tabular-nums">{formatPercent(recastResult.altInvestmentNetYield)}</td>
+                <td className="py-2 px-3 text-slate-600">4.50% × (1 - (Fed + CA Rates))</td>
+                <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   function renderMathModal() {
     return (
       <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
@@ -553,394 +946,13 @@ export default function TaxModeler() {
           <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-grow text-xs text-slate-700 leading-relaxed bg-slate-50/50">
 
             {/* Tab 1: Step-by-Step Math Formulas */}
-            {mathModalTab === 'formulas' && (
-              <div className="space-y-6">
-
-                {/* Formula 1 */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                  <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">1</span>{" "}
-                    Mortgage Re-Amortization Formula (Standard Fixed Annuity)
-                  </div>
-                  <div className="bg-slate-900 text-emerald-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
-                    Payment (P) = Balance × [ r(1 + r)ⁿ ] / [ (1 + r)ⁿ - 1 ]
-                  </div>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-600">
-                    <li><strong>Balance (B):</strong> Current remaining principal balance ($620,000 baseline).</li>
-                    <li><strong>Monthly Interest Rate (r):</strong> Annual interest rate ÷ 12 (6.125% ÷ 12 = 0.0051041667).</li>
-                    <li><strong>Remaining Term (n):</strong> {recastTermMonths} remaining months (~{(recastTermMonths / 12).toFixed(1)} years).</li>
-                    <li><strong>Baseline Payment:</strong> $620,000 × [ 0.005104 × (1.005104)³⁴⁵ ] / [ (1.005104)³⁴⁵ - 1 ] = <strong>{formatCurrency(recastResult.origMonthlyPayment)}/mo</strong>.</li>
-                    <li><strong>Recast Payment (${formatCurrencyInt(lumpSumPayoff)} Payoff):</strong> New balance {formatCurrency(recastResult.newBalance)} → <strong>{formatCurrency(recastResult.newMonthlyPayment)}/mo</strong>.</li>
-                    <li><strong>Monthly Cash Flow Saved:</strong> {formatCurrency(recastResult.origMonthlyPayment)} - {formatCurrency(recastResult.newMonthlyPayment)} = <strong className="text-emerald-700">+{formatCurrency(recastResult.monthlySavings)}/month</strong>.</li>
-                  </ul>
-                </div>
-
-                {/* Formula 2 */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                  <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">2</span>{" "}
-                    Annual Pre-Tax Interest Saved Formula
-                  </div>
-                  <div className="bg-slate-900 text-sky-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
-                    Annual Interest Saved (ΔI) = Lump Sum Payoff × Annual Interest Rate
-                  </div>
-                  <div className="text-slate-600 space-y-1">
-                    <p>For a principal paydown of <strong>{formatCurrency(lumpSumPayoff)}</strong> at <strong>{formatPercent(recastRate)}</strong> interest:</p>
-                    <p className="font-mono text-slate-900 font-bold bg-slate-100 p-2 rounded-lg inline-block">
-                      {formatCurrency(lumpSumPayoff)} × {(recastRate * 100).toFixed(3)}% = <span className="text-blue-700 font-extrabold">{formatCurrency(recastResult.annualInterestSaved)}/year saved</span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Formula 3 */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                  <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">3</span>{" "}
-                    Tax Shield Deduction Loss & Itemized Threshold Formula
-                  </div>
-                  <div className="bg-slate-900 text-amber-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
-                    Annual Tax Shield Lost = ΔI × (Marginal Fed Bracket + Marginal CA Bracket)
-                  </div>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-600">
-                    <li><strong>Federal Tax Bracket:</strong> {calculations.isItemizingFed ? '24.0% (IRC § 1(j))' : '0.0% (Standard Deduction Used)'}.</li>
-                    <li><strong>California State Tax Bracket:</strong> {calculations.isItemizingCA ? '9.3% (CA RTC § 17041)' : '0.0% (Standard Deduction Used)'}.</li>
-                    <li><strong>Combined Effective Tax Shield Rate:</strong> {((calculations.isItemizingFed ? 0.24 : 0) + (calculations.isItemizingCA ? 0.093 : 0) * 100).toFixed(1)}%.</li>
-                    <li><strong>Annual Tax Benefit Reduction:</strong> {formatCurrency(recastResult.annualInterestSaved)} × {((calculations.isItemizingFed ? 0.24 : 0) + (calculations.isItemizingCA ? 0.093 : 0) * 100).toFixed(1)}% = <strong className="text-amber-700">-{formatCurrency(recastResult.totalTaxShieldLost)}/year</strong>.</li>
-                  </ul>
-                </div>
-
-                {/* Formula 4 */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                  <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">4</span>{" "}
-                    Net Tax-Adjusted Return vs. 4.50% Bank CD Formula
-                  </div>
-                  <div className="bg-slate-900 text-purple-300 font-mono p-3 rounded-xl text-center text-xs sm:text-sm shadow-inner">
-                    Effective Net Return = [ Annual Interest Saved - Tax Shield Lost ] ÷ Lump Sum Payoff
-                  </div>
-                  <div className="text-slate-600 space-y-2">
-                    <p><strong>Recast Net Yield:</strong> [ {formatCurrency(recastResult.annualInterestSaved)} - {formatCurrency(recastResult.totalTaxShieldLost)} ] ÷ {formatCurrency(lumpSumPayoff)} = <strong className="text-purple-700 font-extrabold text-sm">{(recastResult.effectiveNetReturn * 100).toFixed(2)}% Net Return</strong>.</p>
-                    <p><strong>4.50% Bank CD Net Yield:</strong> 4.50% × (1 - 0.333) = <strong className="text-slate-900 font-bold">{formatPercent(recastResult.altInvestmentNetYield)} Net After-Tax</strong>.</p>
-                    <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-emerald-900 font-bold">
-                      ✨ Net Advantage: Recasting beats holding safe cash CDs by <span className="text-emerald-700 underline font-extrabold">+{( (recastResult.effectiveNetReturn - recastResult.altInvestmentNetYield) * 100 ).toFixed(2)}% net per year</span>!
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            )}
+            {mathModalTab === 'formulas' && renderFormulasTab()}
 
             {/* Tab 2: Statutory Legal Sources (IRS & CA FTB) */}
-            {mathModalTab === 'sources' && (
-              <div className="space-y-4">
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-                      26 U.S.C. § 163(h)(3)(F) — Federal Home Mortgage Interest Limitation
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                      Federal Code (TCJA)
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    Under the Tax Cuts and Jobs Act (TCJA), primary residence acquisition debt incurred after Dec 15, 2017 is capped at <strong>$750,000</strong> for Married Filing Jointly ($375,000 for MFS). Interest paid on qualifying mortgage debt up to $750k is fully deductible on IRS Form 1040 Schedule A.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://www.law.cornell.edu/uscode/text/26/163"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
-                    >
-                      26 U.S.C. § 163 Statutory Text <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.irs.gov/publications/p936"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
-                    >
-                      IRS Publication 936 (Home Mortgage Interest) <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-                      26 U.S.C. § 164(b)(6) — State & Local Tax (SALT) Deduction Cap
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                      Federal Code
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    Federal itemized deductions for state income taxes and real estate property taxes combined are capped at <strong>$10,000</strong> ($40,000 under new 2026 proposals). Home mortgage interest is deducted separately under § 163(h) and is <strong>exempt from the SALT cap</strong>.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://www.law.cornell.edu/uscode/text/26/164"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
-                    >
-                      26 U.S.C. § 164 Statutory Text <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.irs.gov/instructions/i1040sa"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold underline"
-                    >
-                      IRS Schedule A (Form 1040) Instructions <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-purple-600 shrink-0" />
-                      IRS Rev. Proc. 2024-40 & IRC § 63(c) — 2026 Standard Deduction
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
-                      Official IRS Inflation Release
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    The Federal Standard Deduction for Married Filing Jointly (MFJ) for Tax Year 2026 is <strong>$29,200</strong>. Taxpayers only obtain a tax benefit from Schedule A itemized deductions to the extent total itemized deductions exceed $29,200.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-purple-700 hover:text-purple-900 font-bold underline"
-                    >
-                      IRS Official Inflation Adjustments Release <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.irs.gov/taxtopics/tc551"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-purple-700 hover:text-purple-900 font-bold underline"
-                    >
-                      IRS Topic 551 Standard Deduction <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
-                      California Rev. & Tax Code § 17201 & Form 540 — CA Tax Rules
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      CA State Statute
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    California allows mortgage interest deductions on up to <strong>$1,000,000</strong> of mortgage debt and permits full property tax deductions <strong>without the federal $10k SALT cap</strong>. CA Standard Deduction is <strong>$10,726</strong> for MFJ.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=17201"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
-                    >
-                      CA RTC § 17201 Statutory Code <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.ftb.ca.gov/forms/misc/1001.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
-                    >
-                      CA FTB Publication 1001 (Schedule CA Adjustments) <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.ftb.ca.gov/forms/2024/2024-540-booklet.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-700 hover:text-emerald-900 font-bold underline"
-                    >
-                      CA FTB Form 540 Official Tax Booklet <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-amber-600 shrink-0" />
-                      26 U.S.C. § 6654 & CA FTB Form 5805 — Safe Harbor Penalty Protection
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                      IRS & FTB Underpayment Code
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    Taxpayers avoid underpayment penalties if total payroll withholding equals at least <strong>90% of current year tax liability</strong> or <strong>110% of prior year tax liability</strong> (if prior AGI &gt; $150k). IRS statutory underpayment interest rate is <strong>8.00%</strong> (IRC § 6621); CA FTB rate is <strong>7.00%</strong> (CA RTC § 19521).
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://www.law.cornell.edu/uscode/text/26/6654"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
-                    >
-                      26 U.S.C. § 6654 Statutory Text <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.irs.gov/publications/p505"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
-                    >
-                      IRS Publication 505 (Tax Withholding & Estimated Tax) <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.ftb.ca.gov/forms/2024/2024-5805.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-900 font-bold underline"
-                    >
-                      CA FTB Form 5805 Official PDF <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-sky-600 shrink-0" />
-                      Federal Reserve H.15 & TreasuryDirect — Benchmark CD / Yield References
-                    </div>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                      U.S. Treasury Benchmark
-                    </span>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    Alternative cash benchmark yields (4.50% APY Bank CD / Treasury rate) reflect official U.S. Treasury yield curves and Federal Reserve Board H.15 statistical releases.
-                  </p>
-                  <div className="flex flex-wrap gap-4 pt-1 text-[11px]">
-                    <a
-                      href="https://www.treasurydirect.gov/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sky-700 hover:text-sky-900 font-bold underline"
-                    >
-                      TreasuryDirect.gov Official Site <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <a
-                      href="https://www.federalreserve.gov/releases/h15/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sky-700 hover:text-sky-900 font-bold underline"
-                    >
-                      Federal Reserve H.15 Statistical Release <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-              </div>
-            )}
+            {mathModalTab === 'sources' && renderSourcesTab()}
 
             {/* Tab 3: Formula Verification Matrix */}
-            {mathModalTab === 'verification' && (
-              <div className="space-y-4">
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <div className="font-bold text-xs text-slate-900 uppercase tracking-wider">Live Calculation Audit Matrix</div>
-                  <p className="text-slate-600">
-                    Every calculation below is derived dynamically from your current active inputs:
-                  </p>
-                </div>
-
-                <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
-                      <tr>
-                        <th className="py-2.5 px-3">Parameter Name</th>
-                        <th className="py-2.5 px-3">Symbol</th>
-                        <th className="py-2.5 px-3 text-right">Active Value</th>
-                        <th className="py-2.5 px-3">Math Rule / Citation</th>
-                        <th className="py-2.5 px-3 text-center">Audit Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Mortgage Principal Balance</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">B_orig</td>
-                        <td className="py-2 px-3 text-right font-bold tabular-nums">{formatCurrency(recastResult.currentBalance)}</td>
-                        <td className="py-2 px-3 text-slate-600">Rocket Mortgage Primary Residence Loan</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Interest Rate</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">r_annual</td>
-                        <td className="py-2 px-3 text-right font-bold tabular-nums">{(recastRate * 100).toFixed(3)}%</td>
-                        <td className="py-2 px-3 text-slate-600">Fixed Rate Origination (May 2025)</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Remaining Loan Term</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">n</td>
-                        <td className="py-2 px-3 text-right font-bold tabular-nums">{recastTermMonths} mo</td>
-                        <td className="py-2 px-3 text-slate-600">Remaining term to maturity (June 2055)</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Lump Sum Payoff</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">L</td>
-                        <td className="py-2 px-3 text-right font-bold text-emerald-700 tabular-nums">{formatCurrency(lumpSumPayoff)}</td>
-                        <td className="py-2 px-3 text-slate-600">Active User Slider Selection</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Active User Input</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">New Principal Balance</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">B_new</td>
-                        <td className="py-2 px-3 text-right font-bold tabular-nums">{formatCurrency(recastResult.newBalance)}</td>
-                        <td className="py-2 px-3 text-slate-600">B_orig - L</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Monthly Payment Saved</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">ΔP</td>
-                        <td className="py-2 px-3 text-right font-bold text-emerald-700 tabular-nums">+{formatCurrency(recastResult.monthlySavings)}/mo</td>
-                        <td className="py-2 px-3 text-slate-600">P_orig - P_new (Fixed Annuity Equation)</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">2026 Additional Tax Cost</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">T_2026</td>
-                        <td className="py-2 px-3 text-right font-bold text-amber-700 tabular-nums">+{formatCurrency(recastResult.taxYear2026.totalTaxIncrease2026)}</td>
-                        <td className="py-2 px-3 text-slate-600">Pro-rated Deduction Loss × Combined Marginal Rate</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">Net Effective Return</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">ROI_net</td>
-                        <td className="py-2 px-3 text-right font-bold text-purple-700 tabular-nums">{(recastResult.effectiveNetReturn * 100).toFixed(2)}%</td>
-                        <td className="py-2 px-3 text-slate-600">[ ΔI - Tax Shield Lost ] / L</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-3 font-semibold">4.50% CD Net After-Tax Yield</td>
-                        <td className="py-2 px-3 font-mono text-slate-500">Y_CD,net</td>
-                        <td className="py-2 px-3 text-right font-bold text-slate-900 tabular-nums">{formatPercent(recastResult.altInvestmentNetYield)}</td>
-                        <td className="py-2 px-3 text-slate-600">4.50% × (1 - (Fed + CA Rates))</td>
-                        <td className="py-2 px-3 text-center"><span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Verified</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+            {mathModalTab === 'verification' && renderVerificationTab()}
 
           </div>
 
