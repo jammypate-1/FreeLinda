@@ -29,8 +29,8 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
   const initialLiquidPortfolio = Math.round(totalTaxLotsValue + 98423);
 
   const [liquidPortfolio, setLiquidPortfolio] = useState<number>(initialLiquidPortfolio);
-  const [realEstateVal, setRealEstateVal] = useState<number>(1040500);
-  const [mortgageBalance, setMortgageBalance] = useState<number>(metrics.totalLiabilities || 397892);
+  const [realEstateVal] = useState<number>(1040500);
+  const [mortgageBalance] = useState<number>(metrics.totalLiabilities || 397892);
 
   // Derive annual savings and expenses from actual cash flows
   const activeCashFlows = cashFlows.filter(c => c.status === 'Active');
@@ -43,11 +43,11 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
 
   const [annualSavings, setAnnualSavings] = useState<number>(derivedAnnualSavings || 30000);
   const [annualExpenses, setAnnualExpenses] = useState<number>(derivedAnnualExpenses || 120000);
-  const [preReturn, setPreReturn] = useState<number>(assumptions.preFinancialFreedomReturn || 0.06);
-  const [postReturn, setPostReturn] = useState<number>(assumptions.financialFreedomReturn || 0.05);
-  const [inflation, setInflation] = useState<number>(assumptions.inflationRate || 0.02);
-  const [ssStartAge, setSsStartAge] = useState<number>(67);
-  const [ssMonthlyBenefit, setSsMonthlyBenefit] = useState<number>(3000);
+  const [preReturn] = useState<number>(assumptions.preFinancialFreedomReturn || 0.06);
+  const [postReturn] = useState<number>(assumptions.financialFreedomReturn || 0.05);
+  const [inflation] = useState<number>(assumptions.inflationRate || 0.02);
+  const [ssStartAge] = useState<number>(67);
+  const [ssMonthlyBenefit] = useState<number>(3000);
 
   const [showLotsDrawer, setShowLotsDrawer] = useState<boolean>(false);
 
@@ -327,8 +327,9 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-xs">
           {/* Financial Freedom Month */}
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Month</label>
+            <label htmlFor="financial-freedom-target-month" className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Month</label>
             <select
+              id="financial-freedom-target-month"
               value={retireMonth}
               onChange={e => setRetireMonth(Number(e.target.value))}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-sm focus:outline-none focus:border-sky-500"
@@ -341,8 +342,9 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
 
           {/* Financial Freedom Year */}
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Year</label>
+            <label htmlFor="financial-freedom-target-year" className="block text-slate-400 font-semibold mb-1">Financial Freedom Target Year</label>
             <select
+              id="financial-freedom-target-year"
               value={retireYear}
               onChange={e => setRetireYear(Number(e.target.value))}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white font-bold text-sm focus:outline-none focus:border-sky-500"
@@ -613,12 +615,12 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80 text-slate-200 text-[11px]">
-                {sensitivityMatrix.map((pt, idx) => {
+                {sensitivityMatrix.map(pt => {
                   const isMinRow = Math.abs(pt.spcxPrice - solvencyResult.minSpcxPrice) < 0.05;
                   const isCurrentRow = Math.abs(pt.spcxPrice - currentSpcxPrice) < 0.05;
                   return (
                     <tr
-                      key={idx}
+                      key={pt.spcxPrice}
                       className={`hover:bg-slate-900/80 transition ${isMinRow
                           ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold'
                           : isCurrentRow
@@ -757,9 +759,9 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/80 text-slate-200">
-              {projectionData.map((pt, idx) => (
+              {projectionData.map(pt => (
                 <tr
-                  key={idx}
+                  key={pt.year}
                   className={`hover:bg-slate-800/40 transition ${pt.year === retireYear ? 'bg-sky-950/40 border-l-4 border-sky-400 font-bold' : ''
                     }`}
                 >
@@ -832,8 +834,8 @@ export const FinancialFreedomProjectionPage: React.FC<FinancialFreedomProjection
             <tbody className="divide-y divide-slate-800/80 text-slate-200">
               {runLifetimeTaxSimulation(taxLots, currentAge, retireYear, retireMonth, annualExpenses, inflation, ssMonthlyBenefit * 12, ssStartAge)
                 .filter(p => p.phase === 'Financial Freedom')
-                .map((tPt, idx) => (
-                  <tr key={idx} className="hover:bg-slate-900/60">
+                .map(tPt => (
+                  <tr key={tPt.year} className="hover:bg-slate-900/60">
                     <td className="py-2.5 px-4 font-semibold text-slate-300">{tPt.year}</td>
                     <td className="py-2.5 px-4 font-bold text-white">Age {tPt.age}</td>
                     <td className="py-2.5 px-4 font-extrabold text-emerald-400">{formatCurrency(tPt.netCashForExpenses)}</td>
