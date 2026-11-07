@@ -91,12 +91,12 @@ const PlannerApp: React.FC = () => {
     };
 
     void refreshPrices();
-    const interval = window.setInterval(() => {
+    const interval = globalThis.setInterval(() => {
       if (isUsMarketOpen()) void refreshPrices();
     }, MARKET_REFRESH_INTERVAL);
     return () => {
       active = false;
-      window.clearInterval(interval);
+      globalThis.clearInterval(interval);
     };
   }, []);
 
@@ -133,17 +133,6 @@ const PlannerApp: React.FC = () => {
 
   const renderActivePage = () => {
     switch (activeTab) {
-      case 'dashboard':
-        return (
-          <DashboardPage
-            metrics={metrics}
-            assets={valuedAssets}
-            liabilities={liabilities}
-            cashFlows={cashFlows}
-            assumptions={assumptions}
-            taxLots={valuedTaxLots}
-          />
-        );
       case 'profile':
         return <ClientProfilePage profile={profile} onSaveProfile={updated => { setProfile(updated); db.saveClientProfile(updated); }} />;
       case 'assumptions':
