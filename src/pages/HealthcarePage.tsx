@@ -1,26 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { PlanningAssumptions, DashboardMetrics, TaxLot, CashFlowItem } from '../types/financial';
-import { formatCurrency, formatPercent } from '../utils/financialCalculations';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Cell } from 'recharts';
+import { PlanningAssumptions, DashboardMetrics } from '../types/financial';
+import { formatCurrency } from '../utils/financialCalculations';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import {
   HeartPulse,
   Sliders,
   ShieldCheck,
   CheckCircle2,
   AlertTriangle,
-  Info,
   DollarSign,
-  Zap,
-  Star,
   Award,
-  Layers,
   Sparkles,
-  ArrowRight,
   Check,
-  X,
-  FileText,
   Building2,
-  Calendar,
   Plus,
   ExternalLink,
   Calculator
@@ -29,8 +21,6 @@ import {
 interface HealthcarePageProps {
   assumptions: PlanningAssumptions;
   metrics: DashboardMetrics;
-  taxLots?: TaxLot[];
-  cashFlows?: CashFlowItem[];
 }
 
 export interface HealthPlan {
@@ -205,15 +195,13 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
     let requiredContributionPct = 0.085; // Max 8.5% of MAGI under ACA Inflation Reduction Act extension
 
     if (fplPercentage <= 150) {
-      requiredContributionPct = 0.00;
+      requiredContributionPct = 0;
     } else if (fplPercentage <= 200) {
-      requiredContributionPct = 0.00 + ((fplPercentage - 150) / 50) * 0.02;
+      requiredContributionPct = 0 + ((fplPercentage - 150) / 50) * 0.02;
     } else if (fplPercentage <= 250) {
       requiredContributionPct = 0.02 + ((fplPercentage - 200) / 50) * 0.02;
     } else if (fplPercentage <= 400) {
       requiredContributionPct = 0.04 + ((fplPercentage - 250) / 150) * 0.045;
-    } else {
-      requiredContributionPct = 0.085;
     }
 
     const maxRequiredAnnualContribution = magiInput * requiredContributionPct;
@@ -238,14 +226,15 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
       const annualNetPremium = netMonthlyPremium * 12;
 
       // Calculate Expected Medical Out-of-Pocket Expenses
+      // Low utilization keeps the default of 200
       let expectedMedicalExpenses = 200;
       if (customExpenseMode) {
         // Capped by plan's maximum out-of-pocket limit
         expectedMedicalExpenses = Math.min(plan.maxOutOfPocket, customExpectedExpense);
-      } else {
-        if (utilization === 'low') expectedMedicalExpenses = 200;
-        else if (utilization === 'medium') expectedMedicalExpenses = Math.min(plan.maxOutOfPocket, Math.max(800, plan.deductibleMedical * 0.5 + 400));
-        else if (utilization === 'high') expectedMedicalExpenses = plan.maxOutOfPocket;
+      } else if (utilization === 'medium') {
+        expectedMedicalExpenses = Math.min(plan.maxOutOfPocket, Math.max(800, plan.deductibleMedical * 0.5 + 400));
+      } else if (utilization === 'high') {
+        expectedMedicalExpenses = plan.maxOutOfPocket;
       }
 
       const totalAnnualCost = Math.round(annualNetPremium + expectedMedicalExpenses);
@@ -402,9 +391,9 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
               type="button"
               onClick={() => setCustomExpenseMode(false)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
-                !customExpenseMode
-                  ? 'bg-sky-600 text-white border-sky-500 shadow'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                customExpenseMode
+                  ? 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  : 'bg-sky-600 text-white border-sky-500 shadow'
               }`}
             >
               Preset Utilization Tiers
@@ -423,50 +412,13 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
           </div>
         </div>
 
-        {!customExpenseMode ? (
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="text-slate-300 font-semibold">Select Utilization Level:</span>
-            <button
-              type="button"
-              onClick={() => setUtilization('low')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
-                utilization === 'low'
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-            >
-              🌱 Low / Preventive ($200/yr)
-            </button>
-            <button
-              type="button"
-              onClick={() => setUtilization('medium')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
-                utilization === 'medium'
-                  ? 'bg-sky-600 text-white border-sky-500 shadow-md'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-            >
-              ⚡ Medium / Moderate (~$2,500/yr)
-            </button>
-            <button
-              type="button"
-              onClick={() => setUtilization('high')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
-                utilization === 'high'
-                  ? 'bg-rose-600 text-white border-rose-500 shadow-md'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-            >
-              🚨 High / Hospital Stay (Max OOP Limit)
-            </button>
-          </div>
-        ) : (
+        {customExpenseMode ? (
           <div className="space-y-4 bg-slate-950/80 border border-slate-800 rounded-xl p-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300">
+                <div className="block text-xs font-bold text-slate-300">
                   Linda's Anticipated Annual Out-of-Pocket Medical Expenses:
-                </label>
+                </div>
                 <p className="text-[11px] text-slate-400 mt-0.5">
                   Includes doctor copays, prescriptions, lab tests, scans, and therapies before plan deductible/max OOP limits.
                 </p>
@@ -503,13 +455,51 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
               <span>$12,000 (Max Out-of-Pocket Cap)</span>
             </div>
           </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="text-slate-300 font-semibold">Select Utilization Level:</span>
+            <button
+              type="button"
+              onClick={() => setUtilization('low')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
+                utilization === 'low'
+                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+              }`}
+            >
+              🌱 Low / Preventive ($200/yr)
+            </button>
+            <button
+              type="button"
+              onClick={() => setUtilization('medium')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
+                utilization === 'medium'
+                  ? 'bg-sky-600 text-white border-sky-500 shadow-md'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+              }`}
+            >
+              ⚡ Medium / Moderate (~$2,500/yr)
+            </button>
+            <button
+              type="button"
+              onClick={() => setUtilization('high')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition border ${
+                utilization === 'high'
+                  ? 'bg-rose-600 text-white border-rose-500 shadow-md'
+                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+              }`}
+            >
+              🚨 High / Hospital Stay (Max OOP Limit)
+            </button>
+          </div>
         )}
 
         {/* Quick Filters */}
         <div className="flex flex-wrap items-center gap-4 text-xs border-t border-slate-800/80 pt-3">
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Carrier Filter</label>
+            <label htmlFor="carrier-filter" className="block text-slate-400 font-semibold mb-1">Carrier Filter</label>
             <select
+              id="carrier-filter"
               value={selectedCarrier}
               onChange={e => setSelectedCarrier(e.target.value)}
               className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white font-semibold focus:outline-none focus:border-sky-500"
@@ -523,8 +513,9 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Metal Tier</label>
+            <label htmlFor="metal-tier" className="block text-slate-400 font-semibold mb-1">Metal Tier</label>
             <select
+              id="metal-tier"
               value={selectedTier}
               onChange={e => setSelectedTier(e.target.value)}
               className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white font-semibold focus:outline-none focus:border-sky-500"
@@ -900,9 +891,9 @@ export const HealthcarePage: React.FC<HealthcarePageProps> = ({ assumptions, met
               url: 'https://www.dol.gov/general/topic/health-plans/cobra',
               color: 'rose'
             }
-          ].map((item, idx) => (
+          ].map(item => (
             <a
-              key={idx}
+              key={item.url}
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"

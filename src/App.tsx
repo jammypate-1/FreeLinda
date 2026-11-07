@@ -165,7 +165,7 @@ const PlannerApp: React.FC = () => {
       case 'socialsecurity':
         return <SocialSecurityPage scenarios={socialSecurityScenarios} />;
       case 'healthcare':
-        return <HealthcarePage assumptions={assumptions} metrics={metrics} taxLots={valuedTaxLots} cashFlows={cashFlows} />;
+        return <HealthcarePage assumptions={assumptions} metrics={metrics} />;
       case 'spcxdcf':
         return <SpcxDcfValuationPage liveSpcxPrice={latestPrices.SPCX} taxLots={valuedTaxLots} />;
       case 'hedge':
