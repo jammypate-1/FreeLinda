@@ -148,7 +148,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   for (const lot of sortedLots) {
     if (cumulativeHarvested >= targetExpensesToCover) break;
-    const lotValue = lot.shares * lot.currentPrice;
     const needed = targetExpensesToCover - cumulativeHarvested;
     const sharesToSell = Math.min(lot.shares, needed / lot.currentPrice);
     const valueHarvested = sharesToSell * lot.currentPrice;
@@ -184,12 +183,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$2.95 (+2.19% 1-Day)',
       domain: [134, 140],
       points: [
-        { label: '9:30 AM', price: 136.10 },
+        { label: '9:30 AM', price: 136.1 },
         { label: '10:30 AM', price: 136.94 },
-        { label: '11:30 AM', price: 137.20 },
+        { label: '11:30 AM', price: 137.2 },
         { label: '12:30 PM', price: 136.85 },
-        { label: '1:30 PM', price: 138.10 },
-        { label: '2:30 PM', price: 137.60 },
+        { label: '1:30 PM', price: 138.1 },
+        { label: '2:30 PM', price: 137.6 },
         { label: '3:30 PM', price: 139.75 },
         { label: '4:00 PM', price: 137.95 }
       ]
@@ -198,12 +197,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$8.95 (+6.94% 1-Month)',
       domain: [128, 142],
       points: [
-        { label: 'Jul 1', price: 129.00 },
-        { label: 'Jul 5', price: 131.20 },
-        { label: 'Jul 10', price: 133.80 },
-        { label: 'Jul 15', price: 134.40 },
-        { label: 'Jul 20', price: 136.10 },
-        { label: 'Jul 25', price: 137.20 },
+        { label: 'Jul 1', price: 129 },
+        { label: 'Jul 5', price: 131.2 },
+        { label: 'Jul 10', price: 133.8 },
+        { label: 'Jul 15', price: 134.4 },
+        { label: 'Jul 20', price: 136.1 },
+        { label: 'Jul 25', price: 137.2 },
         { label: 'Aug 25', price: 137.95 }
       ]
     },
@@ -212,16 +211,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       domain: [100, 145],
       points: [
         { label: 'Aug 25', price: 104.83 },
-        { label: 'Sep 25', price: 108.00 },
-        { label: 'Oct 25', price: 112.20 },
-        { label: 'Nov 25', price: 116.50 },
-        { label: 'Dec 25', price: 120.00 },
-        { label: 'Jan 26', price: 124.80 },
-        { label: 'Feb 26', price: 128.50 },
-        { label: 'Mar 26', price: 126.00 },
-        { label: 'Apr 26', price: 131.20 },
-        { label: 'May 26', price: 134.00 },
-        { label: 'Jun 26', price: 136.50 },
+        { label: 'Sep 25', price: 108 },
+        { label: 'Oct 25', price: 112.2 },
+        { label: 'Nov 25', price: 116.5 },
+        { label: 'Dec 25', price: 120 },
+        { label: 'Jan 26', price: 124.8 },
+        { label: 'Feb 26', price: 128.5 },
+        { label: 'Mar 26', price: 126 },
+        { label: 'Apr 26', price: 131.2 },
+        { label: 'May 26', price: 134 },
+        { label: 'Jun 26', price: 136.5 },
         { label: 'Aug 26', price: 137.95 }
       ]
     },
@@ -229,11 +228,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$92.95 (+206.55% Max)',
       domain: [40, 150],
       points: [
-        { label: '2021', price: 45.00 },
-        { label: '2022', price: 62.00 },
-        { label: '2023', price: 81.00 },
-        { label: '2024', price: 98.00 },
-        { label: '2025', price: 118.00 },
+        { label: '2021', price: 45 },
+        { label: '2022', price: 62 },
+        { label: '2023', price: 81 },
+        { label: '2024', price: 98 },
+        { label: '2025', price: 118 },
         { label: '2026', price: 137.95 }
       ]
     }
@@ -245,12 +244,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       domain: [340, 348],
       points: [
         { label: '9:30 AM', price: 342.14 },
-        { label: '10:30 AM', price: 343.80 },
-        { label: '11:30 AM', price: 344.40 },
-        { label: '12:30 PM', price: 343.00 },
-        { label: '1:30 PM', price: 344.10 },
-        { label: '2:30 PM', price: 343.80 },
-        { label: '3:30 PM', price: 344.70 },
+        { label: '10:30 AM', price: 343.8 },
+        { label: '11:30 AM', price: 344.4 },
+        { label: '12:30 PM', price: 343 },
+        { label: '1:30 PM', price: 344.1 },
+        { label: '2:30 PM', price: 343.8 },
+        { label: '3:30 PM', price: 344.7 },
         { label: '4:00 PM', price: 343.34 }
       ]
     },
@@ -258,12 +257,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$12.34 (+3.73% 1-Month)',
       domain: [330, 350],
       points: [
-        { label: 'Jul 1', price: 331.00 },
-        { label: 'Jul 5', price: 333.50 },
-        { label: 'Jul 10', price: 335.20 },
-        { label: 'Jul 15', price: 338.80 },
-        { label: 'Jul 20', price: 341.50 },
-        { label: 'Jul 25', price: 342.10 },
+        { label: 'Jul 1', price: 331 },
+        { label: 'Jul 5', price: 333.5 },
+        { label: 'Jul 10', price: 335.2 },
+        { label: 'Jul 15', price: 338.8 },
+        { label: 'Jul 20', price: 341.5 },
+        { label: 'Jul 25', price: 342.1 },
         { label: 'Aug 26', price: 343.34 }
       ]
     },
@@ -271,17 +270,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$63.34 (+22.62% 1-Year)',
       domain: [270, 360],
       points: [
-        { label: 'Aug 25', price: 280.00 },
-        { label: 'Sep 25', price: 292.50 },
-        { label: 'Oct 25', price: 298.00 },
-        { label: 'Nov 25', price: 312.00 },
-        { label: 'Dec 25', price: 320.00 },
-        { label: 'Jan 26', price: 318.50 },
-        { label: 'Feb 26', price: 330.00 },
-        { label: 'Mar 26', price: 325.00 },
-        { label: 'Apr 26', price: 335.50 },
-        { label: 'May 26', price: 338.00 },
-        { label: 'Jun 26', price: 341.20 },
+        { label: 'Aug 25', price: 280 },
+        { label: 'Sep 25', price: 292.5 },
+        { label: 'Oct 25', price: 298 },
+        { label: 'Nov 25', price: 312 },
+        { label: 'Dec 25', price: 320 },
+        { label: 'Jan 26', price: 318.5 },
+        { label: 'Feb 26', price: 330 },
+        { label: 'Mar 26', price: 325 },
+        { label: 'Apr 26', price: 335.5 },
+        { label: 'May 26', price: 338 },
+        { label: 'Jun 26', price: 341.2 },
         { label: 'Aug 26', price: 343.34 }
       ]
     },
@@ -289,11 +288,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       changeStr: '+$208.34 (+154.33% Max)',
       domain: [120, 370],
       points: [
-        { label: '2021', price: 135.00 },
-        { label: '2022', price: 180.00 },
-        { label: '2023', price: 215.00 },
-        { label: '2024', price: 250.00 },
-        { label: '2025', price: 295.00 },
+        { label: '2021', price: 135 },
+        { label: '2022', price: 180 },
+        { label: '2023', price: 215 },
+        { label: '2024', price: 250 },
+        { label: '2025', price: 295 },
         { label: '2026', price: 343.34 }
       ]
     }
@@ -331,12 +330,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     };
 
     void refreshMarketData();
-    const interval = window.setInterval(() => {
+    const interval = globalThis.setInterval(() => {
       if (isUsMarketOpen()) void refreshMarketData();
     }, MARKET_REFRESH_INTERVAL);
     return () => {
       active = false;
-      window.clearInterval(interval);
+      globalThis.clearInterval(interval);
     };
   }, [spcxTimeframe, googTimeframe]);
 
@@ -884,7 +883,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   dataKey="value"
                 >
                   {assetChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="#0f172a" strokeWidth={2} />
+                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} stroke="#0f172a" strokeWidth={2} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -916,9 +915,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {flags.map((flag, idx) => (
+            {flags.map(flag => (
               <div
-                key={idx}
+                key={flag.title}
                 className={`p-4 rounded-xl border flex items-start space-x-3 transition ${
                   flag.ok
                     ? 'bg-slate-950/60 border-slate-800/80'
