@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Goal } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { Target, Plus, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import { Target, Plus, CheckCircle2, Trash2 } from 'lucide-react';
 
 interface GoalsPageProps {
   goals: Goal[];
@@ -84,8 +84,9 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Goal Name</label>
+              <label htmlFor="goal-name" className="block text-slate-400 font-semibold mb-1">Goal Name</label>
               <input
+                id="goal-name"
                 type="text"
                 value={newGoal.name}
                 onChange={e => setNewGoal({ ...newGoal, name: e.target.value })}
@@ -94,8 +95,9 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Planning Area</label>
+              <label htmlFor="goal-planning-area" className="block text-slate-400 font-semibold mb-1">Planning Area</label>
               <select
+                id="goal-planning-area"
                 value={newGoal.planningArea}
                 onChange={e => setNewGoal({ ...newGoal, planningArea: e.target.value })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-sky-500"
@@ -108,10 +110,11 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
               </select>
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Priority</label>
+              <label htmlFor="goal-priority" className="block text-slate-400 font-semibold mb-1">Priority</label>
               <select
+                id="goal-priority"
                 value={newGoal.priority}
-                onChange={e => setNewGoal({ ...newGoal, priority: e.target.value as any })}
+                onChange={e => setNewGoal({ ...newGoal, priority: e.target.value as Goal['priority'] })}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-white focus:outline-none focus:border-sky-500"
               >
                 <option value="High">High</option>
@@ -121,8 +124,9 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
             </div>
 
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Target Amount ($)</label>
+              <label htmlFor="goal-target-amount" className="block text-slate-400 font-semibold mb-1">Target Amount ($)</label>
               <input
+                id="goal-target-amount"
                 type="number"
                 value={newGoal.targetAmount}
                 onChange={e => setNewGoal({ ...newGoal, targetAmount: Number(e.target.value) })}
@@ -130,8 +134,9 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Current Funding ($)</label>
+              <label htmlFor="goal-current-funding" className="block text-slate-400 font-semibold mb-1">Current Funding ($)</label>
               <input
+                id="goal-current-funding"
                 type="number"
                 value={newGoal.currentFunding}
                 onChange={e => setNewGoal({ ...newGoal, currentFunding: Number(e.target.value) })}
@@ -139,8 +144,9 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ goals, onSaveGoals }) => {
               />
             </div>
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Monthly Savings Contribution ($)</label>
+              <label htmlFor="goal-monthly-savings" className="block text-slate-400 font-semibold mb-1">Monthly Savings Contribution ($)</label>
               <input
+                id="goal-monthly-savings"
                 type="number"
                 value={newGoal.monthlySavings}
                 onChange={e => setNewGoal({ ...newGoal, monthlySavings: Number(e.target.value) })}
