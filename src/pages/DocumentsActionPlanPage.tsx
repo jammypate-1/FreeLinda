@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DocumentItem, ActionItem } from '../types/financial';
-import { CheckSquare, FileText, CheckCircle2, Clock, Plus, Trash2, X, Save, Upload, Download, Eye, File, Lock, ShieldCheck } from 'lucide-react';
+import { CheckSquare, CheckCircle2, Clock, Plus, Trash2, X, Save, Upload, File, Lock, ShieldCheck } from 'lucide-react';
 
 interface DocumentsActionPlanPageProps {
   documents: DocumentItem[];
@@ -63,14 +63,14 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
 
   const handleToggleDocReceived = (id: string) => {
     const updated = docList.map(d =>
-      d.id === id ? { ...d, received: !d.received, status: (!d.received ? 'Received' : 'Pending') as DocumentItem['status'] } : d
+      d.id === id ? { ...d, received: !d.received, status: (d.received ? 'Pending' : 'Received') as DocumentItem['status'] } : d
     );
     setDocList(updated);
     onSaveDocuments(updated);
   };
 
   const handleDeleteDoc = (id: string) => {
-    if (window.confirm('Are you sure you want to remove this document from the vault?')) {
+    if (globalThis.confirm('Are you sure you want to remove this document from the vault?')) {
       const updated = docList.filter(d => d.id !== id);
       setDocList(updated);
       onSaveDocuments(updated);
@@ -84,7 +84,7 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
   };
 
   const handleDeleteAction = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this action item?')) {
+    if (globalThis.confirm('Are you sure you want to delete this action item?')) {
       const updated = actList.filter(a => a.id !== id);
       setActList(updated);
       onSaveActionItems(updated);
@@ -381,7 +381,7 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
                 <span className="text-slate-400">Due: <strong className="text-slate-200">{item.dueDate}</strong></span>
                 <select
                   value={item.status}
-                  onChange={e => handleActionStatus(item.id, e.target.value as any)}
+                  onChange={e => handleActionStatus(item.id, e.target.value as ActionItem['status'])}
                   className="bg-slate-900 border border-slate-800 rounded text-xs font-semibold px-2 py-1 text-white focus:outline-none focus:border-sky-500"
                 >
                   <option value="Not Started">Not Started</option>
@@ -435,8 +435,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Document Record Title</label>
+                <label htmlFor="document-record-title" className="block text-slate-400 font-semibold mb-1">Document Record Title</label>
                 <input
+                  id="document-record-title"
                   type="text"
                   required
                   placeholder="e.g. 2025 Form 1040 Tax Return / Revocable Living Trust"
@@ -448,8 +449,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Category</label>
+                  <label htmlFor="document-category" className="block text-slate-400 font-semibold mb-1">Category</label>
                   <select
+                    id="document-category"
                     value={uploadState.category}
                     onChange={e => setUploadState({ ...uploadState, category: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500 font-semibold"
@@ -464,8 +466,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Date Received / Uploaded</label>
+                  <label htmlFor="document-date-received" className="block text-slate-400 font-semibold mb-1">Date Received / Uploaded</label>
                   <input
+                    id="document-date-received"
                     type="date"
                     required
                     value={uploadState.dateReceived}
@@ -476,8 +479,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Notes & Storage Metadata</label>
+                <label htmlFor="document-notes" className="block text-slate-400 font-semibold mb-1">Notes & Storage Metadata</label>
                 <textarea
+                  id="document-notes"
                   rows={2}
                   placeholder="e.g. Executed and notarized copy stored in secure vault."
                   value={uploadState.notes}
@@ -526,8 +530,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
 
             <form onSubmit={handleCreateAction} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Planning Area</label>
+                <label htmlFor="action-planning-area" className="block text-slate-400 font-semibold mb-1">Planning Area</label>
                 <input
+                  id="action-planning-area"
                   type="text"
                   required
                   placeholder="e.g. Tax & Equity Strategy, Retirement, Estate"
@@ -538,8 +543,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Action Item Title</label>
+                <label htmlFor="action-title" className="block text-slate-400 font-semibold mb-1">Action Item Title</label>
                 <input
+                  id="action-title"
                   type="text"
                   required
                   placeholder="e.g. Harvest Tax Losses or Execute Option Collar"
@@ -551,10 +557,11 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Priority</label>
+                  <label htmlFor="action-priority" className="block text-slate-400 font-semibold mb-1">Priority</label>
                   <select
+                    id="action-priority"
                     value={newItem.priority}
-                    onChange={e => setNewItem({ ...newItem, priority: e.target.value as any })}
+                    onChange={e => setNewItem({ ...newItem, priority: e.target.value as ActionItem['priority'] })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-sky-500"
                   >
                     <option value="High">High Priority</option>
@@ -564,10 +571,11 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Initial Status</label>
+                  <label htmlFor="action-initial-status" className="block text-slate-400 font-semibold mb-1">Initial Status</label>
                   <select
+                    id="action-initial-status"
                     value={newItem.status}
-                    onChange={e => setNewItem({ ...newItem, status: e.target.value as any })}
+                    onChange={e => setNewItem({ ...newItem, status: e.target.value as ActionItem['status'] })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-white focus:outline-none focus:border-sky-500"
                   >
                     <option value="Not Started">Not Started</option>
@@ -580,8 +588,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Target Due Date</label>
+                  <label htmlFor="action-due-date" className="block text-slate-400 font-semibold mb-1">Target Due Date</label>
                   <input
+                    id="action-due-date"
                     type="date"
                     required
                     value={newItem.dueDate}
@@ -591,8 +600,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">Immediate Next Step</label>
+                  <label htmlFor="action-next-step" className="block text-slate-400 font-semibold mb-1">Immediate Next Step</label>
                   <input
+                    id="action-next-step"
                     type="text"
                     placeholder="e.g. Schedule call with CPA"
                     value={newItem.nextStep}
@@ -603,8 +613,9 @@ export const DocumentsActionPlanPage: React.FC<DocumentsActionPlanPageProps> = (
               </div>
 
               <div>
-                <label className="block text-slate-400 font-semibold mb-1">Notes & Description</label>
+                <label htmlFor="action-notes" className="block text-slate-400 font-semibold mb-1">Notes & Description</label>
                 <textarea
+                  id="action-notes"
                   rows={2}
                   placeholder="Detailed notes or special instructions"
                   value={newItem.notes}
