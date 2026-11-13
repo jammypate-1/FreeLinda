@@ -16,7 +16,8 @@ import {
   FileText,
   HeartPulse,
   Binary,
-  Briefcase
+  Briefcase,
+  ArrowDownToLine
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     { id: 'assumptions', label: 'Assumptions', icon: Sliders, category: 'Overview' },
 
     { id: 'cashflow', label: 'Cash Flow', icon: Wallet, category: 'Financial Plan' },
+    { id: 'withdrawals', label: 'Withdrawal Plan', icon: ArrowDownToLine, category: 'Financial Plan' },
     { id: 'portfolios', label: 'Portfolios Tier System', icon: Briefcase, category: 'Financial Plan' },
     { id: 'assets', label: 'Assets & Accounts', icon: Building2, category: 'Financial Plan' },
     { id: 'taxlots', label: 'Tax Lots & Equity', icon: TrendingUp, category: 'Financial Plan' },

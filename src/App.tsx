@@ -23,6 +23,7 @@ import { EstateBeneficiariesPage } from './pages/EstateBeneficiariesPage';
 import { DocumentsActionPlanPage } from './pages/DocumentsActionPlanPage';
 import { MeetingNotesPage } from './pages/MeetingNotesPage';
 import { PortfoliosPage } from './pages/PortfoliosPage';
+import { WithdrawalPlanPage } from './pages/WithdrawalPlanPage';
 
 const MARKET_REFRESH_INTERVAL = 60 * 60 * 1000;
 const LIVE_TICKERS = new Set<MarketSymbol>(['SPCX', 'GOOG']);
@@ -46,6 +47,8 @@ const PlannerApp: React.FC = () => {
   const [actionItems, setActionItems] = useState(db.defaults.actionItems);
   const [meetingNotes, setMeetingNotes] = useState(db.defaults.meetingNotes);
   const [portfoliosConfig, setPortfoliosConfig] = useState(db.defaults.portfoliosConfig);
+  const [withdrawalConfig, setWithdrawalConfig] = useState(db.defaults.withdrawalConfig);
+  const [simplifiMap, setSimplifiMap] = useState(db.defaults.simplifiMap);
   const [latestPrices, setLatestPrices] = useState<Partial<Record<MarketSymbol, number>>>({
     SPCX: 137.95,
     GOOG: 343.34
@@ -66,6 +69,8 @@ const PlannerApp: React.FC = () => {
     setActionItems(data.actionItems);
     setMeetingNotes(data.meetingNotes);
     if (data.portfoliosConfig) setPortfoliosConfig(data.portfoliosConfig);
+    setWithdrawalConfig({ ...db.defaults.withdrawalConfig, ...data.withdrawalConfig });
+    setSimplifiMap(data.simplifiMap ?? {});
     setSyncError(null);
     setIsDataLoaded(true);
   }, error => {
@@ -150,6 +155,22 @@ const PlannerApp: React.FC = () => {
             portfoliosConfig={portfoliosConfig}
             onSavePortfoliosConfig={updated => { setPortfoliosConfig(updated); db.savePortfoliosConfig(updated); }}
             onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }}
+          />
+        );
+      case 'withdrawals':
+        return (
+          <WithdrawalPlanPage
+            profile={profile}
+            assets={valuedAssets}
+            liabilities={liabilities}
+            taxLots={valuedTaxLots}
+            cashFlows={cashFlows}
+            config={withdrawalConfig}
+            onSaveConfig={updated => { setWithdrawalConfig(updated); db.saveWithdrawalConfig(updated); }}
+            simplifiLinks={simplifiMap}
+            onSaveSimplifiLinks={updated => { setSimplifiMap(updated); db.saveSimplifiMap(updated); }}
+            onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }}
+            onSaveLiabilities={updated => { setLiabilities(updated); db.saveLiabilities(updated); }}
           />
         );
       case 'assets':

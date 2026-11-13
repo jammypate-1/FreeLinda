@@ -12,8 +12,10 @@ import {
   BeneficiaryRecord,
   DocumentItem,
   ActionItem,
-  PortfoliosConfig
+  PortfoliosConfig,
+  WithdrawalConfig
 } from '../types/financial';
+import { DEFAULT_WITHDRAWAL_CONFIG } from '../utils/withdrawalPlan';
 
 import {
   initialClientProfile,
@@ -58,7 +60,9 @@ const LEGACY_STORAGE_KEYS = {
   DOCUMENTS: 'freelinda_documents',
   ACTION_ITEMS: 'freelinda_action_items',
   MEETING_NOTES: 'freelinda_meeting_notes',
-  PORTFOLIOS_CONFIG: 'freelinda_portfolios_config'
+  PORTFOLIOS_CONFIG: 'freelinda_portfolios_config',
+  SIMPLIFI_MAP: 'freelinda_simplifi_map',
+  WITHDRAWAL_CONFIG: 'freelinda_withdrawal_config'
 };
 
 export interface SharedData {
@@ -77,6 +81,8 @@ export interface SharedData {
   actionItems: ActionItem[];
   meetingNotes: any[];
   portfoliosConfig: PortfoliosConfig;
+  simplifiMap: Record<string, string>;
+  withdrawalConfig: WithdrawalConfig;
 }
 
 type SharedDataKey = keyof SharedData;
@@ -96,7 +102,9 @@ const DEFAULT_DATA: SharedData = {
   documents: initialDocuments,
   actionItems: initialActionItems,
   meetingNotes: [],
-  portfoliosConfig: initialPortfoliosConfig
+  portfoliosConfig: initialPortfoliosConfig,
+  simplifiMap: {},
+  withdrawalConfig: DEFAULT_WITHDRAWAL_CONFIG
 };
 
 const LEGACY_KEYS_BY_DATA: Record<SharedDataKey, string> = {
@@ -114,7 +122,9 @@ const LEGACY_KEYS_BY_DATA: Record<SharedDataKey, string> = {
   documents: LEGACY_STORAGE_KEYS.DOCUMENTS,
   actionItems: LEGACY_STORAGE_KEYS.ACTION_ITEMS,
   meetingNotes: LEGACY_STORAGE_KEYS.MEETING_NOTES,
-  portfoliosConfig: LEGACY_STORAGE_KEYS.PORTFOLIOS_CONFIG
+  portfoliosConfig: LEGACY_STORAGE_KEYS.PORTFOLIOS_CONFIG,
+  simplifiMap: LEGACY_STORAGE_KEYS.SIMPLIFI_MAP,
+  withdrawalConfig: LEGACY_STORAGE_KEYS.WITHDRAWAL_CONFIG
 };
 
 const DATA_COLLECTION = 'sharedData';
@@ -216,6 +226,8 @@ export const db = {
   saveActionItems: (data: ActionItem[]) => save('actionItems', data),
   saveMeetingNotes: (data: any[]) => save('meetingNotes', data),
   savePortfoliosConfig: (data: PortfoliosConfig) => save('portfoliosConfig', data),
+  saveSimplifiMap: (data: Record<string, string>) => save('simplifiMap', data),
+  saveWithdrawalConfig: (data: WithdrawalConfig) => save('withdrawalConfig', data),
 
   async resetToDefaults(): Promise<void> {
     const batch = writeBatch(firestore);

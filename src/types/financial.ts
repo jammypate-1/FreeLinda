@@ -360,4 +360,15 @@ export interface PortfoliosConfig {
   notes: string;
 }
 
+export interface WithdrawalConfig {
+  needSource: 'plan' | 'simplifi' | 'custom';
+  customMonthlyNeed: number;
+  monthsToFund: number;
+  cashFloorMonths: number;
+  longTermGainsRate: number;
+  ordinaryIncomeRate: number;
+  earlyWithdrawalPenalty: number;
+  excludedAssetIds: string[];
+}
+
 

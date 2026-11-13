@@ -12,5 +12,15 @@ service cloud.firestore {
     match /sharedData/{document} {
       allow read, write: if isAuthorizedUser();
     }
+
+    // Simplifi sync: the Withdrawal Plan page writes the extension key's hash; only the Cloud Function writes the snapshot.
+    match /simplifi/link {
+      allow read, write: if isAuthorizedUser();
+    }
+
+    match /simplifi/snapshot {
+      allow read: if isAuthorizedUser();
+      allow write: if false;
+    }
   }
 }

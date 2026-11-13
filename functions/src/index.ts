@@ -3,6 +3,8 @@ import { onRequest } from 'firebase-functions/v2/https';
 
 initializeApp();
 
+export { simplifiSync } from './simplifiSync.js';
+
 const ALLOWED_EMAILS = new Set(['jammy.pate@gmail.com', 'linda.a.dada@gmail.com']);
 const SYMBOLS = new Set(['SPCX', 'GOOG']);
 const TIMEFRAMES = {
