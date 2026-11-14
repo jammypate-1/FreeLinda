@@ -134,14 +134,14 @@ export const initialAssetAccounts: AssetAccount[] = [
     institution: "Solium (Morgan Stanley)",
     accountLast4: "4920",
     taxRegistration: "Individual Taxable",
-    liquidity: "Illiquid",
+    liquidity: "Immediate",
     allocationCategory: "Equities",
     currentValue: 2793487.50,
     costBasis: 66300,
     monthlyContribution: 0,
     annualReturn: 0.10,
     status: "Active",
-    notes: "20,250 shares private company stock.",
+    notes: "20,250 shares of SpaceX (SPCX), publicly traded.",
     lastUpdated: "2026-08-25"
   },
   {

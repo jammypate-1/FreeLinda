@@ -826,7 +826,7 @@ export const PortfoliosPage: React.FC<PortfoliosPageProps> = ({
                   </div>
                   <div>
                     <span className="text-slate-500 text-[10px] block">Liquidity / Status</span>
-                    <span className="text-amber-400 font-semibold text-[11px]">Illiquid Private Stock</span>
+                    <span className="text-emerald-400 font-semibold text-[11px]">Publicly traded (SPCX)</span>
                   </div>
                 </div>
               </div>

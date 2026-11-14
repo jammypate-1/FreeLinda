@@ -270,7 +270,7 @@ export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
           <li>Each month: cash above the emergency floor first, then taxable investments with the least gain, then Roth contributions, then pre-tax accounts (with the early-withdrawal penalty before 59½). The emergency cash itself is used only when everything else is gone.</li>
           <li>Until withdrawals start, each account keeps getting its monthly contribution from Assets. Every account grows at its own return from Assets.</li>
           <li>Spending and Social Security rise with {toPct(inflationRate)}% inflation (Assumptions). Spending is {formatCurrency(monthlyExpenses)} a month in today&apos;s dollars; salary is assumed to stop when withdrawals start.</li>
-          <li>Not drawn on: the HSA (kept for medical bills) and illiquid holdings such as SpaceX stock and the home.</li>
+          <li>Not drawn on: the HSA (kept for medical bills) and illiquid holdings such as the home. SpaceX (SPCX) is sold like any taxable holding: last, as it is almost all gain.</li>
           <li>Taxes are flat-rate estimates from the settings below. Tax brackets, required minimum distributions from 75, 72(t) plans and Covered California effects are not modelled; confirm with the CPA.</li>
         </ul>
       </section>
