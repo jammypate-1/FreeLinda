@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { AssetAccount, CashFlowItem, TaxLot } from '../types/financial';
-import { ageFromDob, buildWithdrawalPlan, classifyAccount, DEFAULT_WITHDRAWAL_CONFIG, planMonthlyNeed, simplifiMonthlyNeed } from './withdrawalPlan.ts';
+import { ageFromDob, buildWithdrawalPlan, classifyAccount, DEFAULT_WITHDRAWAL_CONFIG, planMonthlyNeed } from './withdrawalPlan.ts';
 
 const asset = (id: string, type: string, taxRegistration: string, currentValue: number, costBasis: number, extra: Partial<AssetAccount> = {}): AssetAccount => ({
   id,
@@ -70,16 +70,6 @@ test('planMonthlyNeed is active expenses less active income', () => {
   const need = planMonthlyNeed([flow('Expense', 5000, true), flow('Expense', 3000), flow('Income', 3000), flow('Expense', 900, true, 'Inactive')]);
   assert.deepEqual(need, { expenses: 8000, essential: 5000, income: 3000, gap: 5000 });
   assert.equal(planMonthlyNeed([flow('Income', 9000), flow('Expense', 4000)]).gap, 0);
-});
-
-test('simplifiMonthlyNeed averages complete months only', () => {
-  const months = [
-    { month: '2026-09', income: 1000, spending: 4000 },
-    { month: '2026-10', income: 3000, spending: 6000 },
-    { month: '2026-11', income: 0, spending: 99999 }
-  ];
-  assert.deepEqual(simplifiMonthlyNeed(months, '2026-11'), { expenses: 5000, essential: 5000, income: 2000, gap: 3000, monthsUsed: 2 });
-  assert.equal(simplifiMonthlyNeed([], '2026-11'), null);
 });
 
 test('ageFromDob counts tenths of a year', () => {

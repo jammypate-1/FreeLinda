@@ -18,13 +18,6 @@
         }
       },
       {
-        "source": "/api/simplifi-sync",
-        "function": {
-          "functionId": "simplifiSync",
-          "region": "us-central1"
-        }
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }

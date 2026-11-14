@@ -61,7 +61,6 @@ const LEGACY_STORAGE_KEYS = {
   ACTION_ITEMS: 'freelinda_action_items',
   MEETING_NOTES: 'freelinda_meeting_notes',
   PORTFOLIOS_CONFIG: 'freelinda_portfolios_config',
-  SIMPLIFI_MAP: 'freelinda_simplifi_map',
   WITHDRAWAL_CONFIG: 'freelinda_withdrawal_config'
 };
 
@@ -81,7 +80,6 @@ export interface SharedData {
   actionItems: ActionItem[];
   meetingNotes: any[];
   portfoliosConfig: PortfoliosConfig;
-  simplifiMap: Record<string, string>;
   withdrawalConfig: WithdrawalConfig;
 }
 
@@ -103,7 +101,6 @@ const DEFAULT_DATA: SharedData = {
   actionItems: initialActionItems,
   meetingNotes: [],
   portfoliosConfig: initialPortfoliosConfig,
-  simplifiMap: {},
   withdrawalConfig: DEFAULT_WITHDRAWAL_CONFIG
 };
 
@@ -123,7 +120,6 @@ const LEGACY_KEYS_BY_DATA: Record<SharedDataKey, string> = {
   actionItems: LEGACY_STORAGE_KEYS.ACTION_ITEMS,
   meetingNotes: LEGACY_STORAGE_KEYS.MEETING_NOTES,
   portfoliosConfig: LEGACY_STORAGE_KEYS.PORTFOLIOS_CONFIG,
-  simplifiMap: LEGACY_STORAGE_KEYS.SIMPLIFI_MAP,
   withdrawalConfig: LEGACY_STORAGE_KEYS.WITHDRAWAL_CONFIG
 };
 
@@ -226,7 +222,6 @@ export const db = {
   saveActionItems: (data: ActionItem[]) => save('actionItems', data),
   saveMeetingNotes: (data: any[]) => save('meetingNotes', data),
   savePortfoliosConfig: (data: PortfoliosConfig) => save('portfoliosConfig', data),
-  saveSimplifiMap: (data: Record<string, string>) => save('simplifiMap', data),
   saveWithdrawalConfig: (data: WithdrawalConfig) => save('withdrawalConfig', data),
 
   async resetToDefaults(): Promise<void> {

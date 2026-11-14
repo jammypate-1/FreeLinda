@@ -89,24 +89,6 @@ export function planMonthlyNeed(cashFlows: CashFlowItem[]): MonthlyNeed {
   return { expenses: round2(expenses), essential: round2(essential), income: round2(income), gap: round2(Math.max(0, expenses - income)) };
 }
 
-// The average of the last 12 complete months Simplifi has (the current month is left out); null when there are none.
-export function simplifiMonthlyNeed(
-  months: { month: string; income: number; spending: number }[],
-  currentMonth: string
-): (MonthlyNeed & { monthsUsed: number }) | null {
-  const complete = months.filter(m => m.month < currentMonth).slice(-12);
-  if (!complete.length) return null;
-  const expenses = sum(complete.map(m => m.spending)) / complete.length;
-  const income = sum(complete.map(m => m.income)) / complete.length;
-  return {
-    expenses: round2(expenses),
-    essential: round2(expenses),
-    income: round2(income),
-    gap: round2(Math.max(0, expenses - income)),
-    monthsUsed: complete.length
-  };
-}
-
 // Age in tenths of a year, so the 59½ test is exact enough.
 export function ageFromDob(dob: string, today: Date): number {
   const born = new Date(`${dob}T00:00:00`);

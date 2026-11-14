@@ -1,23 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowDownToLine, ChevronDown, ChevronRight, Info } from 'lucide-react';
-import type { AssetAccount, CashFlowItem, ClientProfile, Liability, TaxLot, WithdrawalConfig } from '../types/financial';
+import type { AssetAccount, CashFlowItem, ClientProfile, TaxLot, WithdrawalConfig } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { ageFromDob, buildWithdrawalPlan, classifyAccount, planMonthlyNeed, simplifiMonthlyNeed, type AccountKind, type WithdrawalLine } from '../utils/withdrawalPlan';
-import { subscribeSimplifi, type SimplifiSnapshot } from '../services/simplifi';
-import { SimplifiSyncPanel } from '../components/SimplifiSyncPanel';
+import { ageFromDob, buildWithdrawalPlan, classifyAccount, planMonthlyNeed, type AccountKind, type WithdrawalLine } from '../utils/withdrawalPlan';
 
 interface WithdrawalPlanPageProps {
   profile: ClientProfile;
   assets: AssetAccount[];
-  liabilities: Liability[];
   taxLots: TaxLot[];
   cashFlows: CashFlowItem[];
   config: WithdrawalConfig;
   onSaveConfig: (config: WithdrawalConfig) => void;
-  simplifiLinks: Record<string, string>;
-  onSaveSimplifiLinks: (links: Record<string, string>) => void;
-  onSaveAssets: (assets: AssetAccount[]) => void;
-  onSaveLiabilities: (liabilities: Liability[]) => void;
 }
 
 const KIND_LABEL: Record<AccountKind, string> = { cash: 'Cash', taxable: 'Taxable', roth: 'Roth', pre_tax: 'Pre-tax', hsa: 'HSA', illiquid: 'Illiquid' };
@@ -33,7 +26,6 @@ const KIND_STYLE: Record<AccountKind, string> = {
 
 const SOURCE_LABEL: Record<WithdrawalConfig['needSource'], string> = {
   plan: 'Plan cash flow',
-  simplifi: 'Simplifi, 12-month average',
   custom: 'Custom amount'
 };
 
@@ -121,17 +113,10 @@ const LotTable: React.FC<{ line: WithdrawalLine }> = ({ line }) => (
 
 export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
   const { config, onSaveConfig } = props;
-  const [snapshot, setSnapshot] = useState<SimplifiSnapshot | null>(null);
   const [openLots, setOpenLots] = useState('');
-  useEffect(() => subscribeSimplifi(setSnapshot), []);
 
   const planNeed = useMemo(() => planMonthlyNeed(props.cashFlows), [props.cashFlows]);
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const actualNeed = useMemo(() => simplifiMonthlyNeed(snapshot?.months ?? [], currentMonth), [snapshot, currentMonth]);
-  const simplifiMissing = config.needSource === 'simplifi' && !actualNeed;
-  let monthlyNeed = planNeed.gap;
-  if (config.needSource === 'custom') monthlyNeed = Math.max(0, config.customMonthlyNeed);
-  else if (config.needSource === 'simplifi' && actualNeed) monthlyNeed = actualNeed.gap;
+  const monthlyNeed = config.needSource === 'custom' ? Math.max(0, config.customMonthlyNeed) : planNeed.gap;
   const age = ageFromDob(props.profile.dob, new Date());
   const plan = useMemo(
     () => buildWithdrawalPlan({ assets: props.assets, taxLots: props.taxLots, config, monthlyNeed, essentialMonthly: planNeed.essential, age }),
@@ -159,24 +144,15 @@ export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card label="Monthly need" value={formatCurrency(monthlyNeed)} hint={simplifiMissing ? 'No Simplifi months yet: using the plan' : SOURCE_LABEL[config.needSource]} />
+        <Card label="Monthly need" value={formatCurrency(monthlyNeed)} hint={SOURCE_LABEL[config.needSource]} />
         <Card label="Net to pull" value={formatCurrency(plan.totalNet)} hint={`${formatCurrency(perMonth)} a month into checking`} tone="text-emerald-300" />
         <Card label="Tax & penalties" value={formatCurrency(plan.totalTax)} hint="Estimate: set it aside for April" tone="text-amber-300" />
         <Card label="Sell or withdraw" value={formatCurrency(plan.totalGross)} hint={`From ${plan.lines.length} account${plan.lines.length === 1 ? '' : 's'}`} />
       </div>
 
-      <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-slate-400">
-        <span>
-          Plan: {formatCurrency(planNeed.expenses)} spending less {formatCurrency(planNeed.income)} income = {formatCurrency(planNeed.gap)} a month
-        </span>
-        {actualNeed ? (
-          <span>
-            Simplifi ({actualNeed.monthsUsed} months): {formatCurrency(actualNeed.expenses)} spending less {formatCurrency(actualNeed.income)} income = {formatCurrency(actualNeed.gap)} a month
-          </span>
-        ) : (
-          <span>Simplifi: no complete months synced yet</span>
-        )}
-      </div>
+      <p className="text-xs text-slate-400">
+        Plan: {formatCurrency(planNeed.expenses)} spending less {formatCurrency(planNeed.income)} income = {formatCurrency(planNeed.gap)} a month
+      </p>
 
       {plan.netNeeded === 0 ? (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-200">Income covers spending: nothing needs to be pulled right now.</div>
@@ -303,16 +279,6 @@ export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
           </ul>
         </div>
       </section>
-
-      <SimplifiSyncPanel
-        snapshot={snapshot}
-        assets={props.assets}
-        liabilities={props.liabilities}
-        links={props.simplifiLinks}
-        onSaveLinks={props.onSaveSimplifiLinks}
-        onSaveAssets={props.onSaveAssets}
-        onSaveLiabilities={props.onSaveLiabilities}
-      />
     </div>
   );
 };

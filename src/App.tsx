@@ -48,7 +48,6 @@ const PlannerApp: React.FC = () => {
   const [meetingNotes, setMeetingNotes] = useState(db.defaults.meetingNotes);
   const [portfoliosConfig, setPortfoliosConfig] = useState(db.defaults.portfoliosConfig);
   const [withdrawalConfig, setWithdrawalConfig] = useState(db.defaults.withdrawalConfig);
-  const [simplifiMap, setSimplifiMap] = useState(db.defaults.simplifiMap);
   const [latestPrices, setLatestPrices] = useState<Partial<Record<MarketSymbol, number>>>({
     SPCX: 137.95,
     GOOG: 343.34
@@ -70,7 +69,6 @@ const PlannerApp: React.FC = () => {
     setMeetingNotes(data.meetingNotes);
     if (data.portfoliosConfig) setPortfoliosConfig(data.portfoliosConfig);
     setWithdrawalConfig({ ...db.defaults.withdrawalConfig, ...data.withdrawalConfig });
-    setSimplifiMap(data.simplifiMap ?? {});
     setSyncError(null);
     setIsDataLoaded(true);
   }, error => {
@@ -162,15 +160,10 @@ const PlannerApp: React.FC = () => {
           <WithdrawalPlanPage
             profile={profile}
             assets={valuedAssets}
-            liabilities={liabilities}
             taxLots={valuedTaxLots}
             cashFlows={cashFlows}
             config={withdrawalConfig}
             onSaveConfig={updated => { setWithdrawalConfig(updated); db.saveWithdrawalConfig(updated); }}
-            simplifiLinks={simplifiMap}
-            onSaveSimplifiLinks={updated => { setSimplifiMap(updated); db.saveSimplifiMap(updated); }}
-            onSaveAssets={updated => { setAssets(updated); db.saveAssets(updated); }}
-            onSaveLiabilities={updated => { setLiabilities(updated); db.saveLiabilities(updated); }}
           />
         );
       case 'assets':

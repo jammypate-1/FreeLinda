@@ -361,7 +361,7 @@ export interface PortfoliosConfig {
 }
 
 export interface WithdrawalConfig {
-  needSource: 'plan' | 'simplifi' | 'custom';
+  needSource: 'plan' | 'custom';
   customMonthlyNeed: number;
   monthsToFund: number;
   cashFloorMonths: number;
