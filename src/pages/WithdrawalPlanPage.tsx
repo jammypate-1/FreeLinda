@@ -1,14 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ArrowDownToLine, ChevronDown, ChevronRight, Info } from 'lucide-react';
-import type { AssetAccount, CashFlowItem, ClientProfile, TaxLot, WithdrawalConfig } from '../types/financial';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import type { AssetAccount, CashFlowItem, ClientProfile, PlanningAssumptions, WithdrawalConfig } from '../types/financial';
 import { formatCurrency } from '../utils/financialCalculations';
-import { ageFromDob, buildWithdrawalPlan, classifyAccount, planMonthlyNeed, type AccountKind, type WithdrawalLine } from '../utils/withdrawalPlan';
+import { buildMonthlySchedule, classifyAccount, planMonthlyNeed, type AccountKind, type ScheduleYear } from '../utils/withdrawalPlan';
 
 interface WithdrawalPlanPageProps {
   profile: ClientProfile;
   assets: AssetAccount[];
-  taxLots: TaxLot[];
   cashFlows: CashFlowItem[];
+  assumptions: PlanningAssumptions;
   config: WithdrawalConfig;
   onSaveConfig: (config: WithdrawalConfig) => void;
 }
@@ -25,20 +26,19 @@ const KIND_STYLE: Record<AccountKind, string> = {
 };
 
 const SOURCE_LABEL: Record<WithdrawalConfig['needSource'], string> = {
-  plan: 'Plan cash flow',
+  plan: 'Plan cash flow expenses',
   custom: 'Custom amount'
 };
 
 const toPct = (rate: number): number => Math.round(rate * 1000) / 10;
 
-// Tax lot dates come from the spreadsheet as Excel day numbers ("46167.0"); show them as dates.
-const showDate = (value: string): string => {
-  const serial = Number(value);
-  if (Number.isFinite(serial) && serial > 20000 && serial < 80000) {
-    return new Date(Date.UTC(1899, 11, 30) + serial * 86400e3).toISOString().slice(0, 10);
-  }
-  return value;
+const monthLabel = (month: string): string => {
+  const [year, index] = month.split('-').map(Number);
+  return new Date(year, index - 1, 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
 };
+
+// Milliseconds until just after the next local midnight, when the plan is worked out again.
+const untilTomorrow = (now: Date): number => new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1).getTime() - now.getTime();
 
 interface NumberFieldProps {
   id: string;
@@ -84,27 +84,37 @@ const Card: React.FC<CardProps> = ({ label, value, hint, tone = 'text-white' }) 
   </div>
 );
 
-const LotTable: React.FC<{ line: WithdrawalLine }> = ({ line }) => (
+const MonthTable: React.FC<{ year: ScheduleYear; startMonth: string }> = ({ year, startMonth }) => (
   <table className="w-full text-left text-xs">
     <thead className="text-slate-500">
       <tr>
-        <th className="py-1 pr-3 font-medium">Lot</th>
-        <th className="py-1 pr-3 font-medium">Acquired</th>
-        <th className="py-1 pr-3 font-medium">Term</th>
-        <th className="py-1 pr-3 text-right font-medium">Shares</th>
-        <th className="py-1 pr-3 text-right font-medium">Proceeds</th>
-        <th className="py-1 text-right font-medium">Gain / loss</th>
+        <th className="py-1 pr-3 font-medium">Month</th>
+        <th className="py-1 pr-3 font-medium">From</th>
+        <th className="py-1 pr-3 text-right font-medium">Withdraw</th>
+        <th className="py-1 pr-3 text-right font-medium">Tax</th>
+        <th className="py-1 pr-3 text-right font-medium">Net to spend</th>
+        <th className="py-1 text-right font-medium">Social Security</th>
       </tr>
     </thead>
     <tbody className="divide-y divide-slate-800/60">
-      {line.lots.map(sale => (
-        <tr key={sale.lotId}>
-          <td className="py-1 pr-3 text-slate-300">{sale.lotId} {sale.ticker}</td>
-          <td className="py-1 pr-3 text-slate-400">{showDate(sale.acquisitionDate)}</td>
-          <td className="py-1 pr-3 text-slate-400">{sale.term}</td>
-          <td className="py-1 pr-3 text-right font-mono text-slate-200">{sale.shares.toLocaleString('en-US', { maximumFractionDigits: 4 })}</td>
-          <td className="py-1 pr-3 text-right font-mono text-slate-200">{formatCurrency(sale.proceeds)}</td>
-          <td className={`py-1 text-right font-mono ${sale.gain < 0 ? 'text-emerald-300' : 'text-amber-300'}`}>{formatCurrency(sale.gain)}</td>
+      {year.months.map(month => (
+        <tr key={month.month} className="align-top">
+          <td className="py-1.5 pr-3 text-slate-300">{monthLabel(month.month)}</td>
+          <td className="py-1.5 pr-3 text-slate-300">
+            {month.withdrawing ? null : <span className="text-slate-500">Saving: withdrawals start {monthLabel(startMonth)}</span>}
+            {month.withdrawing && month.draws.length === 0 && month.shortfall === 0 ? <span className="text-slate-500">Social Security covers it</span> : null}
+            {month.draws.map(draw => (
+              <div key={draw.assetId}>
+                <span className={`mr-1.5 rounded px-1 py-0.5 text-[10px] font-semibold ${KIND_STYLE[draw.kind]}`}>{KIND_LABEL[draw.kind]}</span>
+                {draw.name}: {formatCurrency(draw.gross)}
+              </div>
+            ))}
+            {month.shortfall > 0.5 ? <div className="text-rose-300">Short {formatCurrency(month.shortfall)}</div> : null}
+          </td>
+          <td className="py-1.5 pr-3 text-right font-mono text-slate-200">{formatCurrency(month.gross)}</td>
+          <td className="py-1.5 pr-3 text-right font-mono text-amber-300">{formatCurrency(month.tax)}</td>
+          <td className="py-1.5 pr-3 text-right font-mono text-emerald-300">{formatCurrency(month.net)}</td>
+          <td className="py-1.5 text-right font-mono text-slate-400">{formatCurrency(month.socialSecurity)}</td>
         </tr>
       ))}
     </tbody>
@@ -113,16 +123,32 @@ const LotTable: React.FC<{ line: WithdrawalLine }> = ({ line }) => (
 
 export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
   const { config, onSaveConfig } = props;
-  const [openLots, setOpenLots] = useState('');
+  const [today, setToday] = useState(() => new Date());
+  const [openYear, setOpenYear] = useState<number | null>(null);
+  useEffect(() => {
+    const timer = globalThis.setTimeout(() => setToday(new Date()), untilTomorrow(today));
+    return () => globalThis.clearTimeout(timer);
+  }, [today]);
 
   const planNeed = useMemo(() => planMonthlyNeed(props.cashFlows), [props.cashFlows]);
-  const monthlyNeed = config.needSource === 'custom' ? Math.max(0, config.customMonthlyNeed) : planNeed.gap;
-  const age = ageFromDob(props.profile.dob, new Date());
-  const plan = useMemo(
-    () => buildWithdrawalPlan({ assets: props.assets, taxLots: props.taxLots, config, monthlyNeed, essentialMonthly: planNeed.essential, age }),
-    [props.assets, props.taxLots, config, monthlyNeed, planNeed.essential, age]
+  const monthlyExpenses = config.needSource === 'custom' ? Math.max(0, config.customMonthlyNeed) : planNeed.expenses;
+  const inflationRate = props.assumptions.inflationRate || 0;
+  const schedule = useMemo(
+    () => buildMonthlySchedule({
+      assets: props.assets,
+      config,
+      monthlyExpenses,
+      essentialMonthly: planNeed.essential,
+      inflationRate,
+      dob: props.profile.dob,
+      today
+    }),
+    [props.assets, config, monthlyExpenses, planNeed.essential, inflationRate, props.profile.dob, today]
   );
-  const perMonth = config.monthsToFund > 0 ? plan.totalNet / config.monthsToFund : 0;
+  const first = schedule.firstWithdrawal;
+  const lastYear = schedule.years[schedule.years.length - 1];
+  const totalSocialSecurity = schedule.years.reduce((total, year) => total + year.socialSecurity, 0);
+  const chartData = schedule.years.map(year => ({ year: year.year, liquid: Math.round(year.liquidEnd) }));
   const update = (patch: Partial<WithdrawalConfig>): void => onSaveConfig({ ...config, ...patch });
   const toggleAccount = (id: string): void => update({
     excludedAssetIds: config.excludedAssetIds.includes(id) ? config.excludedAssetIds.filter(item => item !== id) : [...config.excludedAssetIds, id]
@@ -138,124 +164,154 @@ export const WithdrawalPlanPage: React.FC<WithdrawalPlanPageProps> = props => {
         <div>
           <h1 className="text-2xl font-bold text-white">Withdrawal Plan</h1>
           <p className="mt-1 text-sm text-slate-400">
-            How much {props.profile.name} should pull for the next {config.monthsToFund} months, and from which accounts, cheapest in tax first.
+            Month by month from {monthLabel(config.startMonth)} until {props.profile.name} is {config.endAge}: how much to withdraw, from which account, and the tax.
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Worked out {today.toLocaleDateString('en-US', { dateStyle: 'medium' })} from today&apos;s balances and live GOOG and SPCX prices; it is worked out again every day.
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card label="Monthly need" value={formatCurrency(monthlyNeed)} hint={SOURCE_LABEL[config.needSource]} />
-        <Card label="Net to pull" value={formatCurrency(plan.totalNet)} hint={`${formatCurrency(perMonth)} a month into checking`} tone="text-emerald-300" />
-        <Card label="Tax & penalties" value={formatCurrency(plan.totalTax)} hint="Estimate: set it aside for April" tone="text-amber-300" />
-        <Card label="Sell or withdraw" value={formatCurrency(plan.totalGross)} hint={`From ${plan.lines.length} account${plan.lines.length === 1 ? '' : 's'}`} />
+        <Card
+          label={first ? `First withdrawal, ${monthLabel(first.month)}` : 'First withdrawal'}
+          value={formatCurrency(first?.gross ?? 0)}
+          hint={first ? `From ${first.draws.map(draw => draw.name).join(', ')}; ${formatCurrency(first.tax)} tax` : 'None needed in the plan'}
+        />
+        <Card label="Lifetime taxes & penalties" value={formatCurrency(schedule.totalTax)} hint={`On ${formatCurrency(schedule.totalGross)} withdrawn`} tone="text-amber-300" />
+        <Card label="Lifetime spending covered" value={formatCurrency(schedule.totalNet)} hint={`Plus ${formatCurrency(totalSocialSecurity)} of Social Security`} tone="text-emerald-300" />
+        <Card
+          label="Money lasts"
+          value={schedule.firstShortfallMonth ? `Until ${monthLabel(schedule.firstShortfallMonth)}` : `To age ${config.endAge}`}
+          hint={schedule.firstShortfallMonth ? `${formatCurrency(schedule.totalShortfall)} short over the plan` : `${formatCurrency(lastYear?.liquidEnd ?? 0)} left in liquid accounts`}
+          tone={schedule.firstShortfallMonth ? 'text-rose-300' : 'text-white'}
+        />
       </div>
 
-      <p className="text-xs text-slate-400">
-        Plan: {formatCurrency(planNeed.expenses)} spending less {formatCurrency(planNeed.income)} income = {formatCurrency(planNeed.gap)} a month
-      </p>
-
-      {plan.netNeeded === 0 ? (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm text-emerald-200">Income covers spending: nothing needs to be pulled right now.</div>
-      ) : null}
-
-      {plan.shortfall > 0 ? (
+      {schedule.firstShortfallMonth ? (
         <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 text-sm text-rose-200">
           <AlertTriangle className="h-4 w-4 shrink-0" />
-          The usable accounts fall {formatCurrency(plan.shortfall)} short of the {formatCurrency(plan.netNeeded)} needed.
+          The liquid accounts run out in {monthLabel(schedule.firstShortfallMonth)}; spending after that is {formatCurrency(schedule.totalShortfall)} short in total.
         </div>
       ) : null}
 
-      {plan.lines.length > 0 ? (
-        <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h2 className="text-lg font-bold text-white">Pull from these accounts, in this order</h2>
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs text-slate-500">
-                <tr>
-                  <th className="py-2 pr-3 font-medium">#</th>
-                  <th className="py-2 pr-3 font-medium">Account</th>
-                  <th className="py-2 pr-3 text-right font-medium">Sell / withdraw</th>
-                  <th className="py-2 pr-3 text-right font-medium">Tax & penalty</th>
-                  <th className="py-2 pr-3 text-right font-medium">Net to you</th>
-                  <th className="py-2 font-medium">Why</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {plan.lines.map((line, index) => (
-                  <React.Fragment key={line.assetId}>
+      <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h2 className="text-sm font-semibold text-slate-200">Liquid accounts left at each year end</h2>
+        <div className="mt-4 h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+              <XAxis dataKey="year" stroke="#64748b" fontSize={11} />
+              <YAxis stroke="#64748b" fontSize={11} width={64} tickFormatter={value => `$${Math.round(Number(value) / 1000)}k`} />
+              <Tooltip formatter={value => formatCurrency(Number(value))} contentStyle={{ background: '#0f172a', border: '1px solid #334155', fontSize: 12 }} />
+              <Line type="monotone" dataKey="liquid" name="Liquid accounts" stroke="#38bdf8" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h2 className="text-lg font-bold text-white">Year by year</h2>
+        <p className="mt-1 text-xs text-slate-400">Open a year to see each month: which account, how much, and the tax.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs text-slate-500">
+              <tr>
+                <th className="py-2 pr-3 font-medium">Year</th>
+                <th className="py-2 pr-3 font-medium">Age</th>
+                <th className="py-2 pr-3 font-medium">From</th>
+                <th className="py-2 pr-3 text-right font-medium">Withdraw</th>
+                <th className="py-2 pr-3 text-right font-medium">Tax</th>
+                <th className="py-2 pr-3 text-right font-medium">Net to spend</th>
+                <th className="py-2 text-right font-medium">Liquid left</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {schedule.years.map(year => (
+                <React.Fragment key={year.year}>
+                  <tr>
+                    <td className="py-2 pr-3">
+                      <button
+                        type="button"
+                        onClick={() => setOpenYear(openYear === year.year ? null : year.year)}
+                        className="inline-flex items-center gap-1 font-semibold text-slate-100 hover:text-sky-300"
+                      >
+                        {openYear === year.year ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                        {year.year}
+                      </button>
+                    </td>
+                    <td className="py-2 pr-3 text-slate-400">{Math.floor(year.age)}</td>
+                    <td className="py-2 pr-3 text-xs text-slate-400">{year.accounts.length ? year.accounts.join(', ') : '-'}</td>
+                    <td className="py-2 pr-3 text-right font-mono text-slate-200">{formatCurrency(year.gross)}</td>
+                    <td className="py-2 pr-3 text-right font-mono text-amber-300">{formatCurrency(year.tax)}</td>
+                    <td className="py-2 pr-3 text-right font-mono text-emerald-300">{formatCurrency(year.net)}</td>
+                    <td className={`py-2 text-right font-mono ${year.shortfall > 0.5 ? 'text-rose-300' : 'text-slate-200'}`}>{formatCurrency(year.liquidEnd)}</td>
+                  </tr>
+                  {openYear === year.year ? (
                     <tr>
-                      <td className="py-3 pr-3 text-slate-500">{index + 1}</td>
-                      <td className="py-3 pr-3">
-                        <div className="font-semibold text-slate-100">{line.name}</div>
-                        <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${KIND_STYLE[line.kind]}`}>{KIND_LABEL[line.kind]}</span>
-                        {line.lots.length > 0 ? (
-                          <button
-                            type="button"
-                            onClick={() => setOpenLots(openLots === line.assetId ? '' : line.assetId)}
-                            className="ml-2 inline-flex items-center text-[11px] text-sky-400 hover:text-sky-300"
-                          >
-                            {openLots === line.assetId ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                            {line.lots.length} lots to sell
-                          </button>
-                        ) : null}
+                      <td colSpan={7} className="pb-4 pl-6">
+                        <MonthTable year={year} startMonth={config.startMonth} />
                       </td>
-                      <td className="py-3 pr-3 text-right font-mono text-slate-200">{formatCurrency(line.gross)}</td>
-                      <td className="py-3 pr-3 text-right font-mono text-amber-300">{formatCurrency(line.tax)}</td>
-                      <td className="py-3 pr-3 text-right font-mono text-emerald-300">{formatCurrency(line.net)}</td>
-                      <td className="py-3 text-xs text-slate-400">{line.reason}</td>
                     </tr>
-                    {openLots === line.assetId ? (
-                      <tr>
-                        <td colSpan={6} className="pb-4">
-                          <LotTable line={line} />
-                        </td>
-                      </tr>
-                    ) : null}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : null}
+                  ) : null}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-200">
           <Info className="h-4 w-4 text-sky-400" />
-          How this was worked out
+          How this is worked out
         </h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-slate-400">
-          <li>Order: cash above the emergency floor, then taxable investments (losses and high-basis long-term lots first), then Roth contributions, then pre-tax accounts.</li>
-          {plan.notes.map(note => <li key={note}>{note}</li>)}
-          <li>Tax rates are planning estimates; confirm sales and withdrawals with the CPA.</li>
+          <li>Each month: cash above the emergency floor first, then taxable investments with the least gain, then Roth contributions, then pre-tax accounts (with the early-withdrawal penalty before 59½). The emergency cash itself is used only when everything else is gone.</li>
+          <li>Until withdrawals start, each account keeps getting its monthly contribution from Assets. Every account grows at its own return from Assets.</li>
+          <li>Spending and Social Security rise with {toPct(inflationRate)}% inflation (Assumptions). Spending is {formatCurrency(monthlyExpenses)} a month in today&apos;s dollars; salary is assumed to stop when withdrawals start.</li>
+          <li>Not drawn on: the HSA (kept for medical bills) and illiquid holdings such as SpaceX stock and the home.</li>
+          <li>Taxes are flat-rate estimates from the settings below. Tax brackets, required minimum distributions from 75, 72(t) plans and Covered California effects are not modelled; confirm with the CPA.</li>
         </ul>
       </section>
 
       <section className="grid gap-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6 lg:grid-cols-2">
         <div className="space-y-4">
           <h2 className="text-sm font-semibold text-slate-200">Settings</h2>
-          <div>
-            <label htmlFor="wd-source" className="block text-[11px] font-medium text-slate-400">Monthly need comes from</label>
-            <select
-              id="wd-source"
-              value={config.needSource}
-              onChange={event => update({ needSource: event.target.value as WithdrawalConfig['needSource'] })}
-              className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
-            >
-              {(Object.keys(SOURCE_LABEL) as WithdrawalConfig['needSource'][]).map(key => <option key={key} value={key}>{SOURCE_LABEL[key]}</option>)}
-            </select>
-          </div>
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="wd-source" className="block text-[11px] font-medium text-slate-400">Monthly spending comes from</label>
+              <select
+                id="wd-source"
+                value={config.needSource}
+                onChange={event => update({ needSource: event.target.value as WithdrawalConfig['needSource'] })}
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
+              >
+                {(Object.keys(SOURCE_LABEL) as WithdrawalConfig['needSource'][]).map(key => <option key={key} value={key}>{SOURCE_LABEL[key]}</option>)}
+              </select>
+            </div>
             {config.needSource === 'custom' ? (
-              <NumberField id="wd-custom" label="Custom monthly need" value={config.customMonthlyNeed} suffix="$ a month" step={100} onChange={value => update({ customMonthlyNeed: value })} />
+              <NumberField id="wd-custom" label="Monthly spending (today's dollars)" value={config.customMonthlyNeed} suffix="$" step={100} onChange={value => update({ customMonthlyNeed: value })} />
             ) : null}
-            <NumberField id="wd-months" label="Months to fund" value={config.monthsToFund} suffix="months" onChange={value => update({ monthsToFund: Math.max(0, Math.round(value)) })} />
+            <div>
+              <label htmlFor="wd-start" className="block text-[11px] font-medium text-slate-400">Withdrawals start</label>
+              <input
+                id="wd-start"
+                type="month"
+                value={config.startMonth}
+                onChange={event => { if (event.target.value) update({ startMonth: event.target.value }); }}
+                className="mt-1 w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100"
+              />
+            </div>
+            <NumberField id="wd-end" label="Plan ends at age" value={config.endAge} onChange={value => update({ endAge: Math.max(0, Math.round(value)) })} />
+            <NumberField id="wd-ss-age" label="Social Security from age" value={config.socialSecurityAge} onChange={value => update({ socialSecurityAge: Math.max(0, value) })} />
+            <NumberField id="wd-ss" label="Social Security (today's dollars)" value={config.socialSecurityMonthly} suffix="$ a month" step={100} onChange={value => update({ socialSecurityMonthly: Math.max(0, value) })} />
             <NumberField id="wd-floor" label="Cash floor" value={config.cashFloorMonths} suffix="months of essentials" onChange={value => update({ cashFloorMonths: Math.max(0, value) })} />
             <NumberField id="wd-ltcg" label="Long-term gains tax" value={toPct(config.longTermGainsRate)} suffix="%" step={0.5} onChange={value => update({ longTermGainsRate: value / 100 })} />
             <NumberField id="wd-ordinary" label="Ordinary income tax" value={toPct(config.ordinaryIncomeRate)} suffix="%" step={0.5} onChange={value => update({ ordinaryIncomeRate: value / 100 })} />
             <NumberField id="wd-penalty" label="Early-withdrawal penalty" value={toPct(config.earlyWithdrawalPenalty)} suffix="%" step={0.5} onChange={value => update({ earlyWithdrawalPenalty: value / 100 })} />
           </div>
-          <p className="text-[11px] text-slate-500">Rates are combined federal and California estimates; the penalty applies to pre-tax money taken before 59½. Age now: {age}.</p>
+          <p className="text-[11px] text-slate-500">Rates are combined federal and California estimates; the penalty applies to pre-tax money taken before 59½.</p>
         </div>
         <div>
           <h2 className="text-sm font-semibold text-slate-200">Accounts the plan may use</h2>

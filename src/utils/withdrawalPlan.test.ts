@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { AssetAccount, CashFlowItem, TaxLot } from '../types/financial';
-import { ageFromDob, buildWithdrawalPlan, classifyAccount, DEFAULT_WITHDRAWAL_CONFIG, planMonthlyNeed } from './withdrawalPlan.ts';
+import type { AssetAccount, CashFlowItem } from '../types/financial';
+import { ageFromDob, buildMonthlySchedule, classifyAccount, DEFAULT_WITHDRAWAL_CONFIG, planMonthlyNeed } from './withdrawalPlan.ts';
 
 const asset = (id: string, type: string, taxRegistration: string, currentValue: number, costBasis: number, extra: Partial<AssetAccount> = {}): AssetAccount => ({
   id,
@@ -37,24 +37,16 @@ const flow = (type: CashFlowItem['type'], monthlyAmount: number, essential = fal
   status
 });
 
-const lot = (id: string, term: TaxLot['term'], shares: number, basis: number, price: number): TaxLot => ({
-  id,
-  ticker: 'GOOG',
-  name: 'Google',
-  assetName: 'Google Portfolio',
-  acquisitionDate: '2024-01-01',
-  term,
-  shares,
-  costBasisPerShare: basis,
-  currentPrice: price,
-  totalCostBasis: shares * basis,
-  totalCurrentValue: shares * price,
-  unrealizedGainLoss: shares * (price - basis),
-  unrealizedGainLossPct: 0
-});
-
 const near = (actual: number, expected: number): void => assert.ok(Math.abs(actual - expected) < 0.02, `${actual} != ${expected}`);
-const config = { ...DEFAULT_WITHDRAWAL_CONFIG, longTermGainsRate: 0.2, ordinaryIncomeRate: 0.3, earlyWithdrawalPenalty: 0.1 };
+const today = new Date(2026, 10, 13);
+const base = {
+  ...DEFAULT_WITHDRAWAL_CONFIG,
+  longTermGainsRate: 0.2,
+  ordinaryIncomeRate: 0.3,
+  earlyWithdrawalPenalty: 0.1,
+  socialSecurityAge: 99,
+  socialSecurityMonthly: 0
+};
 
 test('classifyAccount sorts accounts by how they are taxed', () => {
   assert.equal(classifyAccount(asset('c', 'Cash / Bank', 'Individual', 1, 1)), 'cash');
@@ -77,77 +69,93 @@ test('ageFromDob counts tenths of a year', () => {
   assert.equal(ageFromDob('not a date', new Date()), 0);
 });
 
-test('buildWithdrawalPlan uses cash above the floor, then taxable at the least tax', () => {
-  const plan = buildWithdrawalPlan({
+test('buildMonthlySchedule runs month by month from now to the end age, cash above the floor first', () => {
+  const schedule = buildMonthlySchedule({
     assets: [
-      asset('cash-low', 'Cash / Bank', 'Individual', 20000, 20000, { annualReturn: 0.001 }),
-      asset('cash-high', 'Cash / Bank', 'Individual', 10000, 10000, { annualReturn: 0.045 }),
-      asset('big-gain', 'Taxable Investment', 'Individual Taxable', 50000, 10000),
-      asset('small-gain', 'Taxable Investment', 'Individual Taxable', 50000, 25000)
+      asset('cash', 'Cash / Bank', 'Individual', 30000, 30000, { annualReturn: 0 }),
+      asset('brokerage', 'Taxable Investment', 'Individual Taxable', 50000, 25000, { annualReturn: 0 })
     ],
-    taxLots: [],
-    config,
-    monthlyNeed: 2000,
+    config: { ...base, startMonth: '2026-12', endAge: 37 },
+    monthlyExpenses: 2000,
     essentialMonthly: 1000,
-    age: 36
+    inflationRate: 0,
+    dob: '1990-10-15',
+    today
   });
-  assert.equal(plan.netNeeded, 24000);
-  assert.equal(plan.cashFloor, 18000);
-  assert.deepEqual(plan.lines.map(l => l.assetId), ['cash-low', 'small-gain']);
-  assert.equal(plan.lines[0].net, 12000);
-  near(plan.lines[1].gross, 13333.33);
-  near(plan.lines[1].tax, 1333.33);
-  near(plan.totalNet, 24000);
-  assert.equal(plan.shortfall, 0);
+  assert.equal(schedule.months.length, 12);
+  assert.equal(schedule.months[0].month, '2026-11');
+  assert.equal(schedule.months[0].withdrawing, false);
+  assert.deepEqual(schedule.months[1].draws.map(d => d.assetId), ['cash']);
+  assert.equal(schedule.months[1].net, 2000);
+  assert.deepEqual(schedule.months[7].draws.map(d => d.assetId), ['brokerage']);
+  near(schedule.months[7].gross, 2222.22);
+  near(schedule.months[7].tax, 222.22);
+  near(schedule.totalNet, 22000);
+  near(schedule.totalTax, 1111.11);
+  assert.equal(schedule.firstShortfallMonth, null);
+  assert.equal(schedule.firstWithdrawal?.month, '2026-12');
+  assert.deepEqual(schedule.years.map(y => y.year), [2026, 2027]);
+  near(schedule.years[1].tax, 1111.11);
 });
 
-test('buildWithdrawalPlan sells loss lots first, then long-term lots with the most basis', () => {
-  const lots = [
-    lot('short', 'Short Term', 10, 100, 300),
-    lot('long-low-basis', 'Long Term', 10, 50, 300),
-    lot('long-high-basis', 'Long Term', 10, 250, 300),
-    lot('loss', 'Short Term', 10, 400, 300)
-  ];
-  const plan = buildWithdrawalPlan({
-    assets: [asset('A-02', 'Taxable Investment', 'Individual Taxable', 12000, 8000)],
-    taxLots: lots,
-    config,
-    monthlyNeed: 500,
+test('buildMonthlySchedule nets Social Security off and reaches pre-tax money with the penalty before 59½', () => {
+  const run = (dob: string) => buildMonthlySchedule({
+    assets: [asset('ira', 'Traditional Financial Freedom', 'Traditional IRA Rollover', 100000, 100000, { annualReturn: 0 })],
+    config: { ...base, startMonth: '2026-11', endAge: 99, socialSecurityAge: 0, socialSecurityMonthly: 1000 },
+    monthlyExpenses: 3000,
     essentialMonthly: 0,
-    age: 36
-  });
-  assert.deepEqual(plan.lines[0].lots.map(s => s.lotId), ['loss', 'long-high-basis', 'long-low-basis']);
-  assert.equal(plan.lines[0].lots[2].shares, 0.4);
-  near(plan.lines[0].gross, 6120);
-  assert.equal(plan.lines[0].tax, 0);
-  assert.equal(plan.shortfall, 0);
+    inflationRate: 0,
+    dob,
+    today
+  }).months[0];
+  const young = run('1990-05-15');
+  assert.equal(young.socialSecurity, 1000);
+  near(young.gross, 3333.33);
+  near(young.tax, 1333.33);
+  const older = run('1960-05-15');
+  near(older.gross, 2857.14);
 });
 
-test('buildWithdrawalPlan reaches pre-tax accounts last, with the penalty before 59½', () => {
-  const assets = [asset('ira', 'Traditional Financial Freedom', 'Traditional IRA Rollover', 100000, 100000)];
-  const young = buildWithdrawalPlan({ assets, taxLots: [], config: { ...config, monthsToFund: 1 }, monthlyNeed: 6000, essentialMonthly: 0, age: 36 });
-  near(young.lines[0].gross, 10000);
-  near(young.lines[0].tax, 4000);
-  const older = buildWithdrawalPlan({ assets, taxLots: [], config: { ...config, monthsToFund: 1 }, monthlyNeed: 7000, essentialMonthly: 0, age: 60 });
-  near(older.lines[0].gross, 10000);
-});
-
-test('buildWithdrawalPlan skips excluded, HSA and illiquid accounts and reports the shortfall', () => {
-  const plan = buildWithdrawalPlan({
+test('buildMonthlySchedule uses the emergency cash last and reports when money runs short', () => {
+  const schedule = buildMonthlySchedule({
     assets: [
-      asset('cash', 'Cash / Bank', 'Individual', 5000, 5000),
+      asset('cash', 'Cash / Bank', 'Individual', 5000, 5000, { annualReturn: 0 }),
       asset('hsa', 'HSA', 'HSA', 9000, 9000),
-      asset('spcx', 'Taxable Investment', 'Individual Taxable', 900000, 1000, { liquidity: 'Illiquid' }),
-      asset('skip', 'Taxable Investment', 'Individual Taxable', 50000, 50000)
+      asset('home', 'Real Estate', 'Individual', 900000, 1000, { liquidity: 'Illiquid' })
     ],
-    taxLots: [],
-    config: { ...config, excludedAssetIds: ['skip'], monthsToFund: 1 },
-    monthlyNeed: 8000,
-    essentialMonthly: 0,
-    age: 36
+    config: { ...base, startMonth: '2026-11', endAge: 99 },
+    monthlyExpenses: 2000,
+    essentialMonthly: 1000,
+    inflationRate: 0,
+    dob: '1990-05-15',
+    today
   });
-  assert.deepEqual(plan.lines.map(l => l.assetId), ['cash']);
-  assert.equal(plan.shortfall, 3000);
-  assert.ok(plan.notes.some(n => n.includes('spcx')));
-  assert.ok(plan.notes.some(n => n.includes('hsa')));
+  assert.equal(schedule.months[1].net, 2000);
+  assert.equal(schedule.months[2].net, 1000);
+  assert.equal(schedule.months[2].shortfall, 1000);
+  assert.equal(schedule.firstShortfallMonth, '2027-01');
+  assert.ok(schedule.months.every(m => m.draws.every(d => d.assetId === 'cash')));
+});
+
+test('buildMonthlySchedule adds contributions until withdrawals start and grows spending with inflation', () => {
+  const saving = buildMonthlySchedule({
+    assets: [asset('cash', 'Cash / Bank', 'Individual', 1000, 1000, { annualReturn: 0.12, monthlyContribution: 100 })],
+    config: { ...base, startMonth: '2030-01', endAge: 99 },
+    monthlyExpenses: 1000,
+    essentialMonthly: 0,
+    inflationRate: 0.12,
+    dob: '1990-05-15',
+    today
+  });
+  near(saving.months[0].liquidEnd, 1111);
+  const spending = buildMonthlySchedule({
+    assets: [asset('cash', 'Cash / Bank', 'Individual', 1000000, 1000000, { annualReturn: 0 })],
+    config: { ...base, startMonth: '2026-11', endAge: 99 },
+    monthlyExpenses: 1000,
+    essentialMonthly: 0,
+    inflationRate: 0.12,
+    dob: '1990-05-15',
+    today
+  });
+  near(spending.months[12].need, 1120);
 });

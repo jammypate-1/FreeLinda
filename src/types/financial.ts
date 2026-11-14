@@ -363,7 +363,10 @@ export interface PortfoliosConfig {
 export interface WithdrawalConfig {
   needSource: 'plan' | 'custom';
   customMonthlyNeed: number;
-  monthsToFund: number;
+  startMonth: string;
+  endAge: number;
+  socialSecurityAge: number;
+  socialSecurityMonthly: number;
   cashFloorMonths: number;
   longTermGainsRate: number;
   ordinaryIncomeRate: number;

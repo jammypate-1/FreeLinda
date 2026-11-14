@@ -160,8 +160,8 @@ const PlannerApp: React.FC = () => {
           <WithdrawalPlanPage
             profile={profile}
             assets={valuedAssets}
-            taxLots={valuedTaxLots}
             cashFlows={cashFlows}
+            assumptions={assumptions}
             config={withdrawalConfig}
             onSaveConfig={updated => { setWithdrawalConfig(updated); db.saveWithdrawalConfig(updated); }}
           />

@@ -1,22 +1,24 @@
-// Withdrawal Plan math: how much Linda needs to pull, and which accounts to pull it from in the order that costs the
-// least tax. Pure functions over the plan's own data; the page and the tests use them.
-import type { AssetAccount, CashFlowItem, TaxLot, WithdrawalConfig } from '../types/financial';
+// Withdrawal Plan math: a month-by-month schedule, from now to the end of the plan, of how much Linda withdraws,
+// from which accounts, and the tax on it, pulling in the order that costs the least tax. Pure functions over the
+// plan's own data; the page and the tests use them.
+import type { AssetAccount, CashFlowItem, WithdrawalConfig } from '../types/financial';
 
 export type AccountKind = 'cash' | 'taxable' | 'roth' | 'pre_tax' | 'hsa' | 'illiquid';
 
+// Start, end and Social Security match the Financial Freedom engine's defaults (April 2027, age 90, $3,000 at 67).
 export const DEFAULT_WITHDRAWAL_CONFIG: WithdrawalConfig = {
   needSource: 'plan',
   customMonthlyNeed: 0,
-  monthsToFund: 12,
+  startMonth: '2027-04',
+  endAge: 90,
+  socialSecurityAge: 67,
+  socialSecurityMonthly: 3000,
   cashFloorMonths: 18,
   longTermGainsRate: 0.24,
   ordinaryIncomeRate: 0.35,
   earlyWithdrawalPenalty: 0.125,
   excludedAssetIds: []
 };
-
-// Which tax lots belong to which account (the same pairing App.tsx uses for live prices).
-export const LOT_TICKER_BY_ASSET: Record<string, string> = { 'A-02': 'GOOG', 'A-03': 'SPCX' };
 
 export interface MonthlyNeed {
   expenses: number;
@@ -25,51 +27,84 @@ export interface MonthlyNeed {
   gap: number;
 }
 
-export interface LotSale {
-  lotId: string;
-  ticker: string;
-  acquisitionDate: string;
-  term: TaxLot['term'];
-  shares: number;
-  proceeds: number;
-  gain: number;
-}
-
-export interface WithdrawalLine {
+export interface MonthDraw {
   assetId: string;
   name: string;
   kind: AccountKind;
   gross: number;
   tax: number;
   net: number;
-  reason: string;
-  lots: LotSale[];
 }
 
-export interface WithdrawalPlan {
-  netNeeded: number;
-  cashFloor: number;
-  lines: WithdrawalLine[];
+export interface ScheduleMonth {
+  month: string;
+  age: number;
+  withdrawing: boolean;
+  need: number;
+  socialSecurity: number;
+  draws: MonthDraw[];
+  gross: number;
+  tax: number;
+  net: number;
+  shortfall: number;
+  liquidEnd: number;
+}
+
+export interface ScheduleYear {
+  year: number;
+  age: number;
+  gross: number;
+  tax: number;
+  net: number;
+  socialSecurity: number;
+  shortfall: number;
+  liquidEnd: number;
+  accounts: string[];
+  months: ScheduleMonth[];
+}
+
+export interface WithdrawalSchedule {
+  months: ScheduleMonth[];
+  years: ScheduleYear[];
   totalGross: number;
   totalTax: number;
   totalNet: number;
-  shortfall: number;
-  notes: string[];
+  totalShortfall: number;
+  firstShortfallMonth: string | null;
+  firstWithdrawal: ScheduleMonth | null;
 }
 
-export interface WithdrawalInputs {
+export interface ScheduleInputs {
   assets: AssetAccount[];
-  taxLots: TaxLot[];
   config: WithdrawalConfig;
-  monthlyNeed: number;
+  monthlyExpenses: number;
   essentialMonthly: number;
-  age: number;
+  inflationRate: number;
+  dob: string;
+  today: Date;
 }
+
+interface Pot {
+  asset: AssetAccount;
+  kind: AccountKind;
+  value: number;
+  basis: number;
+  monthlyRate: number;
+}
+
+interface RawDraw {
+  pot: Pot;
+  gross: number;
+  tax: number;
+}
+
+const DRAWABLE: AccountKind[] = ['cash', 'taxable', 'roth', 'pre_tax'];
+const CENT = 0.005;
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 const sum = (values: number[]): number => values.reduce((total, value) => total + value, 0);
-const money = (value: number): string => `$${Math.round(value).toLocaleString('en-US')}`;
-const pct = (value: number): string => `${Math.round(value * 1000) / 10}%`;
+
+export const monthKey = (date: Date): string => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
 export function classifyAccount(asset: AssetAccount): AccountKind {
   const text = `${asset.type} ${asset.taxRegistration}`.toLowerCase();
@@ -97,154 +132,170 @@ export function ageFromDob(dob: string, today: Date): number {
   return Math.floor(years * 10) / 10;
 }
 
-function lotsFor(asset: AssetAccount, taxLots: TaxLot[]): TaxLot[] {
-  const ticker = LOT_TICKER_BY_ASSET[asset.id];
-  if (!ticker) return [];
-  return taxLots.filter(lot => lot.ticker.toUpperCase() === ticker && lot.shares > 0 && lot.totalCurrentValue > 0);
+function gainShare(pot: Pot): number {
+  return pot.value > 0 ? Math.max(0, (pot.value - pot.basis) / pot.value) : 0;
 }
 
-function gainShare(asset: AssetAccount): number {
-  return asset.currentValue > 0 ? Math.max(0, (asset.currentValue - asset.costBasis) / asset.currentValue) : 0;
-}
-
-function sellAccount(asset: AssetAccount, netTarget: number, rate: number): WithdrawalLine {
-  const taxPerDollar = gainShare(asset) * rate;
-  const gross = Math.min(asset.currentValue, netTarget / (1 - taxPerDollar));
-  const tax = gross * taxPerDollar;
-  return {
-    assetId: asset.id,
-    name: asset.name,
-    kind: 'taxable',
-    gross: round2(gross),
-    tax: round2(tax),
-    net: round2(gross - tax),
-    lots: [],
-    reason: `Taxable: about ${pct(gainShare(asset))} of each sale is gain, taxed at the long-term rate.`
+// One month's withdrawals, cheapest in tax first: cash above the emergency floor, taxable investments with the least
+// gain, Roth contributions, pre-tax accounts (penalty before 59½), and the emergency cash itself only as a last
+// resort. Changes the pots; returns what is still missing.
+function drawMonth(pots: Pot[], need: number, floor: number, age: number, config: WithdrawalConfig, draws: RawDraw[]): number {
+  let remaining = need;
+  const add = (pot: Pot, gross: number, tax: number): void => {
+    if (gross <= CENT) return;
+    pot.value -= gross;
+    remaining -= gross - tax;
+    const seen = draws.find(draw => draw.pot === pot);
+    if (seen) {
+      seen.gross += gross;
+      seen.tax += tax;
+    } else {
+      draws.push({ pot, gross, tax });
+    }
   };
-}
+  const ofKind = (kind: AccountKind): Pot[] => pots.filter(pot => pot.kind === kind && pot.value > CENT);
 
-// Losses first (they cancel gains), then the lots whose sale costs the least tax per dollar: long-term lots with the
-// most cost basis come before short-term ones. A loss is never counted on to pay for anything.
-function sellLots(asset: AssetAccount, lots: TaxLot[], netTarget: number, config: WithdrawalConfig): WithdrawalLine {
-  const rateFor = (lot: TaxLot): number => (lot.term === 'Long Term' ? config.longTermGainsRate : config.ordinaryIncomeRate);
-  const taxShare = (lot: TaxLot): number => (lot.unrealizedGainLoss * rateFor(lot)) / lot.totalCurrentValue;
-  const ordered = [...lots].sort((a, b) => taxShare(a) - taxShare(b));
-  const sales: LotSale[] = [];
-  let remaining = netTarget;
-  let gross = 0;
-  let tax = 0;
-  for (const lot of ordered) {
-    if (remaining <= 0.005) break;
-    const lotTax = lot.unrealizedGainLoss * rateFor(lot);
-    const lotNet = lot.totalCurrentValue - Math.max(0, lotTax);
-    const part = Math.min(1, remaining / lotNet);
-    gross += lot.totalCurrentValue * part;
-    tax += lotTax * part;
-    remaining -= lotNet * part;
-    sales.push({
-      lotId: lot.id,
-      ticker: lot.ticker,
-      acquisitionDate: lot.acquisitionDate,
-      term: lot.term,
-      shares: Math.round(lot.shares * part * 10000) / 10000,
-      proceeds: round2(lot.totalCurrentValue * part),
-      gain: round2(lot.unrealizedGainLoss * part)
-    });
-  }
-  const owed = Math.max(0, tax);
-  return {
-    assetId: asset.id,
-    name: asset.name,
-    kind: 'taxable',
-    gross: round2(gross),
-    tax: round2(owed),
-    net: round2(gross - owed),
-    lots: sales,
-    reason: `Taxable: sells ${sales.length} lot${sales.length === 1 ? '' : 's'}, losses first, then the lots that cost the least tax.`
-  };
-}
-
-export function buildWithdrawalPlan(input: WithdrawalInputs): WithdrawalPlan {
-  const { config } = input;
-  const netNeeded = round2(Math.max(0, input.monthlyNeed) * Math.max(0, config.monthsToFund));
-  const cashFloor = round2(Math.max(0, input.essentialMonthly) * Math.max(0, config.cashFloorMonths));
-  const usable = input.assets.filter(a => a.status === 'Active' && a.currentValue > 0 && !config.excludedAssetIds.includes(a.id));
-  const ofKind = (kind: AccountKind): AssetAccount[] => usable.filter(a => classifyAccount(a) === kind);
-  const lines: WithdrawalLine[] = [];
-  let remaining = netNeeded;
-  const take = (line: WithdrawalLine): void => {
-    if (line.net <= 0.005) return;
-    lines.push(line);
-    remaining = round2(remaining - line.net);
-  };
-
-  // Cash above the emergency floor, lowest-yield account first.
-  const cash = ofKind('cash').sort((a, b) => a.annualReturn - b.annualReturn);
-  let spare = Math.max(0, sum(cash.map(a => a.currentValue)) - cashFloor);
-  for (const asset of cash) {
-    if (remaining <= 0 || spare <= 0) break;
-    const amount = round2(Math.min(remaining, spare, asset.currentValue));
+  const cash = ofKind('cash').sort((a, b) => a.monthlyRate - b.monthlyRate);
+  let spare = Math.max(0, sum(cash.map(pot => pot.value)) - floor);
+  for (const pot of cash) {
+    if (remaining <= CENT || spare <= CENT) break;
+    const amount = Math.min(remaining, spare, pot.value);
     spare -= amount;
-    take({ assetId: asset.id, name: asset.name, kind: 'cash', gross: amount, tax: 0, net: amount, lots: [], reason: 'Cash above the emergency floor: no tax.' });
+    add(pot, amount, 0);
   }
 
-  // Taxable investments, the cheapest in tax first.
-  for (const asset of ofKind('taxable').sort((a, b) => gainShare(a) - gainShare(b))) {
-    if (remaining <= 0) break;
-    const lots = lotsFor(asset, input.taxLots);
-    take(lots.length ? sellLots(asset, lots, remaining, config) : sellAccount(asset, remaining, config.longTermGainsRate));
+  for (const pot of ofKind('taxable').sort((a, b) => gainShare(a) - gainShare(b))) {
+    if (remaining <= CENT) break;
+    const taxPerDollar = gainShare(pot) * config.longTermGainsRate;
+    const gross = Math.min(pot.value, remaining / (1 - taxPerDollar));
+    pot.basis *= 1 - gross / pot.value;
+    add(pot, gross, gross * taxPerDollar);
   }
 
-  // Roth contributions (the account's cost basis) come out free of tax and penalty.
-  for (const asset of ofKind('roth')) {
-    if (remaining <= 0) break;
-    const amount = round2(Math.min(remaining, asset.currentValue, Math.max(0, asset.costBasis)));
-    take({ assetId: asset.id, name: asset.name, kind: 'roth', gross: amount, tax: 0, net: amount, lots: [], reason: 'Roth contributions: no tax or penalty; earnings stay invested.' });
+  for (const pot of ofKind('roth')) {
+    if (remaining <= CENT) break;
+    const amount = Math.min(remaining, pot.value, Math.max(0, pot.basis));
+    pot.basis -= amount;
+    add(pot, amount, 0);
   }
 
-  // Pre-tax accounts last: ordinary income tax, plus the early-withdrawal penalty before 59½.
-  const early = input.age < 59.5;
-  const cost = config.ordinaryIncomeRate + (early ? config.earlyWithdrawalPenalty : 0);
+  const cost = config.ordinaryIncomeRate + (age < 59.5 ? config.earlyWithdrawalPenalty : 0);
   if (cost < 0.95) {
-    for (const asset of ofKind('pre_tax').sort((a, b) => a.currentValue - b.currentValue)) {
-      if (remaining <= 0) break;
-      const gross = Math.min(asset.currentValue, remaining / (1 - cost));
-      take({
-        assetId: asset.id,
-        name: asset.name,
-        kind: 'pre_tax',
-        gross: round2(gross),
-        tax: round2(gross * cost),
-        net: round2(gross * (1 - cost)),
-        lots: [],
-        reason: early
-          ? `Last resort before 59½: income tax plus the ${pct(config.earlyWithdrawalPenalty)} early-withdrawal penalty.`
-          : 'Pre-tax: taxed as ordinary income.'
-      });
+    for (const pot of ofKind('pre_tax').sort((a, b) => a.value - b.value)) {
+      if (remaining <= CENT) break;
+      const gross = Math.min(pot.value, remaining / (1 - cost));
+      add(pot, gross, gross * cost);
     }
   }
 
-  const shortfall = round2(Math.max(0, remaining));
-  const notes = [`Keeps ${money(cashFloor)} in cash as the emergency floor (${config.cashFloorMonths} months of essential spending).`];
-  const hsa = ofKind('hsa');
-  if (hsa.length) notes.push(`${hsa.map(a => a.name).join(', ')}: kept for medical bills, which it pays tax-free.`);
-  const illiquid = input.assets.filter(a => a.status === 'Active' && classifyAccount(a) === 'illiquid');
-  if (illiquid.length) notes.push(`Not counted, as they cannot be sold on demand: ${illiquid.map(a => a.name).join(', ')}.`);
-  if (lines.some(l => l.kind === 'taxable' && l.tax > 0)) {
-    notes.push('Realized gains raise MAGI, which can lower Covered California premium help: check the Healthcare page before selling.');
+  for (const pot of ofKind('cash').sort((a, b) => a.monthlyRate - b.monthlyRate)) {
+    if (remaining <= CENT) break;
+    add(pot, Math.min(remaining, pot.value), 0);
   }
-  if (early && lines.some(l => l.kind === 'pre_tax')) {
-    notes.push('Before 59½, a 72(t) payment plan or a Roth conversion ladder can avoid the penalty: worth asking the CPA.');
+  return remaining;
+}
+
+function groupByYear(months: ScheduleMonth[]): ScheduleYear[] {
+  const years: ScheduleYear[] = [];
+  for (const month of months) {
+    const year = Number(month.month.slice(0, 4));
+    let row = years[years.length - 1];
+    if (!row || row.year !== year) {
+      row = { year, age: month.age, gross: 0, tax: 0, net: 0, socialSecurity: 0, shortfall: 0, liquidEnd: 0, accounts: [], months: [] };
+      years.push(row);
+    }
+    row.months.push(month);
+    row.gross += month.gross;
+    row.tax += month.tax;
+    row.net += month.net;
+    row.socialSecurity += month.socialSecurity;
+    row.shortfall += month.shortfall;
+    row.liquidEnd = month.liquidEnd;
+    for (const draw of month.draws) {
+      if (!row.accounts.includes(draw.name)) row.accounts.push(draw.name);
+    }
   }
-  if (shortfall > 0) notes.push(`The usable accounts cannot cover the full amount: ${money(shortfall)} short.`);
+  return years.map(row => ({
+    ...row,
+    gross: round2(row.gross),
+    tax: round2(row.tax),
+    net: round2(row.net),
+    socialSecurity: round2(row.socialSecurity),
+    shortfall: round2(row.shortfall)
+  }));
+}
+
+// Month 0 is the current month. Before startMonth each account gets its monthly contribution from Assets; from
+// startMonth on, spending (in today's dollars, grown with inflation) less Social Security is withdrawn. Every account
+// grows at its own return from Assets. The schedule runs until the month Linda reaches endAge.
+export function buildMonthlySchedule(input: ScheduleInputs): WithdrawalSchedule {
+  const { config } = input;
+  const pots: Pot[] = input.assets
+    .filter(asset => asset.status === 'Active' && !config.excludedAssetIds.includes(asset.id))
+    .map(asset => ({
+      asset,
+      kind: classifyAccount(asset),
+      value: Math.max(0, asset.currentValue),
+      basis: Math.max(0, asset.costBasis),
+      monthlyRate: (asset.annualReturn || 0) / 12
+    }))
+    .filter(pot => DRAWABLE.includes(pot.kind));
+  const months: ScheduleMonth[] = [];
+  const first = new Date(input.today.getFullYear(), input.today.getMonth(), 1);
+  for (let t = 0; t < 1200; t++) {
+    const date = new Date(first.getFullYear(), first.getMonth() + t, 1);
+    const age = ageFromDob(input.dob, date);
+    if (age >= config.endAge) break;
+    const month = monthKey(date);
+    const withdrawing = month >= config.startMonth;
+    const inflation = Math.pow(1 + input.inflationRate, t / 12);
+    const raw: RawDraw[] = [];
+    let need = 0;
+    let socialSecurity = 0;
+    let shortfall = 0;
+    if (withdrawing) {
+      socialSecurity = age >= config.socialSecurityAge ? config.socialSecurityMonthly * inflation : 0;
+      need = Math.max(0, input.monthlyExpenses * inflation - socialSecurity);
+      const floor = input.essentialMonthly * inflation * config.cashFloorMonths;
+      shortfall = Math.max(0, drawMonth(pots, need, floor, age, config, raw));
+    } else {
+      for (const pot of pots) {
+        pot.value += pot.asset.monthlyContribution || 0;
+        pot.basis += pot.asset.monthlyContribution || 0;
+      }
+    }
+    for (const pot of pots) pot.value *= 1 + pot.monthlyRate;
+    const draws: MonthDraw[] = raw.map(draw => ({
+      assetId: draw.pot.asset.id,
+      name: draw.pot.asset.name,
+      kind: draw.pot.kind,
+      gross: round2(draw.gross),
+      tax: round2(draw.tax),
+      net: round2(draw.gross - draw.tax)
+    }));
+    months.push({
+      month,
+      age,
+      withdrawing,
+      need: round2(need),
+      socialSecurity: round2(socialSecurity),
+      draws,
+      gross: round2(sum(raw.map(draw => draw.gross))),
+      tax: round2(sum(raw.map(draw => draw.tax))),
+      net: round2(sum(raw.map(draw => draw.gross - draw.tax))),
+      shortfall: round2(shortfall),
+      liquidEnd: round2(sum(pots.map(pot => pot.value)))
+    });
+  }
+  const short = months.find(month => month.shortfall > 0.5);
   return {
-    netNeeded,
-    cashFloor,
-    lines,
-    totalGross: round2(sum(lines.map(l => l.gross))),
-    totalTax: round2(sum(lines.map(l => l.tax))),
-    totalNet: round2(sum(lines.map(l => l.net))),
-    shortfall,
-    notes
+    months,
+    years: groupByYear(months),
+    totalGross: round2(sum(months.map(month => month.gross))),
+    totalTax: round2(sum(months.map(month => month.tax))),
+    totalNet: round2(sum(months.map(month => month.net))),
+    totalShortfall: round2(sum(months.map(month => month.shortfall))),
+    firstShortfallMonth: short ? short.month : null,
+    firstWithdrawal: months.find(month => month.withdrawing && month.gross > 0) ?? null
   };
 }
